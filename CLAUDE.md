@@ -18,6 +18,23 @@ Führe nach jeder abgeschlossenen Aufgabe diese Schritte in genau dieser Reihenf
 
 Gib mir danach eine kurze Rückmeldung, dass Commit, Doku-Eintrag und Push erledigt sind.
 
+## Arbeiten mit dem Plan-Modus
+Größere Aufgaben werden zuerst im Plan-Modus geplant und erst nach meiner Freigabe umgesetzt.
+Sobald ich einen Plan freigebe, gilt dieser Ablauf, bevor Code geschrieben wird:
+
+1. Den vollständigen freigegebenen Plan als eigene Datei unter
+   `docs/plaene/JJJJ-MM-TT_<kurztitel>.md` speichern (Datum per `date`-Befehl).
+2. Im Entwicklungsprotokoll einen Planungseintrag anlegen, dessen Titel mit „Planung:“ beginnt.
+   Inhalt: Auslöser, Ausgangsidee, deine Rückfragen und meine Antworten in Kurzform,
+   Kurzfassung des Plans, Link zur Plandatei, verworfene Ideen und Alternativen.
+3. Alle in der Planung getroffenen Entscheidungen in Abschnitt 3 „Wichtige Entscheidungen“ eintragen.
+4. Plandatei und Doku committen (Nachricht: „Doku: Planung zu <Kurztitel>“) und pushen.
+5. Erst danach mit der Umsetzung beginnen.
+
+Nach der Umsetzung folgt der normale Protokolleintrag. Er enthält zusätzlich
+„Bezug zur Planung“ (Datum und Titel des Planungseintrags) und „Abweichungen vom Plan“
+(was anders als geplant umgesetzt wurde und warum, oder: keine).
+
 ## Dokumentation
 - Die Dokumentation steht in der Datei `DOKUMENTATION.md` im Projektstammordner.
 - Neue Einträge werden immer unten im Abschnitt "4. Entwicklungsprotokoll" angehängt,
