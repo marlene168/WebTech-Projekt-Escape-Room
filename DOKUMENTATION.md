@@ -13,14 +13,16 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten (dort stehen bereits die Hinweise auf den Code); ein Zurück-Knopf zoomt wieder heraus. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
+- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
-  - `public/js/` – `main.js` (Einstieg), `anzeige.js` (zeichnet Szenen, Objekte, Textfenster)
-  - `shared/raeume/` – Raumdaten, ein Raum pro Datei (Spiellogik folgt in Schritt 5)
+  - `public/js/` – `main.js` (Einstieg), `anzeige.js` (zeichnet Szenen, Objekte, Textfenster, Notizbuch), `verbindung-lokal.js` (führt die Spiellogik im Browser aus; später durch eine Online-Verbindung ersetzbar)
+  - `shared/spiel-logik.js` – Spielregeln als reine Funktionen (Spielstand + Aktion → neuer Spielstand)
+  - `shared/raeume/` – Raumdaten, ein Raum pro Datei
+  - `test/` – Tests der Spiellogik (`node:test`)
   - `docs/plaene/` – freigegebene Pläne
-- **Wichtigste Dateien:** `server.js`, `public/index.html`, `public/css/style.css`, `public/js/anzeige.js`, `shared/raeume/arbeitszimmer.js`, `package.json`
+- **Wichtigste Dateien:** `server.js`, `public/index.html`, `public/css/style.css`, `public/js/anzeige.js`, `public/js/main.js`, `shared/spiel-logik.js`, `shared/raeume/arbeitszimmer.js`, `package.json`
 - **Grafik austauschen:** In `shared/raeume/arbeitszimmer.js` beim Objekt `bild` (bzw. bei der Szene `hintergrund`) den Pfad zur Datei eintragen, z. B. `"bilder/arbeitszimmer/schreibtisch.png"`, und die Datei unter `public/bilder/arbeitszimmer/` ablegen.
 
 ## 3. Wichtige Entscheidungen
@@ -172,3 +174,27 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
 - **Abweichungen vom Plan:** Zusätzlich gibt es pro Szene das Feld `platzhalter` für eigene Platzhalter-Hintergründe, damit die Detailansichten schon ohne Grafiken unterscheidbar sind. Hinzu kommt die Rücksicht auf „Bewegung reduzieren“. Die Hinweise stehen vorerst als normale Texte in den Objekten; das Sammeln im Notizbuch folgt wie geplant in Schritt 5.
 - **Git-Commit:** `4ed7327`
+
+### 2026-10-04, 02:45 – Schritt 5: Spiellogik, Spuren und Notizbuch
+- **Auslöser:** Anweisung des Nutzers: „Schritt 5 gerne“ (Schritt 5 des freigegebenen Plans).
+- **Durchgeführte Schritte:**
+  - Raumdaten: Fünf Objekte in den Detailansichten haben jetzt die Aktion `{ typ: "findeSpur", spur: … }`: Papierstapel, Kalender, Notiz, blauer Zettel und Rahmenecke. Dazu kommt eine Liste `spuren` mit Titel und Notizbuch-Text je Spur.
+  - `shared/spiel-logik.js` angelegt mit `erstelleSpielstand()`, `verarbeiteAktion()` und `findeObjekt()`. Die Aktion `untersuche` trägt die Spur eines Objekts ein, jede höchstens einmal. Der Spielstand wird nie verändert, sondern neu erzeugt. Ändert sich nichts, kommt derselbe Spielstand zurück.
+  - `public/js/verbindung-lokal.js` angelegt mit `sendeAktion()` und `beiAenderung()`. Das ist die Schnittstelle, die später eine Online-Verbindung mit denselben Funktionen ersetzen kann.
+  - `main.js` schickt beim Klick auf ein Objekt nur noch die Aktion `untersuche`. Ob das Objekt eine Spur liefert, entscheidet die Logik. Das verhindert später im Mehrspieler-Modus, dass ein Browser Spuren „erfindet“.
+  - `anzeige.js`: Notizbuch (Dialog mit Liste der gefundenen Spuren in Fundreihenfolge), Zähler am Notizbuch-Knopf, Häkchen an Objekten mit gefundener Spur, Meldung „Neue Spur im Notizbuch notiert“ im Textfenster und kurzes Aufleuchten des Notizbuch-Knopfs.
+  - `test/spiel-logik.test.js` mit 8 Tests angelegt, Skript `npm test` in `package.json`. Alle 8 Tests bestehen.
+  - Sichtprüfung per Screenshot: leeres Notizbuch, Fund mit Meldung, Häkchen nach zwei Funden, Notizbuch mit drei Spuren, Handy quer.
+  - Abschnitt 2 aktualisiert.
+- **Geänderte/neue Dateien:** `shared/spiel-logik.js`, `shared/raeume/arbeitszimmer.js`, `public/js/verbindung-lokal.js`, `public/js/anzeige.js`, `public/js/main.js`, `public/index.html`, `public/css/style.css`, `test/spiel-logik.test.js`, `package.json`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:**
+  - Python ließ sich für eine Dateiänderung nicht nutzen (Xcode-Lizenz unter macOS nicht bestätigt) → Änderungen direkt mit dem Editor-Werkzeug vorgenommen.
+  - Die Schrift Georgia zeigt Ziffern im Mediävalstil, die „0“ im Zähler sah wie ein „o“ aus. `font-variant-numeric: lining-nums` wirkte bei Georgia nicht → Zähler in der Systemschrift. Das ist auch für die spätere Timer-Anzeige zu beachten.
+- **Ergebnis:** Gefundene Spuren landen im Notizbuch, der Zähler zählt mit, und bereits gefundene Objekte sind markiert. Die Spiellogik ist von der Anzeige getrennt und getestet. In keiner Ansicht gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
+- **Abweichungen vom Plan:**
+  - Zusätzlich gibt es den Papierstapel mit der Spur „Folgt den Farben“ als Hinweis, dass die Farben wichtig sind.
+  - Die Aktion `findeSpur` steht in den Raumdaten. Die Anzeige schickt aber immer `untersuche`, und die Logik wertet `findeSpur` aus (wie im Plan unter Architektur beschrieben).
+  - Die Funktion `restzeit()` kommt erst mit dem Timer in Schritt 7.
+- **Git-Commit:** `7fc35c6`
