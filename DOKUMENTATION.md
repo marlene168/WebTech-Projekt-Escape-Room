@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
+- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Die Tür öffnet ein Zahlenschloss mit drei Ziffernrädern: Ein falscher Code lässt die Rädchen wackeln, der richtige (417) zeigt den Gewinn-Bildschirm mit „Nochmal spielen“. Das Spiel ist damit von Anfang bis Ende lösbar. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
@@ -198,3 +198,24 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Die Aktion `findeSpur` steht in den Raumdaten. Die Anzeige schickt aber immer `untersuche`, und die Logik wertet `findeSpur` aus (wie im Plan unter Architektur beschrieben).
   - Die Funktion `restzeit()` kommt erst mit dem Timer in Schritt 7.
 - **Git-Commit:** `7fc35c6`
+
+### 2026-10-04, 02:53 – Schritt 6: Zahlenschloss
+- **Auslöser:** Anweisung des Nutzers: „Schritt 6 gerne“ (Schritt 6 des freigegebenen Plans).
+- **Durchgeführte Schritte:**
+  - Raumdaten: Die Tür hat jetzt die Aktion `{ typ: "schloss", schloss: "tuer" }`. Neu sind die Liste `schloesser` (Name, Text, Code „417“) und das Feld `ausgang`, das festlegt, welches Schloss den Raum löst.
+  - Spiellogik: Der Spielstand hat neu `status` („laeuft“/„gewonnen“), `geoeffneteSchloesser` und `fehlversuche`. Die neue Aktion `probiereCode` zählt bei falschem Code einen Fehlversuch. Bei richtigem Code wird das Schloss geöffnet; ist es der Ausgang, ist das Spiel gewonnen. Nach dem Spielende ändern Aktionen nichts mehr.
+  - 6 neue Tests (insgesamt 14, alle bestanden).
+  - Anzeige: Schloss-Fenster mit Messing-Rädchen (▲/▼, Anzahl passend zur Code-Länge), Knopf „Öffnen“, Meldung „Das Schloss rührt sich nicht.“ und Wackel-Animation bei einem Fehlversuch. Dazu ein Gewinn-Bildschirm, der sich nicht mit Esc schließen lässt; „Nochmal spielen“ lädt die Seite neu.
+  - Sichtprüfung per Screenshot: Schloss-Fenster, falscher Code, richtiger Code mit Gewinn-Bildschirm, Klick auf den Innenrand, Handy quer.
+  - Abschnitt 2 aktualisiert.
+- **Geänderte/neue Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/spiel-logik.js`, `test/spiel-logik.test.js`, `public/js/anzeige.js`, `public/js/main.js`, `public/index.html`, `public/css/style.css`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:**
+  - Fehler aus Schritt 3 entdeckt: Ein Klick auf den Innenrand eines Fensters zählt im Browser als Klick auf das Fenster selbst und schloss es ungewollt. Beim Schloss wäre das beim Bedienen der Rädchen störend gewesen → zusätzlich wird geprüft, ob die Klickposition wirklich außerhalb des Fensters liegt. Per Test-Klick bestätigt.
+  - Laut Screenshot übernahm der „Öffnen“-Knopf die braune Schrift der Pergament-Fenster. Außerdem zeigte Menlo eine „0“ mit Punkt, was nicht zu einem alten Messingschloss passt → eigene Knopf-Regel; Ziffern in der Systemschrift.
+- **Ergebnis:** Das Spiel ist von Anfang bis Ende lösbar: Spuren finden, Code 417 einstellen, Gewinn-Bildschirm. In keiner Ansicht gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
+- **Abweichungen vom Plan:**
+  - „Nochmal spielen“ lädt vorerst einfach die Seite neu. Ein richtiger Neustart über die Spiellogik folgt mit dem Timer in Schritt 7.
+  - Bekannte Einschränkung für später: Der Code steht in den Raumdaten, die der Browser lädt, und wäre damit für technisch Versierte auslesbar. Für die Einzelspieler-Version ist das unkritisch. Im Mehrspieler-Modus sollte der Server die Codes vor dem Ausliefern entfernen.
+- **Git-Commit:** `cfb6d5c`
