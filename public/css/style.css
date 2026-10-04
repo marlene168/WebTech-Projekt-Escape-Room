@@ -593,3 +593,122 @@ body {
   font-size: 0.9rem;
   color: var(--farbe-akzent);
 }
+
+/* ---------- Kopfleiste: Link zurück zur Raumauswahl ---------- */
+.kopfleiste-links {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.raumtitel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Links, die wie Knöpfe aussehen */
+a.knopf {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* ---------- Startseite ---------- */
+body.startseite {
+  display: block;
+  min-height: 100%;
+  height: auto;
+  padding: 0 1rem 3rem;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(201, 163, 91, 0.12), transparent 60%),
+    var(--farbe-seite);
+}
+
+.start-kopf {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 3rem 0 2rem;
+  text-align: center;
+}
+
+.start-titel {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 3.5rem);
+  font-weight: normal;
+  letter-spacing: 0.08em;
+  color: var(--farbe-akzent);
+}
+
+.start-untertitel {
+  margin: 0.6rem 0 0;
+  font-style: italic;
+}
+
+.raum-liste {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 60rem;
+  margin: 0 auto;
+}
+
+.raum-karte {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  overflow: hidden;
+  border: 1px solid #3a2e24;
+  border-radius: 8px;
+  background: var(--farbe-leiste);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.raum-vorschau {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 9;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  font-size: 3rem;
+}
+
+.raum-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 1.4rem 1.6rem;
+}
+
+.raum-info h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: normal;
+  color: var(--farbe-akzent);
+}
+
+.raum-eckdaten,
+.raum-beschreibung {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.raum-eckdaten {
+  font-size: 0.95rem;
+}
+
+.sterne {
+  color: var(--farbe-akzent);
+  letter-spacing: 0.1em;
+}
+
+.raum-info .knopf {
+  margin-top: auto;
+}
+
+/* Schmale Bildschirme: Bild über dem Text */
+@media (max-width: 640px) {
+  .raum-karte {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Escape Room</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <header class="kopfleiste">
+    <div class="kopfleiste-links">
+      <a class="knopf zurueck-link" href="./" title="Zur Raumauswahl">← Räume</a>
+      <h1 class="raumtitel">Escape Room</h1>
+    </div>
+    <div class="kopfleiste-knoepfe">
+      <div class="timer" title="Verbleibende Zeit">⏳ <span class="timer-zeit">--:--</span></div>
+      <button class="knopf hilfe-knopf">💡 Hilfe</button>
+      <button class="knopf notizbuch-knopf">📓 Notizbuch <span class="zaehler">0</span></button>
+    </div>
+  </header>
+
+  <main class="buehnen-bereich">
+    <!-- Die Bühne hat immer das Seitenverhältnis 16:9. Alles darin wird in Prozent positioniert. -->
+    <div class="buehne">
+      <!-- Die aktuelle Szene. Sie wird beim Wechsel in Detailansichten gezoomt. -->
+      <div class="szene">
+        <!-- Hintergrund der Szene (Wände und Boden, nicht klickbar) -->
+        <div class="szene-hintergrund"></div>
+        <!-- Die Objekte werden von js/anzeige.js hier eingefügt -->
+      </div>
+      <!-- Liegt außerhalb der Szene, damit er beim Zoomen stehen bleibt -->
+      <button class="knopf zurueck-knopf" hidden>← Zurück</button>
+    </div>
+  </main>
+
+  <!-- Textfenster für Beschreibungen von Objekten -->
+  <dialog class="textfenster beschreibung">
+    <h2 class="textfenster-titel"></h2>
+    <p class="textfenster-text"></p>
+    <p class="textfenster-hinweis" hidden>📓 Neue Spur im Notizbuch notiert.</p>
+    <form method="dialog">
+      <button class="knopf">Schließen</button>
+    </form>
+  </dialog>
+
+  <!-- Notizbuch mit allen gefundenen Spuren -->
+  <dialog class="textfenster notizbuch">
+    <h2 class="textfenster-titel">Notizbuch</h2>
+    <p class="notizbuch-leer">Noch keine Spuren gefunden. Sieh dich im Raum genau um!</p>
+    <ul class="notizbuch-liste"></ul>
+    <form method="dialog">
+      <button class="knopf">Schließen</button>
+    </form>
+  </dialog>
+
+  <!-- Zahlenschloss: Rädchen werden von js/anzeige.js passend zur Code-Länge angelegt -->
+  <dialog class="textfenster schloss-fenster">
+    <h2 class="textfenster-titel"></h2>
+    <p class="textfenster-text"></p>
+    <div class="schloss-raeder"></div>
+    <p class="schloss-meldung" aria-live="polite"></p>
+    <div class="fenster-knoepfe">
+      <form method="dialog">
+        <button class="knopf">Schließen</button>
+      </form>
+      <button class="knopf knopf-haupt schloss-oeffnen">Öffnen</button>
+    </div>
+  </dialog>
+
+  <!-- Hilfe: bereits erhaltene Tipps und Knopf für den nächsten Tipp -->
+  <dialog class="textfenster hilfe">
+    <h2 class="textfenster-titel">Hilfe</h2>
+    <p class="hilfe-info"></p>
+    <ol class="hilfe-liste"></ol>
+    <div class="fenster-knoepfe">
+      <form method="dialog">
+        <button class="knopf">Schließen</button>
+      </form>
+      <button class="knopf knopf-haupt hilfe-anfordern"></button>
+    </div>
+  </dialog>
+
+  <!-- Spielende (gewonnen oder Zeit abgelaufen) -->
+  <dialog class="ende-fenster">
+    <div class="ende-symbol"></div>
+    <h2 class="ende-titel"></h2>
+    <p class="ende-text"></p>
+    <p class="ende-statistik"></p>
+    <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
+  </dialog>
+
+  <!-- Erscheint nur auf Handys im Hochformat (siehe style.css) -->
+  <div class="dreh-hinweis">
+    <span class="dreh-hinweis-symbol">📱↻</span>
+    <p>Bitte halte dein Gerät quer, um zu spielen.</p>
+  </div>
+</body>
+</html>

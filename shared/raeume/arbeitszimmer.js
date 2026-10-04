@@ -16,6 +16,10 @@
 export default {
   id: "arbeitszimmer",
   titel: "Das Arbeitszimmer des Professors",
+  schwierigkeit: 1, // 1 = leicht, 2 = mittel, 3 = schwer (siehe shared/raeume/index.js)
+  kurzbeschreibung:
+    "Professor Albers ist seit drei Tagen verschwunden. In seinem Arbeitszimmer fällt die Tür hinter dir ins Schloss – finde den Code, bevor der Hausmeister kommt.",
+  vorschaubild: null, // Bild für die Raumkarte auf der Startseite, z. B. "bilder/arbeitszimmer/vorschau.jpg"
   dauerSekunden: 600, // 10 Minuten
   strafeProTippSekunden: 60, // so viel Zeit kostet jeder Tipp
   startSzene: "raum",
