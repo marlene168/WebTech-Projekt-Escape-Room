@@ -9,7 +9,7 @@
 - **Rahmen:** Seminar-/Projektarbeit, Web Technologie 
 - **Zeitraum:** Start 03.10.2026 – laufend
 - **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`; später Socket.IO für den Mehrspieler-Modus (geplant)
-- **Werkzeuge:** VS Code, Claude Code, Git, GitHub, Node.js/npm
+- **Werkzeuge:** VS Code, Claude Code, Git, GitHub, Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
@@ -122,3 +122,14 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** `a0ca820`
+
+### 2026-10-04, 02:23 – Sichtprüfung per Screenshot eingeführt
+- **Auslöser:** Anweisung des Nutzers: „Chrome ist jetzt installiert, prüfe das Aussehen künftig bitte selbst per Screenshot.“
+- **Durchgeführte Schritte:** Server auf einem Testport gestartet. Mit Google Chrome im Headless-Modus wurden Screenshots von Schritt 2 in Desktop-Größe (1280×800) und Handy-Größe hochkant (390×844) aufgenommen und ausgewertet. Die Arbeitsweise wurde als dauerhafte Vorgabe für Claude gespeichert. Chrome ist in Abschnitt 1 unter „Werkzeuge“ ergänzt.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Google Chrome (headless), Node.js
+- **Probleme & Lösungen:** Die Prüfung ergab: Auf dem Desktop füllt die Bühne die Breite wie geplant. Auf einem Handy im Hochformat ist die 16:9-Bühne nur ein schmaler Streifen und zum Spielen zu klein → als offener Punkt an die Nutzerin gemeldet, noch nicht geändert.
+- **Ergebnis:** Ab jetzt prüft Claude das Aussehen nach jeder sichtbaren Änderung selbst per Screenshot (Desktop und Handy).
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
