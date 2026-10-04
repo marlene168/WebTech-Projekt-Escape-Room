@@ -1,11 +1,15 @@
-// Einstiegspunkt: lädt den Raum und verbindet Daten und Anzeige.
+// Einstiegspunkt: lädt den Raum und verbindet Anzeige und Spiel.
 import raum from "/shared/raeume/arbeitszimmer.js";
+import { erstelleLokaleVerbindung } from "./verbindung-lokal.js";
 import {
-  zeichneSzene, zoomeHinein, zoomeHeraus, zeigeText, zeigeZurueckKnopf, beimZurueck,
+  zeichneSzene, zoomeHinein, zoomeHeraus, zeigeText, zeigeZurueckKnopf, beimZurueck, zeigeSpielstand,
 } from "./anzeige.js";
 
 document.title = `${raum.titel} – Escape Room`;
 document.querySelector(".raumtitel").textContent = raum.titel;
+
+// Über die Verbindung läuft alles, was den Spielstand betrifft (später: Server im Mehrspieler-Modus).
+const verbindung = erstelleLokaleVerbindung(raum);
 
 // Welche Szene gerade zu sehen ist, ist nur für dieses Gerät wichtig (nicht Teil des Spielstands).
 let aktuelleSzene = raum.startSzene;
@@ -21,6 +25,8 @@ function beiKlick(objekt) {
     zoomeHinein(raum.szenen[aktuelleSzene], mitte, beiKlick);
   } else {
     zeigeText(objekt.name, objekt.text);
+    // Ob das Objekt eine Spur liefert, entscheidet die Spiellogik
+    verbindung.sendeAktion({ typ: "untersuche", objekt: objekt.id });
   }
 }
 
@@ -33,3 +39,4 @@ beimZurueck(() => {
 });
 
 zeichneSzene(raum.szenen[aktuelleSzene], beiKlick);
+verbindung.beiAenderung((spielstand) => zeigeSpielstand(raum, spielstand));

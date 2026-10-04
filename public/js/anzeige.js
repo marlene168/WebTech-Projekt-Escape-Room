@@ -4,7 +4,12 @@
 const szeneElement = document.querySelector(".szene");
 const hintergrund = document.querySelector(".szene-hintergrund");
 const zurueckKnopf = document.querySelector(".zurueck-knopf");
-const textfenster = document.querySelector(".textfenster");
+const textfenster = document.querySelector(".beschreibung");
+const notizbuch = document.querySelector(".notizbuch");
+const notizbuchKnopf = document.querySelector(".notizbuch-knopf");
+
+// Die zuletzt angezeigten gefundenen Spuren (um neue zu erkennen und Objekte zu markieren)
+let gefundeneSpuren = [];
 
 // Wer in den Systemeinstellungen "Bewegung reduzieren" gewählt hat, bekommt keine Zoom-Animation.
 const ohneAnimation = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -29,7 +34,52 @@ export function zeichneSzene(szene, beiKlick) {
     element.addEventListener("click", () => beiKlick(objekt));
     szeneElement.append(element);
   }
+  markiereGefundene();
 }
+
+// Zeigt den aktuellen Spielstand an: Notizbuch, Zähler und Markierungen.
+export function zeigeSpielstand(raum, spielstand) {
+  const neue = spielstand.gefundeneSpuren.filter((spur) => !gefundeneSpuren.includes(spur));
+  gefundeneSpuren = spielstand.gefundeneSpuren;
+
+  markiereGefundene();
+  zeichneNotizbuch(raum);
+  if (neue.length > 0) meldeNeueSpur();
+}
+
+// Objekte, deren Spur schon gefunden wurde, bekommen ein Häkchen.
+function markiereGefundene() {
+  for (const element of szeneElement.querySelectorAll(".objekt[data-spur]")) {
+    element.classList.toggle("gefunden", gefundeneSpuren.includes(element.dataset.spur));
+  }
+}
+
+function zeichneNotizbuch(raum) {
+  const liste = notizbuch.querySelector(".notizbuch-liste");
+  liste.replaceChildren(
+    ...gefundeneSpuren.map((name) => {
+      const eintrag = document.createElement("li");
+      const titel = document.createElement("strong");
+      titel.textContent = raum.spuren[name].titel;
+      const text = document.createElement("span");
+      text.textContent = raum.spuren[name].text;
+      eintrag.append(titel, text);
+      return eintrag;
+    }),
+  );
+  notizbuch.querySelector(".notizbuch-leer").hidden = gefundeneSpuren.length > 0;
+  notizbuchKnopf.querySelector(".zaehler").textContent = gefundeneSpuren.length;
+}
+
+// Hinweis im offenen Textfenster und kurzes Aufleuchten des Notizbuch-Knopfs
+function meldeNeueSpur() {
+  if (textfenster.open) textfenster.querySelector(".textfenster-hinweis").hidden = false;
+  notizbuchKnopf.classList.remove("neu");
+  void notizbuchKnopf.offsetWidth; // erzwingt Neustart der Animation
+  notizbuchKnopf.classList.add("neu");
+}
+
+notizbuchKnopf.addEventListener("click", () => notizbuch.showModal());
 
 // Zoomt auf den Punkt "ursprung" ({ x, y } in Prozent) und zeigt danach die neue Szene.
 export async function zoomeHinein(szene, ursprung, beiKlick) {
@@ -88,6 +138,7 @@ function erstelleObjekt(objekt) {
   element.style.top = `${objekt.y}%`;
   element.style.width = `${objekt.breite}%`;
   element.style.height = `${objekt.hoehe}%`;
+  if (objekt.aktion?.typ === "findeSpur") element.dataset.spur = objekt.aktion.spur;
 
   if (objekt.bild) {
     const bild = document.createElement("img");
@@ -112,10 +163,13 @@ function zeigePlatzhalter(element, objekt) {
 export function zeigeText(titel, text) {
   textfenster.querySelector(".textfenster-titel").textContent = titel;
   textfenster.querySelector(".textfenster-text").textContent = text;
+  textfenster.querySelector(".textfenster-hinweis").hidden = true;
   textfenster.showModal();
 }
 
-// Klick neben das Textfenster schließt es ebenfalls
-textfenster.addEventListener("click", (ereignis) => {
-  if (ereignis.target === textfenster) textfenster.close();
-});
+// Klick neben ein Fenster schließt es ebenfalls
+for (const fenster of document.querySelectorAll("dialog.textfenster")) {
+  fenster.addEventListener("click", (ereignis) => {
+    if (ereignis.target === fenster) fenster.close();
+  });
+}

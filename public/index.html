@@ -10,6 +10,9 @@
 <body>
   <header class="kopfleiste">
     <h1 class="raumtitel">Escape Room</h1>
+    <div class="kopfleiste-knoepfe">
+      <button class="knopf notizbuch-knopf">📓 Notizbuch <span class="zaehler">0</span></button>
+    </div>
   </header>
 
   <main class="buehnen-bereich">
@@ -27,9 +30,20 @@
   </main>
 
   <!-- Textfenster für Beschreibungen von Objekten -->
-  <dialog class="textfenster">
+  <dialog class="textfenster beschreibung">
     <h2 class="textfenster-titel"></h2>
     <p class="textfenster-text"></p>
+    <p class="textfenster-hinweis" hidden>📓 Neue Spur im Notizbuch notiert.</p>
+    <form method="dialog">
+      <button class="knopf">Schließen</button>
+    </form>
+  </dialog>
+
+  <!-- Notizbuch mit allen gefundenen Spuren -->
+  <dialog class="textfenster notizbuch">
+    <h2 class="textfenster-titel">Notizbuch</h2>
+    <p class="notizbuch-leer">Noch keine Spuren gefunden. Sieh dich im Raum genau um!</p>
+    <ul class="notizbuch-liste"></ul>
     <form method="dialog">
       <button class="knopf">Schließen</button>
     </form>

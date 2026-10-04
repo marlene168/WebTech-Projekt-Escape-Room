@@ -36,6 +36,8 @@ body {
 .kopfleiste {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   height: var(--hoehe-leiste);
   padding: 0 1rem;
   background: var(--farbe-leiste);
@@ -265,4 +267,97 @@ body {
     font-size: 3.5rem;
     color: var(--farbe-akzent);
   }
+}
+
+/* ---------- Knöpfe in der Kopfleiste ---------- */
+.kopfleiste-knoepfe {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.kopfleiste .knopf {
+  padding: 0.3em 0.9em;
+  font-size: clamp(0.8rem, 1.6vw, 0.95rem);
+  white-space: nowrap;
+}
+
+.zaehler {
+  display: inline-block;
+  min-width: 1.5em;
+  margin-left: 0.3em;
+  padding: 0 0.4em;
+  border-radius: 1em;
+  background: var(--farbe-akzent);
+  color: var(--farbe-seite);
+  font-size: 0.85em;
+  font-family: system-ui, sans-serif; /* Georgia zeigt die 0 wie ein kleines o */
+  text-align: center;
+}
+
+/* Kurzes Aufleuchten, wenn eine neue Spur dazukommt */
+.notizbuch-knopf.neu {
+  animation: aufleuchten 1.2s ease-out;
+}
+
+@keyframes aufleuchten {
+  0%, 40% { box-shadow: 0 0 0 0 rgba(201, 163, 91, 0.9); background: rgba(201, 163, 91, 0.35); }
+  100% { box-shadow: 0 0 0 12px rgba(201, 163, 91, 0); background: transparent; }
+}
+
+/* ---------- Gefundene Spuren ---------- */
+/* Häkchen an Objekten, deren Spur schon im Notizbuch steht */
+.objekt.gefunden::after {
+  content: "✓";
+  position: absolute;
+  top: -0.8cqw;
+  right: -0.8cqw;
+  display: grid;
+  place-items: center;
+  width: 2.2cqw;
+  height: 2.2cqw;
+  min-width: 16px;
+  min-height: 16px;
+  border-radius: 50%;
+  background: var(--farbe-akzent);
+  color: var(--farbe-seite);
+  font-size: max(10px, 1.3cqw);
+  font-weight: bold;
+}
+
+.textfenster-hinweis {
+  margin: -0.4rem 0 1.2rem;
+  font-style: italic;
+  color: #3d6b35;
+}
+
+/* ---------- Notizbuch ---------- */
+.notizbuch {
+  width: min(30rem, 90vw);
+}
+
+.notizbuch-leer {
+  font-style: italic;
+}
+
+.notizbuch-liste {
+  margin: 0 0 1.2rem;
+  padding: 0;
+  list-style: none;
+}
+
+.notizbuch-liste li {
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 0;
+  border-bottom: 1px dashed #b9a17a;
+}
+
+.notizbuch-liste strong {
+  font-weight: normal;
+  font-size: 1.1rem;
+  color: #5a3d1e;
+}
+
+.notizbuch-liste span {
+  font-size: 0.9rem;
 }

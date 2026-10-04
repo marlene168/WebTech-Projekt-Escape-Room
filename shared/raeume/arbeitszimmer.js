@@ -10,6 +10,7 @@
 //
 // Objekte zeigen beim Klick ihren "text" – oder führen ihre "aktion" aus:
 //   { typ: "oeffneSzene", ziel: "<szene>" }  → in eine Detailansicht hineinzoomen
+//   { typ: "findeSpur", spur: "<spur>" }      → Text zeigen und die Spur ins Notizbuch eintragen
 
 export default {
   id: "arbeitszimmer",
@@ -76,6 +77,7 @@ export default {
           emoji: "📄",
           bild: null,
           x: 8, y: 18, breite: 32, hoehe: 46,
+          aktion: { typ: "findeSpur", spur: "brief" },
           text: "Berechnungen, Skizzen von Sternbildern und ein halb geschriebener Brief: „… sollte mir etwas zustoßen, folgt den Farben.“",
         },
         {
@@ -84,6 +86,7 @@ export default {
           emoji: "📅",
           bild: null,
           x: 56, y: 12, breite: 28, hoehe: 48,
+          aktion: { typ: "findeSpur", spur: "gruen" },
           text: "Ein Tischkalender, aufgeschlagen beim Oktober. Der 1. ist mit grüner Tinte dick eingekreist.",
         },
         {
@@ -116,6 +119,7 @@ export default {
           emoji: "📝",
           bild: null,
           x: 40, y: 20, breite: 24, hoehe: 34,
+          aktion: { typ: "findeSpur", spur: "reihenfolge" },
           text: "Eine Notiz in der Handschrift des Professors: „Rot – Grün – Blau“.",
         },
         {
@@ -124,6 +128,7 @@ export default {
           emoji: "🟦",
           bild: null,
           x: 70, y: 48, breite: 18, hoehe: 30,
+          aktion: { typ: "findeSpur", spur: "blau" },
           text: "Ein kleiner blauer Zettel. Darauf steht nur eine große 7.",
         },
       ],
@@ -148,9 +153,19 @@ export default {
           emoji: "🔍",
           bild: null,
           x: 68, y: 68, breite: 11, hoehe: 18,
+          aktion: { typ: "findeSpur", spur: "rot" },
           text: "In die untere rechte Ecke des Rahmens ist eine kleine rote 4 eingeritzt.",
         },
       ],
     },
+  },
+
+  // Spuren, die im Notizbuch landen (Schlüssel = Name der Spur, siehe "findeSpur" oben)
+  spuren: {
+    brief: { titel: "„Folgt den Farben“", text: "Aus einem halb geschriebenen Brief auf dem Schreibtisch." },
+    rot: { titel: "Rote 4", text: "In die Ecke des Bilderrahmens eingeritzt." },
+    gruen: { titel: "Grüne 1", text: "Im Kalender mit grüner Tinte eingekreist." },
+    blau: { titel: "Blaue 7", text: "Auf einem blauen Zettel an der Pinnwand." },
+    reihenfolge: { titel: "Rot – Grün – Blau", text: "Notiz des Professors an der Pinnwand. Eine Reihenfolge?" },
   },
 };
