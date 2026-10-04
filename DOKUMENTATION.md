@@ -13,18 +13,28 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Ein Node.js/Express-Server liefert die Seiten aus. Die Startseite zeigt die Räume als Karten (Schwierigkeit als Sterne, Dauer, Kurzbeschreibung); „Spielen“ öffnet die Spielseite `spiel.html?raum=<id>`, „← Räume“ führt zurück. Die Spielseite zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Die Tür öffnet ein Zahlenschloss mit drei Ziffernrädern: Ein falscher Code lässt die Rädchen wackeln, der richtige (417) zeigt den Gewinn-Bildschirm. Ein 10-Minuten-Countdown läuft in der Kopfleiste (in der letzten Minute rot); läuft er ab, erscheint „Zeit abgelaufen“. Über den Hilfe-Knopf gibt es drei gestufte Tipps (bis zur Lösung), jeder kostet 1 Minute; erhaltene Tipps sind kostenlos nachlesbar. Beide Spielende-Bildschirme zeigen eine kurze Statistik (Restzeit bzw. gefundene Spuren, genutzte Tipps) und haben „Nochmal spielen“, das alles auf Anfang setzt. Das Spiel ist damit von Anfang bis Ende spielbar und verlierbar. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
+_Stand: erste Version abgeschlossen (Einzelspieler, ein Raum, alle Grafiken, Videos und Töne noch als Platzhalter)._
+
+- **Funktionen:**
+  - **Startseite** mit Raumkarten: Titel, Schwierigkeit als Sterne, Dauer, Kurzbeschreibung, bei Räumen mit Schreckmoment ein Hinweis. „Spielen“ öffnet `spiel.html?raum=<id>`. Räume sind frei wählbar und nach Schwierigkeit sortiert.
+  - **Vorgeschichte:** Vor dem Raum erscheint ein Intro, der Timer startet erst mit „Raum betreten“. Nach dem Sieg folgt ein Outro (Nachricht des Professors), bei Zeitablauf die Hausmeister-Szene mit Spannungsaufbau und Schreckmoment (Licht und Ton). Optionale Videos sind vorbereitet, der Text dient als Untertitel bzw. Ersatz.
+  - **Spielraum:** 16:9-Bühne, die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte, zunächst als Platzhalter mit Emoji und Namen. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom eine Detailansicht, „Zurück“ zoomt heraus.
+  - **Rätsel:** Fünf Objekte liefern Spuren fürs Notizbuch (mit Häkchen an bereits gefundenen). Die Tür hat ein Zahlenschloss mit drei Ziffernrädern (Code 417).
+  - **Timer:** 10 Minuten, in der letzten Minute rot. Der Hilfe-Knopf gibt drei gestufte Tipps für je 1 Minute Strafe.
+  - **Spielende:** Die Ende-Bildschirme zeigen eine Statistik und bieten „Nochmal spielen“ und „Zur Raumauswahl“.
+  - **Handy:** Im Hochformat erscheint der Hinweis, das Gerät quer zu halten.
+  - **Starten:** `npm install` (einmalig), `npm start`, dann `http://localhost:3000`. Tests: `npm test` (36 Tests).
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
-  - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
-  - `public/index.html` (Startseite) und `public/spiel.html` (Spielseite)
-  - `public/js/` – `start.js` (Raumkarten der Startseite), `main.js` (Einstieg der Spielseite), `anzeige.js` (zeichnet Szenen, Objekte, Textfenster, Notizbuch), `verbindung-lokal.js` (führt die Spiellogik im Browser aus; später durch eine Online-Verbindung ersetzbar)
+  - `public/index.html` (Startseite) und `public/spiel.html` (Spielseite), `public/css/style.css`
+  - `public/js/` – `start.js` (Raumkarten), `main.js` (Einstieg der Spielseite), `anzeige.js` (Szenen, Objekte, Fenster, Timer, Notizbuch, Hilfe), `geschichte.js` (Geschichtstexte, Videos, Spannung, Schreckmoment, Ton), `verbindung-lokal.js` (führt die Spiellogik im Browser aus; später durch eine Online-Verbindung ersetzbar)
+  - `public/bilder/`, `public/videos/`, `public/toene/` – je Raum ein Unterordner (noch leer, siehe Anleitung)
   - `shared/spiel-logik.js` – Spielregeln als reine Funktionen (Spielstand + Aktion → neuer Spielstand)
-  - `shared/raeume/` – Raumdaten, ein Raum pro Datei; `index.js` listet alle Räume (nach Schwierigkeit aufsteigend)
-  - `test/` – Tests der Spiellogik (`node:test`)
-  - `docs/plaene/` – freigegebene Pläne
-- **Wichtigste Dateien:** `server.js`, `public/index.html`, `public/css/style.css`, `public/js/anzeige.js`, `public/js/main.js`, `shared/spiel-logik.js`, `shared/raeume/arbeitszimmer.js`, `package.json`
-- **Grafik austauschen:** In `shared/raeume/arbeitszimmer.js` beim Objekt `bild` (bzw. bei der Szene `hintergrund`) den Pfad zur Datei eintragen, z. B. `"bilder/arbeitszimmer/schreibtisch.png"`, und die Datei unter `public/bilder/arbeitszimmer/` ablegen.
+  - `shared/raeume/` – Raumdaten, ein Raum pro Datei, inklusive Geschichte; `index.js` listet alle Räume (nach Schwierigkeit aufsteigend)
+  - `test/` – Tests der Spiellogik und der Raumdaten (`node:test`)
+  - `docs/plaene/` – freigegebene Pläne; `docs/anleitung.md` – Grafiken, Videos und Ton austauschen, neuen Raum anlegen, Liste aller benötigten Dateien; `docs/ideen.md` – Ideensammlung inklusive verworfener Ideen
+- **Wichtigste Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/spiel-logik.js`, `public/js/anzeige.js`, `public/js/geschichte.js`, `public/js/main.js`, `docs/anleitung.md`
+- **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
 
 ## 3. Wichtige Entscheidungen
 | Datum | Entscheidung | Begründung | Verworfene Alternativen |
@@ -383,3 +393,24 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Das Feld `schreck` enthält nur `sound`, kein `bild`: Die Lichteinblendung ist fest eingebaut, ein eigenes Schreckbild war nicht gefordert.
   - Ohne Schreck, aber mit Spannungstext läuft der Spannungsaufbau trotzdem, danach folgt direkt der Ende-Bildschirm.
 - **Git-Commit:** `c8ca67b`
+
+### 2026-10-04, 21:34 – Schritt 9d: Anleitung und Dateiliste
+- **Auslöser:** Anweisung des Nutzers: Freigabe des Plans „Startseite, Schwierigkeitsgrade und Vorgeschichte“ und „mache weiter“. Dies ist Teilschritt 9d. Er erfüllt auch den Wunsch: „Außerdem musst du mir bescheid geben, falls du Bilder zum Austauschen der Grafik von mir brauchst“.
+- **Durchgeführte Schritte:**
+  - `docs/anleitung.md` angelegt:
+    - Spiel starten.
+    - Grafik austauschen, inklusive Erklärung zu Kasten und Seitenverhältnis.
+    - Video und Ton einbinden, mit Hinweisen zu Autoplay und Überspringen sowie zum Verloren-Video, das den Schreck ersetzt.
+    - Neuen Raum anlegen in 7 Schritten: eigene Geschichte mit Intro und Outro, Schwierigkeitsgrad, Schreckmoment bewusst an oder aus, eigene Ordner für Bilder, Videos und Töne, Eintrag in die Raumliste, `npm test`.
+    - Vollständige Liste aller benötigten Dateien für das Arbeitszimmer: 4 Hintergründe, 13 Gegenstände, 1 Vorschaubild, 3 optionale Videos, 1 Sound. Jeweils mit Dateiname, Feld in der Raumdatei, Format, Größe bzw. Seitenverhältnis, Länge und Motiv.
+    - Ein Vorschlag für einen einheitlichen Stil-Prompt.
+  - Die Seitenverhältnisse der Gegenstände wurden aus den Kästen in den Raumdaten berechnet (bezogen auf 1920×1080).
+  - Medienordner `public/bilder/arbeitszimmer/`, `public/videos/arbeitszimmer/` und `public/toene/arbeitszimmer/` angelegt (mit `.gitkeep`, da Git keine leeren Ordner speichert).
+  - Abschnitt 2 auf den Endstand der ersten Version gebracht und gegliedert.
+- **Geänderte/neue Dateien:** `docs/anleitung.md`, `public/bilder/arbeitszimmer/.gitkeep`, `public/videos/arbeitszimmer/.gitkeep`, `public/toene/arbeitszimmer/.gitkeep`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (Berechnung der Seitenverhältnisse), Git
+- **Probleme & Lösungen:** Abschnitt 2 wurde über eine Zwischendatei ersetzt. Ein Vergleich vorher/nachher bestätigte, dass Kopf, Abschnitt 3 und das Protokoll unverändert blieben.
+- **Ergebnis:** Die erste Version ist abgeschlossen. Die Nutzerin hat eine Liste aller Grafiken, Videos und Töne, die sie liefern kann, und eine Anleitung zum Einbinden sowie zum Anlegen weiterer Räume.
+- **Bezug zur Planung:** 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
+- **Abweichungen vom Plan:** Zusätzlich wurden die Medienordner schon angelegt, damit Dateien direkt abgelegt werden können.
+- **Git-Commit:** `e0bc26a`
