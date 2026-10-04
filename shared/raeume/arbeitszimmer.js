@@ -21,6 +21,32 @@ export default {
     "Professor Albers ist seit drei Tagen verschwunden. In seinem Arbeitszimmer fällt die Tür hinter dir ins Schloss – finde den Code, bevor der Hausmeister kommt.",
   vorschaubild: null, // Bild für die Raumkarte auf der Startseite, z. B. "bilder/arbeitszimmer/vorschau.jpg"
   dauerSekunden: 600, // 10 Minuten
+
+  // Die Geschichte dieses Raums. Jeder Raum braucht Intro, Outro ("gewonnen") und "verloren".
+  // Texte sind Listen von Absätzen.
+  geschichte: {
+    intro: {
+      titel: "Ein offenes Arbeitszimmer",
+      text: [
+        "Seit drei Tagen hat niemand Professor Konrad Albers gesehen. Deine Abschlussarbeit liegt seit Wochen auf seinem Schreibtisch, deine Mails bleiben unbeantwortet, und im Sekretariat zuckt man nur mit den Schultern.",
+        "Heute Abend steht die Tür zu seinem Arbeitszimmer einen Spalt offen. Drinnen brennt noch die Schreibtischlampe. Kaum bist du eingetreten, fällt die Tür hinter dir ins Schloss, und mit einem metallischen Klicken rastet das Zahlenschloss ein.",
+        "Auf dem Schreibtisch glänzt frische Tinte. Wer war gerade noch hier? In zehn Minuten schließt der Hausmeister das Gebäude ab, und bis dahin musst du hier raus.",
+      ],
+    },
+    gewonnen: {
+      text: [
+        "Das Schloss springt auf. Aus dem Türspalt fällt ein Umschlag, beschrieben in grüner Tinte: „Wer meine Farben lesen kann, dem kann ich vertrauen. Mir geht es gut, aber ich musste verschwinden. Suche mich nicht. Noch nicht.“",
+        "Der Professor lebt, und er hat dir eine Nachricht hinterlassen.",
+      ],
+    },
+    verloren: {
+      spannung: "Schritte auf dem Flur. Sie werden langsamer und bleiben direkt vor der Tür stehen. Stille. Ein Schlüssel dreht sich im Schloss …",
+      text: [
+        "… die Tür fliegt auf, und grelles Taschenlampenlicht trifft dich mitten ins Gesicht. „Was machen Sie hier drin?!“ Der Hausmeister.",
+        "Das Rätsel um Professor Albers bleibt ungelöst.",
+      ],
+    },
+  },
   strafeProTippSekunden: 60, // so viel Zeit kostet jeder Tipp
   startSzene: "raum",
 

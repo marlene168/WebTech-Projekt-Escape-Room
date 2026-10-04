@@ -9,7 +9,7 @@
 import { erstelleSpielstand, verarbeiteAktion, pruefeZeit } from "/shared/spiel-logik.js";
 
 export function erstelleLokaleVerbindung(raum) {
-  let spielstand = erstelleSpielstand(raum, Date.now());
+  let spielstand = erstelleSpielstand(raum);
   const zuhoerer = [];
 
   function uebernehme(neu) {

@@ -8,11 +8,12 @@
 // Zeiten: "jetzt" ist immer ein Zeitpunkt in Millisekunden (wie Date.now()). Die Logik fragt die Uhr
 // nie selbst ab, sondern bekommt die Zeit übergeben – im Mehrspieler-Modus gibt sie der Server vor.
 
-export function erstelleSpielstand(raum, jetzt) {
+// Ein neues Spiel wartet zuerst im Status "bereit" (Intro wird gelesen), die Zeit läuft erst nach "start".
+export function erstelleSpielstand(raum) {
   return {
     raumId: raum.id,
-    status: "laeuft", // "laeuft", "gewonnen" oder "verloren"
-    startzeit: jetzt,
+    status: "bereit", // "bereit", "laeuft", "gewonnen" oder "verloren"
+    startzeit: null, // wird beim Start gesetzt
     dauerSekunden: raum.dauerSekunden,
     strafSekunden: 0, // Zeitabzug durch Tipps
     endzeit: null, // Zeitpunkt des Spielendes – danach bleibt die Restzeit stehen
@@ -24,12 +25,14 @@ export function erstelleSpielstand(raum, jetzt) {
 }
 
 // Aktionen:
+//   { typ: "start" }                                                → Raum betreten, die Zeit läuft
 //   { typ: "untersuche", objekt: "<objekt-id>" }                   → ein Objekt wurde angeklickt
 //   { typ: "probiereCode", schloss: "<schloss>", code: "<ziffern>" } → Code an einem Schloss eingeben
 //   { typ: "tipp" }                                                 → nächsten Tipp holen (kostet Zeit)
-//   { typ: "neustart" }                                             → neues Spiel, alles auf Anfang
+//   { typ: "neustart" }                                             → neues Spiel, startet sofort (ohne Intro)
 export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
-  if (aktion.typ === "neustart") return erstelleSpielstand(raum, jetzt);
+  if (aktion.typ === "neustart") return starte(erstelleSpielstand(raum), jetzt);
+  if (aktion.typ === "start") return spielstand.status === "bereit" ? starte(spielstand, jetzt) : spielstand;
 
   // Ist die Zeit inzwischen abgelaufen, zählt die Aktion nicht mehr
   spielstand = pruefeZeit(spielstand, jetzt);
@@ -47,8 +50,14 @@ export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
   }
 }
 
-// Verbleibende Zeit in Millisekunden (nie negativ). Nach dem Spielende bleibt sie stehen.
+function starte(spielstand, jetzt) {
+  return { ...spielstand, status: "laeuft", startzeit: jetzt };
+}
+
+// Verbleibende Zeit in Millisekunden (nie negativ). Vor dem Start ist es die volle Zeit,
+// nach dem Spielende bleibt sie stehen.
 export function restzeit(spielstand, jetzt) {
+  if (spielstand.status === "bereit") return (spielstand.dauerSekunden - spielstand.strafSekunden) * 1000;
   const ende = spielende(spielstand);
   return Math.max(0, ende - (spielstand.endzeit ?? jetzt));
 }

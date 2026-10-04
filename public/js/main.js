@@ -4,7 +4,7 @@ import { findeRaum } from "/shared/raeume/index.js";
 import { erstelleLokaleVerbindung } from "./verbindung-lokal.js";
 import {
   zeichneSzene, zoomeHinein, zoomeHeraus, zeigeText, zeigeZurueckKnopf, beimZurueck, zeigeSpielstand,
-  zeigeSchloss, beimNeustart, beimTippAnfordern,
+  zeigeSchloss, beimNeustart, beimTippAnfordern, beimRaumBetreten,
 } from "./anzeige.js";
 
 const raum = findeRaum(new URLSearchParams(location.search).get("raum"));
@@ -63,6 +63,7 @@ function starteSpiel(raum) {
     zoomeHeraus(raum.szenen[aktuelleSzene], vorher.ursprung, beiKlick);
   });
 
+  beimRaumBetreten(() => verbindung.sendeAktion({ typ: "start" }));
   beimNeustart(() => verbindung.sendeAktion({ typ: "neustart" }));
   beimTippAnfordern(() => verbindung.sendeAktion({ typ: "tipp" }));
 

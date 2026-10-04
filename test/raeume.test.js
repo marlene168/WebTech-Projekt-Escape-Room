@@ -28,3 +28,16 @@ test("Räume lassen sich über ihre ID finden", () => {
   assert.equal(findeRaum("arbeitszimmer").id, "arbeitszimmer");
   assert.equal(findeRaum("gibt-es-nicht"), undefined);
 });
+
+// Jeder Raum erzählt seine eigene Geschichte: Intro, Outro und ein Ende bei Zeitablauf
+const istTextliste = (wert) => Array.isArray(wert) && wert.length > 0 && wert.every((t) => typeof t === "string" && t);
+
+test("Jeder Raum hat eine vollständige Geschichte (Intro, Outro, Verloren-Text)", () => {
+  for (const raum of raeume) {
+    const g = raum.geschichte;
+    assert.ok(g?.intro?.titel, `Raum "${raum.id}": Intro-Titel fehlt`);
+    assert.ok(istTextliste(g.intro.text), `Raum "${raum.id}": Intro-Text fehlt`);
+    assert.ok(istTextliste(g.gewonnen?.text), `Raum "${raum.id}": Outro-Text (gewonnen) fehlt`);
+    assert.ok(istTextliste(g.verloren?.text), `Raum "${raum.id}": Verloren-Text fehlt`);
+  }
+});

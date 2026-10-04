@@ -1,6 +1,7 @@
 // Anzeige: zeichnet Szenen und Objekte auf die Bühne, zoomt zwischen Szenen und zeigt Texte an.
 // Enthält keine Spielregeln – nur Darstellung.
 import { restzeit } from "/shared/spiel-logik.js";
+import { schreibeAbsaetze } from "./geschichte.js";
 
 const szeneElement = document.querySelector(".szene");
 const hintergrund = document.querySelector(".szene-hintergrund");
@@ -10,6 +11,7 @@ const notizbuch = document.querySelector(".notizbuch");
 const notizbuchKnopf = document.querySelector(".notizbuch-knopf");
 const schlossFenster = document.querySelector(".schloss-fenster");
 const endeFenster = document.querySelector(".ende-fenster");
+const introFenster = document.querySelector(".intro-fenster");
 const timer = document.querySelector(".timer");
 const hilfe = document.querySelector(".hilfe");
 const hilfeKnopf = document.querySelector(".hilfe-knopf");
@@ -70,20 +72,39 @@ export function zeigeSpielstand(raum, spielstand) {
   genutzteTipps = spielstand.genutzteTipps;
 
   if (spielstand.status !== status) {
+    const { geschichte } = raum;
     const tippText = `Tipps genutzt: ${spielstand.genutzteTipps}`;
-    if (spielstand.status === "gewonnen") {
-      zeigeEnde("🔓", "Geschafft!",
-        "Mit einem leisen Klicken springt das Schloss auf. Du bist aus dem Arbeitszimmer entkommen!",
+    if (spielstand.status === "bereit") {
+      zeigeIntro(geschichte.intro);
+    } else if (spielstand.status === "gewonnen") {
+      zeigeEnde("🔓", "Geschafft!", geschichte.gewonnen.text,
         `Restzeit: ${formatiereZeit(restzeit(spielstand, Date.now()))} · ${tippText}`);
     } else if (spielstand.status === "verloren") {
-      zeigeEnde("⌛", "Zeit abgelaufen",
-        "Draußen schlägt eine Uhr. Die Tür bleibt verschlossen – und das Rätsel um den Professor ungelöst.",
+      const { spannung, text } = geschichte.verloren;
+      zeigeEnde("⌛", "Zeit abgelaufen", spannung ? [spannung, ...text] : text,
         `Spuren gefunden: ${spielstand.gefundeneSpuren.length} von ${Object.keys(raum.spuren).length} · ${tippText}`);
     } else {
-      endeFenster.close(); // neues Spiel hat begonnen
+      // Das Spiel läuft (gerade gestartet oder neu gestartet)
+      introFenster.close();
+      endeFenster.close();
     }
   }
   status = spielstand.status;
+}
+
+// ---------- Vorgeschichte (Intro) ----------
+
+function zeigeIntro(intro) {
+  introFenster.querySelector(".intro-titel").textContent = intro.titel;
+  schreibeAbsaetze(introFenster.querySelector(".intro-text"), intro.text);
+  introFenster.showModal();
+}
+
+// Das Intro lässt sich nicht mit Esc wegklicken – nur über "Raum betreten"
+introFenster.addEventListener("cancel", (ereignis) => ereignis.preventDefault());
+
+export function beimRaumBetreten(callback) {
+  introFenster.querySelector(".intro-start").addEventListener("click", callback);
 }
 
 // ---------- Timer ----------
@@ -191,11 +212,11 @@ function meldeFalschenCode() {
 
 // ---------- Spielende ----------
 
-function zeigeEnde(symbol, titel, text, statistik) {
+function zeigeEnde(symbol, titel, absaetze, statistik) {
   document.querySelectorAll("dialog[open]").forEach((fenster) => fenster.close());
   endeFenster.querySelector(".ende-symbol").textContent = symbol;
   endeFenster.querySelector(".ende-titel").textContent = titel;
-  endeFenster.querySelector(".ende-text").textContent = text;
+  schreibeAbsaetze(endeFenster.querySelector(".ende-text"), absaetze);
   endeFenster.querySelector(".ende-statistik").textContent = statistik;
   endeFenster.showModal();
 }

@@ -81,13 +81,23 @@
     </div>
   </dialog>
 
+  <!-- Vorgeschichte vor dem Start: der Timer läuft erst nach "Raum betreten" -->
+  <dialog class="intro-fenster">
+    <h2 class="intro-titel"></h2>
+    <div class="geschichte-text intro-text"></div>
+    <button class="knopf knopf-haupt intro-start">Raum betreten</button>
+  </dialog>
+
   <!-- Spielende (gewonnen oder Zeit abgelaufen) -->
   <dialog class="ende-fenster">
     <div class="ende-symbol"></div>
     <h2 class="ende-titel"></h2>
-    <p class="ende-text"></p>
+    <div class="geschichte-text ende-text"></div>
     <p class="ende-statistik"></p>
-    <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
+    <div class="fenster-knoepfe">
+      <a class="knopf" href="./">Zur Raumauswahl</a>
+      <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
+    </div>
   </dialog>
 
   <!-- Erscheint nur auf Handys im Hochformat (siehe style.css) -->

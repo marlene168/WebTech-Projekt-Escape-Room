@@ -9,7 +9,9 @@ const START = 1_000_000;
 const SPAETER = START + 5_000; // 5 Sekunden nach dem Start
 const DAUER_MS = raum.dauerSekunden * 1000;
 
-const neuesSpiel = () => erstelleSpielstand(raum, START);
+const starte = (spielstand, jetzt = START) => verarbeiteAktion(raum, spielstand, { typ: "start" }, jetzt);
+// Für die meisten Tests: ein Spiel, das zum Zeitpunkt START begonnen hat
+const neuesSpiel = () => starte(erstelleSpielstand(raum));
 const untersuche = (spielstand, objekt, jetzt = SPAETER) =>
   verarbeiteAktion(raum, spielstand, { typ: "untersuche", objekt }, jetzt);
 const probiere = (spielstand, code, schloss = "tuer", jetzt = SPAETER) =>
@@ -143,7 +145,36 @@ test("Neustart setzt alles zurück und startet die Zeit neu", () => {
   spielstand = pruefeZeit(spielstand, START + DAUER_MS);
   const neustartZeit = START + DAUER_MS + 10_000;
   const neu = verarbeiteAktion(raum, spielstand, { typ: "neustart" }, neustartZeit);
-  assert.deepEqual(neu, erstelleSpielstand(raum, neustartZeit));
+  assert.deepEqual(neu, starte(erstelleSpielstand(raum), neustartZeit));
+  assert.equal(neu.status, "laeuft"); // ohne erneutes Intro
+});
+
+// ---------- Vor dem Start (Intro) ----------
+
+test("Ein neues Spiel wartet im Status bereit, ohne Startzeit", () => {
+  const bereit = erstelleSpielstand(raum);
+  assert.equal(bereit.status, "bereit");
+  assert.equal(bereit.startzeit, null);
+});
+
+test("Vor dem Start steht die volle Zeit zur Verfügung und läuft nicht ab", () => {
+  const bereit = erstelleSpielstand(raum);
+  assert.equal(restzeit(bereit, START + DAUER_MS * 5), DAUER_MS);
+  assert.equal(pruefeZeit(bereit, START + DAUER_MS * 5), bereit);
+});
+
+test("Vor dem Start wirken andere Aktionen nicht", () => {
+  const bereit = erstelleSpielstand(raum);
+  assert.equal(untersuche(bereit, "kalender"), bereit);
+  assert.equal(probiere(bereit, "417"), bereit);
+  assert.equal(verarbeiteAktion(raum, bereit, { typ: "tipp" }, START), bereit);
+});
+
+test("Start setzt Status und Startzeit, ein zweiter Start ändert nichts", () => {
+  const gestartet = starte(erstelleSpielstand(raum), START);
+  assert.equal(gestartet.status, "laeuft");
+  assert.equal(gestartet.startzeit, START);
+  assert.equal(starte(gestartet, SPAETER), gestartet);
 });
 
 // ---------- Tipps ----------
