@@ -13,13 +13,15 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
+- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
-  - `shared/` – Raumdaten und Spiellogik (noch leer, folgt in Schritt 3 und 5)
+  - `public/js/` – `main.js` (Einstieg), `anzeige.js` (zeichnet Szenen, Objekte, Textfenster)
+  - `shared/raeume/` – Raumdaten, ein Raum pro Datei (Spiellogik folgt in Schritt 5)
   - `docs/plaene/` – freigegebene Pläne
-- **Wichtigste Dateien:** `server.js`, `public/index.html`, `public/css/style.css`, `package.json`
+- **Wichtigste Dateien:** `server.js`, `public/index.html`, `public/css/style.css`, `public/js/anzeige.js`, `shared/raeume/arbeitszimmer.js`, `package.json`
+- **Grafik austauschen:** In `shared/raeume/arbeitszimmer.js` beim Objekt `bild` (bzw. bei der Szene `hintergrund`) den Pfad zur Datei eintragen, z. B. `"bilder/arbeitszimmer/schreibtisch.png"`, und die Datei unter `public/bilder/arbeitszimmer/` ablegen.
 
 ## 3. Wichtige Entscheidungen
 | Datum | Entscheidung | Begründung | Verworfene Alternativen |
@@ -133,3 +135,20 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-04, 02:26 – Schritt 3: Raumdaten und Objekte
+- **Auslöser:** Anweisung des Nutzers: „Ja mach es so und mach mit schritt drei weiter“. Damit stimmte sie auch dem Vorschlag von Claude zu, auf Handys im Hochformat den Hinweis „Bitte Gerät quer halten“ einzublenden.
+- **Durchgeführte Schritte:**
+  - `shared/raeume/arbeitszimmer.js` mit Titel, Startszene und fünf Objekten angelegt. Jedes Objekt hat Name, Emoji, optionalen Bildpfad, Position und Größe in Prozent sowie einen Beschreibungstext.
+  - `public/js/anzeige.js` geschrieben. Es zeichnet Hintergrund und Objekte; Objekte sind Knöpfe, also auch per Tastatur bedienbar. Ohne Bild oder bei fehlender Bilddatei erscheint automatisch ein Platzhalter. Beschreibungen erscheinen in einem Textfenster (`<dialog>`).
+  - `public/js/main.js` als Einstiegspunkt angelegt.
+  - Im CSS ergänzt: Hover-Effekt (leichtes Vergrößern und goldener Schein), Gestaltung des Textfensters, Drehhinweis per Media Query, schmalere Kopfleiste auf niedrigen Bildschirmen.
+  - Für die Sichtprüfung ein Hilfsskript im Scratchpad geschrieben (nicht im Projekt). Es steuert Chrome über das DevTools-Protokoll, sodass auch Zustände nach einem Klick fotografiert und JS-Fehler erkannt werden.
+  - Abschnitt 2 aktualisiert.
+- **Geänderte/neue Dateien:** `shared/raeume/arbeitszimmer.js`, `public/js/anzeige.js`, `public/js/main.js`, `public/index.html`, `public/css/style.css`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js, Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:** Laut Screenshot nahm die Kopfleiste auf dem Handy im Querformat (844×390) viel Höhe weg und machte den Raum unnötig klein → Kopfleiste bei Bildschirmhöhen unter 500 px verkleinert, danach erneut geprüft. Für den Schreibtisch gibt es kein passendes Emoji → Stuhl-Emoji als Platzhalter, wird ohnehin durch eine Grafik ersetzt.
+- **Ergebnis:** Desktop: Fünf Objekte stehen im Raum und reagieren auf Hover und Klick; das Textfenster zeigt die Beschreibung. Handy quer: Der Raum füllt die Höhe. Handy hochkant: Drehhinweis. In keiner Ansicht gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
+- **Abweichungen vom Plan:** Zusätzlich eingebaut wurden der Drehhinweis für Handys im Hochformat (mit der Nutzerin abgestimmt) und die schmalere Kopfleiste auf niedrigen Bildschirmen (Ergebnis der Sichtprüfung). Objekte haben vorerst nur ein Feld `text` statt `aktion`. Die Aktionen (`oeffneSzene`, `findeSpur`, `schloss`) kommen in den Schritten 4 bis 6 hinzu, sobald sie gebraucht werden.
+- **Git-Commit:** `5caa4de`
