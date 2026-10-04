@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
+- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten (dort stehen bereits die Hinweise auf den Code); ein Zurück-Knopf zoomt wieder heraus. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
@@ -152,3 +152,23 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
 - **Abweichungen vom Plan:** Zusätzlich eingebaut wurden der Drehhinweis für Handys im Hochformat (mit der Nutzerin abgestimmt) und die schmalere Kopfleiste auf niedrigen Bildschirmen (Ergebnis der Sichtprüfung). Objekte haben vorerst nur ein Feld `text` statt `aktion`. Die Aktionen (`oeffneSzene`, `findeSpur`, `schloss`) kommen in den Schritten 4 bis 6 hinzu, sobald sie gebraucht werden.
 - **Git-Commit:** `5caa4de`
+
+### 2026-10-04, 02:37 – Schritt 4: Detailansichten mit Zoom
+- **Auslöser:** Anweisung des Nutzers: „Ja bitte Schritt 4 jetzt“ (Schritt 4 des freigegebenen Plans).
+- **Durchgeführte Schritte:**
+  - Raumdaten erweitert: Gemälde, Pinnwand und Schreibtisch haben jetzt die Aktion `{ typ: "oeffneSzene", ziel: … }`. Dazu kommen drei Detailszenen mit eigenen Objekten: Schreibtisch mit Papierstapel, Kalender und Füllfederhalter; Pinnwand mit Foto, Notiz und blauem Zettel; Gemälde mit Hafenstadt und Rahmenecke. Ihre Texte enthalten bereits die Hinweise aus dem Rätsel-Entwurf (rote 4, grüne 1, blaue 7, „Rot – Grün – Blau“).
+  - Jede Szene hat ein Feld `platzhalter`. Es wählt einen passenden CSS-Platzhalter-Hintergrund (Zimmer, Holz, Kork, Wand), solange kein Bild vorhanden ist.
+  - In `index.html` eine innere Ebene `.szene` eingeführt (Hintergrund und Objekte), die beim Zoomen als Ganzes bewegt wird. Der Zurück-Knopf liegt außerhalb und bleibt stehen.
+  - In `anzeige.js` die Funktionen `zoomeHinein`/`zoomeHeraus` ergänzt (Web Animations API). Die Szene vergrößert sich mit Ursprung in der Objektmitte und blendet aus, dann wird die neue Szene gezeichnet und eingeblendet. Während der Animation sind keine Klicks möglich (`inert`). Bei der Systemeinstellung „Bewegung reduzieren“ entfällt die Animation.
+  - In `main.js` die aktuelle Szene und einen Verlauf (vorige Szene und Zoompunkt) als lokalen Zustand angelegt.
+  - Sichtprüfung per Screenshot: alle drei Detailansichten, ein Zwischenbild der Zoom-Animation, Zustand nach „Zurück“, Textfenster in der Detailansicht, Handy quer.
+  - Abschnitt 2 aktualisiert.
+- **Geänderte/neue Dateien:** `shared/raeume/arbeitszimmer.js`, `public/js/anzeige.js`, `public/js/main.js`, `public/index.html`, `public/css/style.css`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js, Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:**
+  - Eine Animation, die ihren Endzustand hält (`fill: forwards`), hätte nach dem Szenenwechsel die neue Szene unsichtbar gelassen. Lösung: Die alte Animation wird erst abgebrochen, nachdem die neue gestartet ist; nur das Ausblenden hält seinen Endzustand.
+  - Zwei Testaufnahmen schlugen wegen eines Fehlers im Testskript fehl (`await` außerhalb einer async-Funktion), nicht wegen der App → Skript korrigiert und wiederholt.
+- **Ergebnis:** Klickt man Schreibtisch, Pinnwand oder Gemälde an, zoomt das Spiel in eine Detailansicht; „Zurück“ zoomt wieder heraus. In keiner Ansicht gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
+- **Abweichungen vom Plan:** Zusätzlich gibt es pro Szene das Feld `platzhalter` für eigene Platzhalter-Hintergründe, damit die Detailansichten schon ohne Grafiken unterscheidbar sind. Hinzu kommt die Rücksicht auf „Bewegung reduzieren“. Die Hinweise stehen vorerst als normale Texte in den Objekten; das Sammeln im Notizbuch folgt wie geplant in Schritt 5.
+- **Git-Commit:** `4ed7327`
