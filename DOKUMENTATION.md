@@ -13,13 +13,14 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Die Tür öffnet ein Zahlenschloss mit drei Ziffernrädern: Ein falscher Code lässt die Rädchen wackeln, der richtige (417) zeigt den Gewinn-Bildschirm. Ein 10-Minuten-Countdown läuft in der Kopfleiste (in der letzten Minute rot); läuft er ab, erscheint „Zeit abgelaufen“. Über den Hilfe-Knopf gibt es drei gestufte Tipps (bis zur Lösung), jeder kostet 1 Minute; erhaltene Tipps sind kostenlos nachlesbar. Beide Spielende-Bildschirme zeigen eine kurze Statistik (Restzeit bzw. gefundene Spuren, genutzte Tipps) und haben „Nochmal spielen“, das alles auf Anfang setzt. Das Spiel ist damit von Anfang bis Ende spielbar und verlierbar. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
+- **Funktionen:** Ein Node.js/Express-Server liefert die Seiten aus. Die Startseite zeigt die Räume als Karten (Schwierigkeit als Sterne, Dauer, Kurzbeschreibung); „Spielen“ öffnet die Spielseite `spiel.html?raum=<id>`, „← Räume“ führt zurück. Die Spielseite zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Die Tür öffnet ein Zahlenschloss mit drei Ziffernrädern: Ein falscher Code lässt die Rädchen wackeln, der richtige (417) zeigt den Gewinn-Bildschirm. Ein 10-Minuten-Countdown läuft in der Kopfleiste (in der letzten Minute rot); läuft er ab, erscheint „Zeit abgelaufen“. Über den Hilfe-Knopf gibt es drei gestufte Tipps (bis zur Lösung), jeder kostet 1 Minute; erhaltene Tipps sind kostenlos nachlesbar. Beide Spielende-Bildschirme zeigen eine kurze Statistik (Restzeit bzw. gefundene Spuren, genutzte Tipps) und haben „Nochmal spielen“, das alles auf Anfang setzt. Das Spiel ist damit von Anfang bis Ende spielbar und verlierbar. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
-  - `public/js/` – `main.js` (Einstieg), `anzeige.js` (zeichnet Szenen, Objekte, Textfenster, Notizbuch), `verbindung-lokal.js` (führt die Spiellogik im Browser aus; später durch eine Online-Verbindung ersetzbar)
+  - `public/index.html` (Startseite) und `public/spiel.html` (Spielseite)
+  - `public/js/` – `start.js` (Raumkarten der Startseite), `main.js` (Einstieg der Spielseite), `anzeige.js` (zeichnet Szenen, Objekte, Textfenster, Notizbuch), `verbindung-lokal.js` (führt die Spiellogik im Browser aus; später durch eine Online-Verbindung ersetzbar)
   - `shared/spiel-logik.js` – Spielregeln als reine Funktionen (Spielstand + Aktion → neuer Spielstand)
-  - `shared/raeume/` – Raumdaten, ein Raum pro Datei
+  - `shared/raeume/` – Raumdaten, ein Raum pro Datei; `index.js` listet alle Räume (nach Schwierigkeit aufsteigend)
   - `test/` – Tests der Spiellogik (`node:test`)
   - `docs/plaene/` – freigegebene Pläne
 - **Wichtigste Dateien:** `server.js`, `public/index.html`, `public/css/style.css`, `public/js/anzeige.js`, `public/js/main.js`, `shared/spiel-logik.js`, `shared/raeume/arbeitszimmer.js`, `package.json`
@@ -301,3 +302,22 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Erster Entwurf des Verloren-Endes („Nacht im Arbeitszimmer verbringen“).
   - Schreckmoment automatisch für jeden Raum.
 - **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu Startseite und Vorgeschichte“)
+
+### 2026-10-04, 20:59 – Schritt 9a: Startseite und Schwierigkeitsgrade
+- **Auslöser:** Anweisung des Nutzers: Freigabe des Plans „Startseite, Schwierigkeitsgrade und Vorgeschichte“ und „mache weiter“. Dies ist Teilschritt 9a.
+- **Durchgeführte Schritte:**
+  - `shared/raeume/index.js` angelegt: Liste aller Räume, Bezeichnungen der Schwierigkeitsgrade, `findeRaum(id)`.
+  - Raumdaten des Arbeitszimmers um `schwierigkeit: 1`, `kurzbeschreibung` und `vorschaubild: null` ergänzt.
+  - Das bisherige Spiel nach `public/spiel.html` verschoben; in der Kopfleiste kam der Link „← Räume“ dazu.
+  - `main.js` lädt den Raum jetzt aus der Adresse (`?raum=<id>`). Ist der Raum unbekannt, geht es zurück zur Startseite.
+  - Neue Startseite `public/index.html` mit `public/js/start.js`: eine Karte pro Raum mit Vorschau (Platzhalter-Hintergrund der Startszene), Titel, Sternen und Schwierigkeit, Dauer, Kurzbeschreibung und „Spielen“. Auf schmalen Bildschirmen steht das Bild über dem Text.
+  - Neue Tests in `test/raeume.test.js`: gültiger Schwierigkeitsgrad, spätere Räume nicht leichter als frühere, eindeutige IDs, Kurzbeschreibung vorhanden, `findeRaum`. Insgesamt 29 Tests, alle bestanden.
+  - Sichtprüfung per Screenshot: Startseite auf Desktop und Handy hochkant, Spielseite nach „Spielen“, Handy quer, Weiterleitung bei unbekanntem Raum.
+  - Abschnitt 2 aktualisiert.
+- **Geänderte/neue Dateien:** `shared/raeume/index.js`, `shared/raeume/arbeitszimmer.js`, `public/index.html`, `public/spiel.html`, `public/js/start.js`, `public/js/main.js`, `public/css/style.css`, `test/raeume.test.js`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** `localhost:3000` zeigt die Raumauswahl; „Spielen“ startet das Arbeitszimmer. Der Aufbau ist für weitere Räume mit steigendem Schwierigkeitsgrad vorbereitet. In keiner Ansicht gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
+- **Abweichungen vom Plan:** Die Raumliste wird nicht automatisch sortiert. Neue Räume werden in der Reihenfolge ihrer Schwierigkeit hinten angehängt, und ein Test schlägt fehl, wenn ein späterer Raum leichter ist. So bleibt die Vorgabe „spätere Räume sind schwerer“ beim Anlegen sichtbar.
+- **Git-Commit:** `496afc6`
