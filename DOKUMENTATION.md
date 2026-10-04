@@ -321,3 +321,25 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
 - **Abweichungen vom Plan:** Die Raumliste wird nicht automatisch sortiert. Neue Räume werden in der Reihenfolge ihrer Schwierigkeit hinten angehängt, und ein Test schlägt fehl, wenn ein späterer Raum leichter ist. So bleibt die Vorgabe „spätere Räume sind schwerer“ beim Anlegen sichtbar.
 - **Git-Commit:** `496afc6`
+
+### 2026-10-04, 21:03 – Schritt 9b: Vorgeschichte
+- **Auslöser:** Anweisung des Nutzers: Freigabe des Plans „Startseite, Schwierigkeitsgrade und Vorgeschichte“ und „mache weiter“. Dies ist Teilschritt 9b.
+- **Durchgeführte Schritte:**
+  - Spiellogik:
+    - Neuer Status `bereit`: `erstelleSpielstand(raum)` beginnt ohne Startzeit.
+    - Die neue Aktion `start` setzt Startzeit und Status `laeuft`.
+    - Vor dem Start bleibt die Restzeit voll, die Zeit läuft nicht ab, und andere Aktionen wirken nicht.
+    - `neustart` beginnt direkt mit `laeuft`, ohne erneutes Intro.
+  - Tests auf „erstellt und gestartet“ umgestellt und 4 neue Tests zum Status `bereit` ergänzt. Dazu ein Test, dass jeder Raum Intro (mit Titel), Outro und Verloren-Text hat. Insgesamt 34 Tests, alle bestanden.
+  - Raumdaten: `geschichte` mit Intro „Ein offenes Arbeitszimmer“ (3 Absätze), Outro (Umschlag mit Nachricht des Professors) und Verloren-Text (Spannungssatz und Hausmeister-Szene im Wortlaut der Nutzerin).
+  - Neues Modul `public/js/geschichte.js`, das Absätze anzeigt (Grundlage für die Videos in 9c).
+  - Intro-Fenster: fast schwarzer Hintergrund, Titel und Absätze blenden nacheinander ein (nicht bei „Bewegung reduzieren“), Knopf „Raum betreten“, nicht mit Esc schließbar.
+  - Die Ende-Bildschirme zeigen die Texte aus den Raumdaten statt fester Texte in `anzeige.js` und haben zusätzlich „Zur Raumauswahl“.
+  - Sichtprüfung per Screenshot: Intro (Desktop und Handy quer), Sieg, Zeitablauf (Desktop und Handy quer), Neustart. Per Skript bestätigt: Der Timer bleibt vor dem Start bei 10:00 und läuft danach; ein Neustart öffnet kein Intro.
+- **Geänderte/neue Dateien:** `shared/spiel-logik.js`, `shared/raeume/arbeitszimmer.js`, `public/js/geschichte.js`, `public/js/anzeige.js`, `public/js/main.js`, `public/js/verbindung-lokal.js`, `public/spiel.html`, `public/css/style.css`, `test/spiel-logik.test.js`, `test/raeume.test.js`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:** Auf dem Handy quer passte der Zeitablauf-Bildschirm mit dem längeren Text nur knapp, das Symbol war oben abgeschnitten → auf niedrigen Bildschirmen wird das Symbol ausgeblendet und der Innenabstand verkleinert.
+- **Ergebnis:** Vor dem Raum erscheint die Vorgeschichte, und der Timer läuft erst nach „Raum betreten“. Nach dem Sieg folgt die Nachricht des Professors, bei Zeitablauf die Hausmeister-Szene. In keiner Ansicht gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
+- **Abweichungen vom Plan:** Das Feld `schreck` und die Video-Felder kommen erst mit 9c in die Raumdaten, zusammen mit der Funktion, die sie nutzt.
+- **Git-Commit:** `06c9325`
