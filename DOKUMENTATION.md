@@ -36,6 +36,12 @@
 | 2026-10-04 | Architektur: Räume als Daten (`shared/raeume/`), Spiellogik als reine Funktionen (`shared/spiel-logik.js`), Verbindungsschicht zwischen Anzeige und Logik (zuerst lokal, später online); Timer über Startzeit statt herunterzählender Variable; aktuelle Szene nur lokal pro Gerät | Weitere Räume brauchen nur eine neue Datendatei; Server kann später dieselbe Logik ausführen; Anzeige bleibt beim Wechsel zum Mehrspieler-Modus unverändert; alle Geräte zeigen dieselbe Zeit | Logik direkt in den Klick-Handlern (müsste für Mehrspieler komplett umgebaut werden); Räume fest im Code |
 | 2026-10-04 | Darstellung: 16:9-Bühne mit nicht klickbarem Hintergrundbild, darüber jeder Gegenstand als eigenes klickbares Element (Positionen in Prozent), Platzhalter bis zu den KI-generierten PNGs; Klick auf Gegenstände zoomt in Detailansichten | Wunsch der Nutzerin nach atmosphärischem Raum mit einzeln austauschbaren Grafiken; Prozentwerte halten Grafiken auf allen Bildschirmgrößen an derselben Stelle | Ein Hintergrundbild mit unsichtbaren Klickflächen (fummelige Platzierung, Grafiken nicht einzeln austauschbar) |
 | 2026-10-04 | Hinweise als Spuren in Objekten (Notizbuch) plus Hilfe-Knopf mit gestuften Tipps gegen Zeitstrafe; bei Ablauf des Timers ist das Spiel vorbei | Wer festhängt, kommt weiter, aber Hilfe hat einen Preis; eindeutiges Spielende wie im echten Escape Room | Nur Spuren ohne Hilfe; Hilfe ohne Strafe; Weiterspielen mit Überzeit |
+| 2026-10-04 | Räume sind inhaltlich eigenständig und haben einen festen Schwierigkeitsgrad (1–3); spätere Räume sind schwerer | Räume einzeln und in beliebiger Reihenfolge spielbar; je Raum andere Themes, Geschichten und Rätsel möglich (Begründung der Nutzerin, siehe `docs/ideen.md`) | Raumübergreifende Geschichte mit Gesamträtsel am Ende |
+| 2026-10-04 | Räume frei wählbar, auf der Startseite nach Schwierigkeit sortiert; Freischalten nacheinander vorerst nicht vorgesehen | Folgt aus „in beliebiger Reihenfolge spielen“; bei Bedarf später zu klären | Nacheinander freischalten mit gespeichertem Fortschritt |
+| 2026-10-04 | Zwei Seiten: Startseite `index.html` und Spielseite `spiel.html?raum=<id>` | Für Einsteiger leicht nachvollziehbar, kein Seitenwechsel per JavaScript nötig | Eine einzige Seite mit Umschalten per JavaScript |
+| 2026-10-04 | Neuer Spielstatus „bereit“ vor „läuft“; der Timer startet erst mit „Raum betreten“ | Intro kann in Ruhe gelesen werden; im Mehrspieler-Modus kann die Gruppe später gemeinsam starten (Lobby) | Timer startet beim Laden der Seite; Spielstand erst nach dem Intro erzeugen |
+| 2026-10-04 | Jeder Raum hat eine eigene Geschichte (Intro, Outro, Verloren-Text) in seinen Raumdaten, jeweils optional mit Video; der Text bleibt als Untertitel bzw. Ersatz; Tests prüfen, dass jeder Raum alle drei Texte hat | Räume bleiben eigenständig; das Spiel funktioniert auch ohne Videos oder wenn ein Video nicht lädt | Texte fest in der Anzeige; Videos ohne Text-Ersatz |
+| 2026-10-04 | Schreckmoment bei Zeitablauf pro Raum ausdrücklich an (`schreck: {…}`) oder aus (`schreck: null`); Hinweis auf der Raumkarte wird daraus abgeleitet; eingebauter Ersatzton, solange keine Sounddatei da ist; einmalige Lichteinblendung ohne Blinken, begrenzte Lautstärke | Kein Raum bekommt versehentlich einen Schreck; Spielende werden vorgewarnt; funktioniert sofort ohne Dateien; Rücksicht auf anfallsgefährdete und schreckhafte Personen | Schreck immer automatisch mit Ersatzton; Hinweis von Hand pflegen |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -264,3 +270,34 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
 - **Abweichungen vom Plan:** Zusätzlich zeigt auch der Zeitablauf-Bildschirm eine Statistik (gefundene Spuren und Tipps), nicht nur der Gewinn-Bildschirm. Erhaltene Tipps lassen sich kostenlos nachlesen. Ein Tipp, dessen Strafe die Restzeit übersteigt, beendet das Spiel sofort.
 - **Git-Commit:** `54e62b6`
+
+### 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
+- **Auslöser:** Anweisung des Nutzers: „Okay dann mache jetzt Schritt 9. ich möchte auch eine spannende Vorgschichte für diesen Raum. Es wäre doch auch cool, wenn die Räume auf einander aufbauen. Die Schwierigkeit mit jedem Raum steigt und man am Ende den Professor findet bzw. das Geheimnis aufdeckt oder das Rätsel löst. Außerdem musst du mir bescheid geben, falls du Bilder zum Austauschen der Grafik von mir brauchst“
+- **Ausgangsidee:** Schritt 9 des ursprünglichen Plans (Startseite mit Raumauswahl und Anleitung), erweitert um eine Vorgeschichte und um Räume, die aufeinander aufbauen.
+- **Rückfragen & Antworten:**
+  - Erste Rückfragen zur raumübergreifenden Geschichte (Geheimnis, Anzahl Räume, Freischalten, Darstellung) → von der Nutzerin abgebrochen und geändert: „Keine Geschichte, die sich über mehrere Räume zieht, und kein Gesamträtsel am Ende. Jeder Raum soll inhaltlich eigenständig sein. […] Die Räume sollen unterschiedliche Schwierigkeitsgrade haben, und spätere Räume werden schwieriger als frühere. Jeder Raum hat dabei einen festen Schwierigkeitsgrad. […] Außerdem möchte ich eine spannende Vorgeschichte, aber nur für diesen einen Raum“. Die verworfene Idee soll in `docs/ideen.md` eingetragen werden.
+  - Frage: Wer ist die Spielfigur? → Antwort: Studierende/r
+  - Frage: Warum sitzt man im Arbeitszimmer fest? → Antwort: Die Tür fällt hinter einem ins Schloss.
+  - Frage: Wie soll die Vorgeschichte erscheinen? → Antwort: Intro und Abschluss (Empfehlung übernommen)
+  - Frage: Begründung für die verworfene Idee (in der Vorgabe stand noch ein Platzhalter) → Antwort im Wortlaut übernommen (siehe `docs/ideen.md`). Daraus abgeleitet: Räume sind frei wählbar, nach Schwierigkeit sortiert.
+  - Ergänzung der Nutzerin vor der Freigabe: Später sollen KI-generierte Videos (z. B. mit Gemini) für Intro, Sieg und Zeitablauf aus Sicht der Studierenden eingebunden werden. Das soll jetzt vorbereitet werden, mit Überspringen-Knopf, Text als Untertitel bzw. Ersatz und unter Beachtung der Autoplay-Regeln; benötigte Videos gehören in die Anleitung.
+  - Ergänzung der Nutzerin: Neues Ende bei Zeitablauf. Der Hausmeister findet einen („Schritte auf dem Flur. Sie werden langsamer und bleiben direkt vor der Tür stehen. Stille. Ein Schlüssel dreht sich im Schloss, die Tür fliegt auf, und grelles Taschenlampenlicht trifft dich mitten ins Gesicht. ‚Was machen Sie hier drin?!‘ Der Hausmeister. Das Rätsel um Professor Albers bleibt ungelöst.“). Dazu ein Schreckmoment mit Einblendung und Soundeffekt, auch ohne Video, ohne schnell blinkende Effekte, mit angemessener Lautstärke und einem Hinweis auf der Raumkarte.
+  - Ergänzung der Nutzerin: Jeder spätere Raum bekommt eine eigene Vorgeschichte mit Intro und Outro (Text, optional Video), in der Anleitung unter „Neuen Raum anlegen“. Der Schreckmoment ist pro Raum optional und ausdrücklich abschaltbar; der Karten-Hinweis erscheint nur bei Räumen mit Schreck.
+- **Kurzfassung des Plans:**
+  - Startseite `index.html` mit Raumkarten (Schwierigkeit, Dauer, Kurzbeschreibung, Schreck-Hinweis); das Spiel zieht nach `spiel.html?raum=<id>` um; die Raumliste steht in `shared/raeume/index.js`.
+  - Neuer Spielstatus „bereit“ mit Aktion `start`, damit der Timer erst mit „Raum betreten“ läuft.
+  - Geschichte (Intro, Outro, Verloren-Text, optionale Videos, Schreck an/aus) in den Raumdaten, abgesichert durch Tests.
+  - Neues Modul `geschichte.js` für Text und Video mit Überspringen und Text-Ersatz.
+  - Schreckmoment: ruhiger Spannungsaufbau, eine einzelne Lichteinblendung und Ton (Ersatzton per Web Audio, solange keine Datei da ist).
+  - `docs/anleitung.md` mit Anleitungen und Liste aller benötigten Grafiken, Videos und des Sounds.
+  - Umsetzung in den Teilschritten 9a–9d.
+- **Plandatei:** [`docs/plaene/2026-10-04_startseite-und-vorgeschichte.md`](docs/plaene/2026-10-04_startseite-und-vorgeschichte.md)
+- **Verworfene Ideen & Alternativen:**
+  - Raumübergreifende Geschichte mit Gesamträtsel (siehe [`docs/ideen.md`](docs/ideen.md)) und dazu vorgeschlagene Geheimnisse (Himmelsentdeckung, Geheimbund, Schatzsuche, Zeiträtsel).
+  - Räume nacheinander freischalten (vorerst).
+  - Spielfigur als Assistent/in oder Detektiv/in.
+  - Auslöser „Prüfung des Professors“ bzw. „Jemand sperrt ab“.
+  - Vorgeschichte nur als Intro oder nur auf der Startseite.
+  - Erster Entwurf des Verloren-Endes („Nacht im Arbeitszimmer verbringen“).
+  - Schreckmoment automatisch für jeden Raum.
+- **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu Startseite und Vorgeschichte“)
