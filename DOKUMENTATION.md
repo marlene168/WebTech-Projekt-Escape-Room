@@ -13,7 +13,13 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Noch keine Funktionen umgesetzt._
+- **Funktionen:** Projektgerüst steht: Ein Node.js/Express-Server liefert eine Platzhalter-Startseite aus. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
+- **Ordnerstruktur:**
+  - `server.js` – Webserver (liefert `public/` und `shared/` aus)
+  - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
+  - `shared/` – Raumdaten und Spiellogik (noch leer, folgt in Schritt 3 und 5)
+  - `docs/plaene/` – freigegebene Pläne
+- **Wichtigste Dateien:** `server.js`, `public/index.html`, `package.json`
 
 ## 3. Wichtige Entscheidungen
 | Datum | Entscheidung | Begründung | Verworfene Alternativen |
@@ -94,3 +100,14 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Plandatei:** [`docs/plaene/2026-10-04_erste-version.md`](docs/plaene/2026-10-04_erste-version.md)
 - **Verworfene Ideen & Alternativen:** Vue bzw. React als Framework; reine statische Dateien ohne Server; Mehrspieler mit verteilten Informationen oder als Wettbewerb; ein Raumbild mit unsichtbaren Klickflächen; Hinweise ohne Hilfe-Knopf bzw. Hilfe ohne Strafe; Weiterspielen mit Überzeit; die Themen Labor und Piratenkajüte.
 - **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu erste Version“)
+
+### 2026-10-04, 02:08 – Schritt 1: Projektgerüst und Server
+- **Auslöser:** Anweisung des Nutzers: Freigabe des Plans „Erste Version der Escape-Room-WebApp“; dies ist Schritt 1 des Plans.
+- **Durchgeführte Schritte:** `package.json` angelegt (ES-Module, Startskript `npm start`); Express installiert; `server.js` geschrieben, der `public/` und unter `/shared` den Ordner `shared/` ausliefert und den Port aus `PORT` liest (Standard 3000); einfache `public/index.html` als Platzhalter angelegt; Server testweise gestartet und Seite per `curl` abgerufen (HTTP 200); Abschnitt 2 „Aktueller Stand“ aktualisiert.
+- **Geänderte/neue Dateien:** `package.json`, `package-lock.json`, `server.js`, `public/index.html`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, npm, Node.js, curl, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Mit `npm start` läuft der Server, unter `http://localhost:3000` erscheint die Seite „Escape Room“.
+- **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `0dfbc36`
