@@ -13,13 +13,13 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Projektgerüst steht: Ein Node.js/Express-Server liefert eine Platzhalter-Startseite aus. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
+- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
   - `shared/` – Raumdaten und Spiellogik (noch leer, folgt in Schritt 3 und 5)
   - `docs/plaene/` – freigegebene Pläne
-- **Wichtigste Dateien:** `server.js`, `public/index.html`, `package.json`
+- **Wichtigste Dateien:** `server.js`, `public/index.html`, `public/css/style.css`, `package.json`
 
 ## 3. Wichtige Entscheidungen
 | Datum | Entscheidung | Begründung | Verworfene Alternativen |
@@ -111,3 +111,14 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** `0dfbc36`
+
+### 2026-10-04, 02:17 – Schritt 2: Spielbühne
+- **Auslöser:** Anweisung des Nutzers: „mach bitte mit schritt zwei weiter“ (Schritt 2 des freigegebenen Plans).
+- **Durchgeführte Schritte:** `public/index.html` um Kopfleiste mit Raumtitel und eine Spielbühne erweitert; `public/css/style.css` angelegt. Die Bühne behält immer das Seitenverhältnis 16:9 und wird so groß wie möglich (Container-Query-Einheiten `cqw`/`cqh`). Als Platzhalter-Hintergrund dient ein CSS-Farbverlauf (gestreifte Tapete, Holzdielen, dunkle Vignette). Farben sind als CSS-Variablen festgelegt. Auslieferung von Seite und CSS per `curl` geprüft (HTTP 200).
+- **Geänderte/neue Dateien:** `public/index.html`, `public/css/style.css`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js, curl, Git
+- **Probleme & Lösungen:** Ein automatischer Screenshot zur Sichtprüfung war nicht möglich (kein Chrome installiert) → Sichtprüfung übernimmt die Nutzerin im Browser.
+- **Ergebnis:** Ein dunkler „Raum“ füllt das Fenster unter der Kopfleiste und behält beim Verkleinern seine Form.
+- **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `a0ca820`
