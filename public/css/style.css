@@ -438,7 +438,7 @@ body {
   color: #e08a6b;
 }
 
-.schloss-knoepfe {
+.fenster-knoepfe {
   display: flex;
   justify-content: center;
   gap: 0.8rem;
@@ -543,4 +543,53 @@ body {
 
 @keyframes pulsieren {
   50% { box-shadow: 0 0 10px rgba(255, 110, 80, 0.6); }
+}
+
+/* Zeitstrafe durch einen Tipp: Timer blitzt kurz rot auf */
+.timer.strafe {
+  animation: strafe 1.2s ease-out;
+}
+
+@keyframes strafe {
+  0%, 30% { background: rgba(200, 60, 40, 0.6); transform: scale(1.12); }
+  100% { background: transparent; transform: scale(1); }
+}
+
+/* ---------- Hilfe ---------- */
+.hilfe {
+  width: min(32rem, 90vw);
+}
+
+.hilfe-info {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.hilfe-liste {
+  margin: 0 0 1.2rem;
+  padding-left: 1.4rem;
+  line-height: 1.5;
+}
+
+.hilfe-liste li + li {
+  margin-top: 0.6rem;
+}
+
+.hilfe .knopf-haupt {
+  border-color: #5a3d1e;
+  background: #5a3d1e;
+  color: #f1e4c8;
+}
+
+.hilfe .knopf-haupt:hover,
+.hilfe .knopf-haupt:focus-visible {
+  background: #3f2a14;
+}
+
+.ende-statistik {
+  margin: -0.5rem 0 1.5rem;
+  font-family: system-ui, sans-serif; /* gleich hohe Ziffern */
+  font-size: 0.9rem;
+  color: var(--farbe-akzent);
 }

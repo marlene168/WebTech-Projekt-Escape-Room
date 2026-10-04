@@ -14,7 +14,9 @@ export function erstelleSpielstand(raum, jetzt) {
     status: "laeuft", // "laeuft", "gewonnen" oder "verloren"
     startzeit: jetzt,
     dauerSekunden: raum.dauerSekunden,
+    strafSekunden: 0, // Zeitabzug durch Tipps
     endzeit: null, // Zeitpunkt des Spielendes – danach bleibt die Restzeit stehen
+    genutzteTipps: 0,
     gefundeneSpuren: [], // Namen der Spuren in der Reihenfolge, in der sie gefunden wurden
     geoeffneteSchloesser: [],
     fehlversuche: 0, // falsch eingegebene Codes (die Anzeige lässt dann das Schloss wackeln)
@@ -24,6 +26,7 @@ export function erstelleSpielstand(raum, jetzt) {
 // Aktionen:
 //   { typ: "untersuche", objekt: "<objekt-id>" }                   → ein Objekt wurde angeklickt
 //   { typ: "probiereCode", schloss: "<schloss>", code: "<ziffern>" } → Code an einem Schloss eingeben
+//   { typ: "tipp" }                                                 → nächsten Tipp holen (kostet Zeit)
 //   { typ: "neustart" }                                             → neues Spiel, alles auf Anfang
 export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
   if (aktion.typ === "neustart") return erstelleSpielstand(raum, jetzt);
@@ -37,6 +40,8 @@ export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
       return untersuche(raum, spielstand, aktion.objekt);
     case "probiereCode":
       return probiereCode(raum, spielstand, aktion.schloss, aktion.code, jetzt);
+    case "tipp":
+      return holeTipp(raum, spielstand, jetzt);
     default:
       return spielstand;
   }
@@ -55,8 +60,21 @@ export function pruefeZeit(spielstand, jetzt) {
   return { ...spielstand, status: "verloren", endzeit: spielende(spielstand) };
 }
 
+// Zeitpunkt, zu dem die Zeit abläuft – jeder Tipp zieht sie nach vorne
 function spielende(spielstand) {
-  return spielstand.startzeit + spielstand.dauerSekunden * 1000;
+  return spielstand.startzeit + (spielstand.dauerSekunden - spielstand.strafSekunden) * 1000;
+}
+
+function holeTipp(raum, spielstand, jetzt) {
+  if (spielstand.genutzteTipps >= raum.tipps.length) return spielstand;
+
+  const neu = {
+    ...spielstand,
+    genutzteTipps: spielstand.genutzteTipps + 1,
+    strafSekunden: spielstand.strafSekunden + raum.strafeProTippSekunden,
+  };
+  // Frisst die Strafe die restliche Zeit auf, ist das Spiel sofort vorbei
+  return pruefeZeit(neu, jetzt);
 }
 
 function untersuche(raum, spielstand, objektId) {

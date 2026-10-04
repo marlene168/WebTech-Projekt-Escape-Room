@@ -11,11 +11,14 @@ const notizbuchKnopf = document.querySelector(".notizbuch-knopf");
 const schlossFenster = document.querySelector(".schloss-fenster");
 const endeFenster = document.querySelector(".ende-fenster");
 const timer = document.querySelector(".timer");
+const hilfe = document.querySelector(".hilfe");
+const hilfeKnopf = document.querySelector(".hilfe-knopf");
 
-// Zuletzt angezeigter Spielstand – um Änderungen zu erkennen (neue Spur, Fehlversuch, Spielende)
+// Zuletzt angezeigter Spielstand – um Änderungen zu erkennen (neue Spur, Fehlversuch, Tipp, Spielende)
 let aktuellerSpielstand = null;
 let gefundeneSpuren = [];
 let fehlversuche = 0;
+let genutzteTipps = 0;
 let status = "laeuft";
 
 // Wird beim Klick auf "Öffnen" mit dem eingestellten Code aufgerufen (siehe zeigeSchloss)
@@ -62,11 +65,20 @@ export function zeigeSpielstand(raum, spielstand) {
   if (spielstand.fehlversuche > fehlversuche) meldeFalschenCode();
   fehlversuche = spielstand.fehlversuche;
 
+  zeichneHilfe(raum, spielstand);
+  if (spielstand.genutzteTipps > genutzteTipps) zeigeStrafe();
+  genutzteTipps = spielstand.genutzteTipps;
+
   if (spielstand.status !== status) {
+    const tippText = `Tipps genutzt: ${spielstand.genutzteTipps}`;
     if (spielstand.status === "gewonnen") {
-      zeigeEnde("🔓", "Geschafft!", "Mit einem leisen Klicken springt das Schloss auf. Du bist aus dem Arbeitszimmer entkommen!");
+      zeigeEnde("🔓", "Geschafft!",
+        "Mit einem leisen Klicken springt das Schloss auf. Du bist aus dem Arbeitszimmer entkommen!",
+        `Restzeit: ${formatiereZeit(restzeit(spielstand, Date.now()))} · ${tippText}`);
     } else if (spielstand.status === "verloren") {
-      zeigeEnde("⌛", "Zeit abgelaufen", "Draußen schlägt eine Uhr. Die Tür bleibt verschlossen – und das Rätsel um den Professor ungelöst.");
+      zeigeEnde("⌛", "Zeit abgelaufen",
+        "Draußen schlägt eine Uhr. Die Tür bleibt verschlossen – und das Rätsel um den Professor ungelöst.",
+        `Spuren gefunden: ${spielstand.gefundeneSpuren.length} von ${Object.keys(raum.spuren).length} · ${tippText}`);
     } else {
       endeFenster.close(); // neues Spiel hat begonnen
     }
@@ -79,14 +91,57 @@ export function zeigeSpielstand(raum, spielstand) {
 // Die Restzeit wird bei jedem Aufruf aus dem Spielstand neu berechnet (keine eigene Zählvariable).
 function zeichneTimer() {
   if (!aktuellerSpielstand) return;
-  const sekunden = Math.ceil(restzeit(aktuellerSpielstand, Date.now()) / 1000);
-  const minuten = String(Math.floor(sekunden / 60)).padStart(2, "0");
-  timer.querySelector(".timer-zeit").textContent = `${minuten}:${String(sekunden % 60).padStart(2, "0")}`;
+  const millisekunden = restzeit(aktuellerSpielstand, Date.now());
+  timer.querySelector(".timer-zeit").textContent = formatiereZeit(millisekunden);
   // In der letzten Minute wird der Timer rot
-  timer.classList.toggle("knapp", sekunden <= 60 && aktuellerSpielstand.status === "laeuft");
+  timer.classList.toggle("knapp", millisekunden <= 60_000 && aktuellerSpielstand.status === "laeuft");
 }
 
 setInterval(zeichneTimer, 250);
+
+// Millisekunden → "mm:ss" (angebrochene Sekunden werden aufgerundet, damit 00:00 erst am Ende erscheint)
+function formatiereZeit(millisekunden) {
+  const sekunden = Math.ceil(millisekunden / 1000);
+  const minuten = Math.floor(sekunden / 60);
+  return `${String(minuten).padStart(2, "0")}:${String(sekunden % 60).padStart(2, "0")}`;
+}
+
+// Kurzes rotes Aufblitzen des Timers, wenn ein Tipp Zeit gekostet hat
+function zeigeStrafe() {
+  timer.classList.remove("strafe");
+  void timer.offsetWidth; // erzwingt Neustart der Animation
+  timer.classList.add("strafe");
+}
+
+// ---------- Hilfe ----------
+
+function zeichneHilfe(raum, spielstand) {
+  const strafe = raum.strafeProTippSekunden;
+  const strafeText = strafe % 60 === 0 ? `${strafe / 60} Min.` : `${strafe} Sek.`;
+  const anzahl = spielstand.genutzteTipps;
+
+  hilfe.querySelector(".hilfe-info").textContent = anzahl < raum.tipps.length
+    ? `Jeder neue Tipp kostet ${strafeText} Spielzeit. Bereits erhaltene Tipps kannst du hier jederzeit kostenlos nachlesen.`
+    : "Du hast alle Tipps erhalten.";
+
+  hilfe.querySelector(".hilfe-liste").replaceChildren(
+    ...raum.tipps.slice(0, anzahl).map((text) => {
+      const eintrag = document.createElement("li");
+      eintrag.textContent = text;
+      return eintrag;
+    }),
+  );
+
+  const anfordern = hilfe.querySelector(".hilfe-anfordern");
+  anfordern.hidden = anzahl >= raum.tipps.length || spielstand.status !== "laeuft";
+  anfordern.textContent = `Tipp ${anzahl + 1} von ${raum.tipps.length} holen (−${strafeText})`;
+}
+
+hilfeKnopf.addEventListener("click", () => hilfe.showModal());
+
+export function beimTippAnfordern(callback) {
+  hilfe.querySelector(".hilfe-anfordern").addEventListener("click", callback);
+}
 
 // ---------- Zahlenschloss ----------
 
@@ -136,11 +191,12 @@ function meldeFalschenCode() {
 
 // ---------- Spielende ----------
 
-function zeigeEnde(symbol, titel, text) {
+function zeigeEnde(symbol, titel, text, statistik) {
   document.querySelectorAll("dialog[open]").forEach((fenster) => fenster.close());
   endeFenster.querySelector(".ende-symbol").textContent = symbol;
   endeFenster.querySelector(".ende-titel").textContent = titel;
   endeFenster.querySelector(".ende-text").textContent = text;
+  endeFenster.querySelector(".ende-statistik").textContent = statistik;
   endeFenster.showModal();
 }
 

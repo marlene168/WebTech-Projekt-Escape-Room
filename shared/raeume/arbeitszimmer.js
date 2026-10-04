@@ -17,6 +17,7 @@ export default {
   id: "arbeitszimmer",
   titel: "Das Arbeitszimmer des Professors",
   dauerSekunden: 600, // 10 Minuten
+  strafeProTippSekunden: 60, // so viel Zeit kostet jeder Tipp
   startSzene: "raum",
 
   szenen: {
@@ -182,4 +183,11 @@ export default {
 
   // Wird dieses Schloss geöffnet, ist der Raum geschafft.
   ausgang: "tuer",
+
+  // Gestufte Tipps für den Hilfe-Knopf: vom vagen Hinweis bis zur Lösung
+  tipps: [
+    "Drei Dinge im Raum lassen sich aus der Nähe ansehen: der Schreibtisch, die Pinnwand und das Gemälde. Schau dort genau hin.",
+    "Der Professor schreibt in seinem Brief: „Folgt den Farben.“ Achte auf eine rote, eine grüne und eine blaue Ziffer.",
+    "Die Notiz an der Pinnwand nennt die Reihenfolge: Rot – Grün – Blau. Der Code lautet also 4 – 1 – 7.",
+  ],
 };

@@ -145,3 +145,32 @@ test("Neustart setzt alles zurück und startet die Zeit neu", () => {
   const neu = verarbeiteAktion(raum, spielstand, { typ: "neustart" }, neustartZeit);
   assert.deepEqual(neu, erstelleSpielstand(raum, neustartZeit));
 });
+
+// ---------- Tipps ----------
+const STRAFE_MS = raum.strafeProTippSekunden * 1000;
+const tipp = (spielstand, jetzt = SPAETER) => verarbeiteAktion(raum, spielstand, { typ: "tipp" }, jetzt);
+
+test("Ein Tipp wird gezählt und kostet Zeit", () => {
+  const spielstand = tipp(neuesSpiel());
+  assert.equal(spielstand.genutzteTipps, 1);
+  assert.equal(restzeit(spielstand, START), DAUER_MS - STRAFE_MS);
+});
+
+test("Es gibt nicht mehr Tipps, als der Raum hat", () => {
+  let spielstand = neuesSpiel();
+  for (let i = 0; i < raum.tipps.length; i++) spielstand = tipp(spielstand);
+  assert.equal(spielstand.genutzteTipps, raum.tipps.length);
+  assert.equal(tipp(spielstand), spielstand);
+});
+
+test("Frisst ein Tipp die restliche Zeit auf, ist das Spiel verloren", () => {
+  const kurzVorSchluss = START + DAUER_MS - STRAFE_MS / 2;
+  const spielstand = tipp(neuesSpiel(), kurzVorSchluss);
+  assert.equal(spielstand.status, "verloren");
+  assert.equal(restzeit(spielstand, kurzVorSchluss), 0);
+});
+
+test("Nach dem Spielende gibt es keine Tipps mehr", () => {
+  const gewonnen = probiere(neuesSpiel(), "417");
+  assert.equal(tipp(gewonnen), gewonnen);
+});

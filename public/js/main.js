@@ -3,7 +3,7 @@ import raum from "/shared/raeume/arbeitszimmer.js";
 import { erstelleLokaleVerbindung } from "./verbindung-lokal.js";
 import {
   zeichneSzene, zoomeHinein, zoomeHeraus, zeigeText, zeigeZurueckKnopf, beimZurueck, zeigeSpielstand,
-  zeigeSchloss, beimNeustart,
+  zeigeSchloss, beimNeustart, beimTippAnfordern,
 } from "./anzeige.js";
 
 document.title = `${raum.titel} – Escape Room`;
@@ -54,6 +54,7 @@ beimZurueck(() => {
 });
 
 beimNeustart(() => verbindung.sendeAktion({ typ: "neustart" }));
+beimTippAnfordern(() => verbindung.sendeAktion({ typ: "tipp" }));
 
 zeichneSzene(raum.szenen[aktuelleSzene], beiKlick);
 

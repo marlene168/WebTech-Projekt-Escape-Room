@@ -12,6 +12,7 @@
     <h1 class="raumtitel">Escape Room</h1>
     <div class="kopfleiste-knoepfe">
       <div class="timer" title="Verbleibende Zeit">⏳ <span class="timer-zeit">--:--</span></div>
+      <button class="knopf hilfe-knopf">💡 Hilfe</button>
       <button class="knopf notizbuch-knopf">📓 Notizbuch <span class="zaehler">0</span></button>
     </div>
   </header>
@@ -56,11 +57,24 @@
     <p class="textfenster-text"></p>
     <div class="schloss-raeder"></div>
     <p class="schloss-meldung" aria-live="polite"></p>
-    <div class="schloss-knoepfe">
+    <div class="fenster-knoepfe">
       <form method="dialog">
         <button class="knopf">Schließen</button>
       </form>
       <button class="knopf knopf-haupt schloss-oeffnen">Öffnen</button>
+    </div>
+  </dialog>
+
+  <!-- Hilfe: bereits erhaltene Tipps und Knopf für den nächsten Tipp -->
+  <dialog class="textfenster hilfe">
+    <h2 class="textfenster-titel">Hilfe</h2>
+    <p class="hilfe-info"></p>
+    <ol class="hilfe-liste"></ol>
+    <div class="fenster-knoepfe">
+      <form method="dialog">
+        <button class="knopf">Schließen</button>
+      </form>
+      <button class="knopf knopf-haupt hilfe-anfordern"></button>
     </div>
   </dialog>
 
@@ -69,6 +83,7 @@
     <div class="ende-symbol"></div>
     <h2 class="ende-titel"></h2>
     <p class="ende-text"></p>
+    <p class="ende-statistik"></p>
     <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
   </dialog>
 
