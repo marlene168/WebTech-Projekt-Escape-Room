@@ -343,3 +343,43 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
 - **Abweichungen vom Plan:** Das Feld `schreck` und die Video-Felder kommen erst mit 9c in die Raumdaten, zusammen mit der Funktion, die sie nutzt.
 - **Git-Commit:** `06c9325`
+
+### 2026-10-04, 21:15 – Schritt 9c: Schreckmoment und Video-Unterstützung
+- **Auslöser:** Anweisung des Nutzers: Freigabe des Plans „Startseite, Schwierigkeitsgrade und Vorgeschichte“ und „mache weiter“. Dies ist Teilschritt 9c. Er setzt die vor der Freigabe ergänzten Wünsche nach Videos und Schreckmoment um.
+- **Durchgeführte Schritte:**
+  - Raumdaten:
+    - `video: null` bei Intro, Outro und Verloren-Text.
+    - `schreck: { sound: null }` beim Arbeitszimmer (Schreck an, eingebauter Ersatzton).
+    - Kommentare erklären die Möglichkeiten: `null` = aus, eigener Sound per Pfad.
+  - Zwei neue Tests: Jeder Raum setzt `schreck` ausdrücklich (`null` oder Objekt mit `sound`), und Video-Angaben sind `null` oder ein Pfad. Insgesamt 36 Tests, alle bestanden.
+  - `public/js/geschichte.js` erweitert:
+    - **Video-Abspieler** (`<video playsinline>`): Knopf „Überspringen ⏭“; Endet das Video oder fehlt die Datei, verschwindet es und der Text bleibt. Blockiert der Browser das automatische Abspielen, erscheint „▶ Abspielen“.
+    - **Spannungsaufbau:** Der Text erscheint Satz für Satz auf einer abgedunkelten Ebene, etwa 5 s.
+    - **Schreckmoment:** eine einzelne Lichtkegel-Einblendung, die über 1,3 s verblasst (kein Blinken). Bei „Bewegung reduzieren“ fällt sie sanfter und weniger hell aus. Dazu kommt der Ton mit 60 % Lautstärke.
+    - **Ersatzton per Web Audio API:** tiefer Schlag, Rauschen und ein schräger Akzent aus zwei Tönen.
+    - **Ton-Freigabe** beim Klick auf „Raum betreten“ bzw. „Nochmal spielen“ (AudioContext fortsetzen bzw. Sounddatei stumm anspielen).
+  - `anzeige.js`:
+    - Ablauf bei Zeitablauf: Spannung, dann Schreck (falls an), dann der Ende-Bildschirm mit dem restlichen Text. Ein Verloren-Video ersetzt Spannung und Schreck, der ganze Text bleibt als Untertitel.
+    - Das Outro-Video startet im Ende-Fenster.
+    - Im Intro erscheint der Knopf „▶ Geschichte ansehen“ nur, wenn es ein Video gibt. Das Video startet erst nach diesem Klick (Autoplay-Regeln).
+    - Videos stoppen, sobald ihr Fenster geschlossen wird.
+  - Startseite: Der Hinweis „⚠ Enthält einen Schreckmoment mit Ton“ erscheint nur bei Räumen mit `schreck`.
+  - Intro- und Ende-Fenster: Bei Platzmangel scrollt nur der Text, Video und Knöpfe bleiben sichtbar.
+  - Prüfung mit einem Testserver und einem selbst aufgenommenen 4-s-WebM-Testvideo (beides nur im Scratchpad, nicht im Projekt). Geprüft wurden vier Varianten: Schreck an, Schreck aus, mit Video, Video-Datei fehlt. Dazu Screenshots auf Desktop und Handy quer.
+- **Geänderte/neue Dateien:** `shared/raeume/arbeitszimmer.js`, `public/js/geschichte.js`, `public/js/anzeige.js`, `public/js/start.js`, `public/spiel.html`, `public/css/style.css`, `test/raeume.test.js`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Google Chrome (headless, DevTools-Protokoll, MediaRecorder für das Testvideo), Git
+- **Probleme & Lösungen:**
+  - Beim ersten Test schienen Ton und Ende-Bildschirm zu fehlen. Ursache war das Testskript, dessen Warteschleife nach 4 s aufgab, bevor der Schreck kam. Nach der Korrektur bestätigt: Der Schreck kommt nach 5,7 s, der AudioContext läuft, die Klangquellen werden erzeugt, und danach öffnet sich das Ende-Fenster.
+  - Der Spannungsaufbau war mit etwa 7,6 s länger als geplant → Pausen pro Satz verkürzt (etwa 5 s).
+  - Mit Video war das Intro höher als der Bildschirm, „Raum betreten“ lag außerhalb → Intro und Ende als Flex-Spalte, nur der Text scrollt. Auf niedrigen Bildschirmen sind Video und Titel kleiner.
+  - Ton lässt sich per Screenshot nicht prüfen; geprüft wurde per Skript, dass er ohne Fehler erzeugt wird. Hören muss ihn die Nutzerin selbst.
+- **Ergebnis:**
+  - Bei Zeitablauf baut sich Spannung auf, dann folgt der Schreck mit Licht und Ton und schließlich die Hausmeister-Szene.
+  - Ein Raum kann den Schreck ausdrücklich abschalten.
+  - Videos lassen sich später einfach durch Eintragen des Pfads einbinden; ohne Video funktioniert alles mit Text.
+  - In keiner Variante gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
+- **Abweichungen vom Plan:**
+  - Das Feld `schreck` enthält nur `sound`, kein `bild`: Die Lichteinblendung ist fest eingebaut, ein eigenes Schreckbild war nicht gefordert.
+  - Ohne Schreck, aber mit Spannungstext läuft der Spannungsaufbau trotzdem, danach folgt direkt der Ende-Bildschirm.
+- **Git-Commit:** `c8ca67b`
