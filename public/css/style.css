@@ -1,0 +1,82 @@
+/* ---------- Grundeinstellungen ---------- */
+:root {
+  --farbe-seite: #0e0b09;
+  --farbe-leiste: #1b1511;
+  --farbe-text: #ecdcc0;
+  --farbe-akzent: #c9a35b;
+  --hoehe-leiste: 3.5rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  background: var(--farbe-seite);
+  color: var(--farbe-text);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+/* ---------- Kopfleiste ---------- */
+.kopfleiste {
+  display: flex;
+  align-items: center;
+  height: var(--hoehe-leiste);
+  padding: 0 1rem;
+  background: var(--farbe-leiste);
+  border-bottom: 1px solid #3a2e24;
+}
+
+.raumtitel {
+  margin: 0;
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: normal;
+  letter-spacing: 0.05em;
+  color: var(--farbe-akzent);
+}
+
+/* ---------- Bühne ---------- */
+/* Der Bereich unter der Kopfleiste. "container-type: size" erlaubt der Bühne,
+   ihre Größe an diesem Bereich auszurichten (Einheiten cqw/cqh). */
+.buehnen-bereich {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+  overflow: hidden;
+}
+
+/* So groß wie möglich, aber immer 16:9: entweder volle Breite oder volle Höhe. */
+.buehne {
+  position: relative;
+  width: min(100cqw, 100cqh * 16 / 9);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+.szene-hintergrund {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Platzhalter, bis ein echtes Hintergrundbild vorhanden ist:
+   oben gestreifte Tapete, unten Holzdielen, darüber eine dunkle Vignette. */
+.platzhalter-hintergrund {
+  background:
+    radial-gradient(ellipse at 50% 40%, transparent 30%, rgba(0, 0, 0, 0.75) 100%),
+    linear-gradient(to bottom, transparent 64%, rgba(0, 0, 0, 0.5) 64%, transparent 66%),
+    repeating-linear-gradient(to right, #4a3020 0 6%, #3f2819 6% 6.3%) bottom / 100% 35% no-repeat,
+    repeating-linear-gradient(to right, #2f3b2c 0 2.5%, #344230 2.5% 5%) top / 100% 65% no-repeat;
+}
