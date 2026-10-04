@@ -3,6 +3,7 @@ import raum from "/shared/raeume/arbeitszimmer.js";
 import { erstelleLokaleVerbindung } from "./verbindung-lokal.js";
 import {
   zeichneSzene, zoomeHinein, zoomeHeraus, zeigeText, zeigeZurueckKnopf, beimZurueck, zeigeSpielstand,
+  zeigeSchloss,
 } from "./anzeige.js";
 
 document.title = `${raum.titel} – Escape Room`;
@@ -23,6 +24,12 @@ function beiKlick(objekt) {
     aktuelleSzene = objekt.aktion.ziel;
     zeigeZurueckKnopf(true);
     zoomeHinein(raum.szenen[aktuelleSzene], mitte, beiKlick);
+  } else if (objekt.aktion?.typ === "schloss") {
+    const schloss = objekt.aktion.schloss;
+    // Ob der Code stimmt, entscheidet die Spiellogik
+    zeigeSchloss(raum.schloesser[schloss], (code) => {
+      verbindung.sendeAktion({ typ: "probiereCode", schloss, code });
+    });
   } else {
     zeigeText(objekt.name, objekt.text);
     // Ob das Objekt eine Spur liefert, entscheidet die Spiellogik

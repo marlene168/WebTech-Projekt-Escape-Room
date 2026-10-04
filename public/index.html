@@ -49,6 +49,28 @@
     </form>
   </dialog>
 
+  <!-- Zahlenschloss: Rädchen werden von js/anzeige.js passend zur Code-Länge angelegt -->
+  <dialog class="textfenster schloss-fenster">
+    <h2 class="textfenster-titel"></h2>
+    <p class="textfenster-text"></p>
+    <div class="schloss-raeder"></div>
+    <p class="schloss-meldung" aria-live="polite"></p>
+    <div class="schloss-knoepfe">
+      <form method="dialog">
+        <button class="knopf">Schließen</button>
+      </form>
+      <button class="knopf knopf-haupt schloss-oeffnen">Öffnen</button>
+    </div>
+  </dialog>
+
+  <!-- Spielende (gewonnen) -->
+  <dialog class="ende-fenster">
+    <div class="ende-symbol">🔓</div>
+    <h2 class="ende-titel"></h2>
+    <p class="ende-text"></p>
+    <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
+  </dialog>
+
   <!-- Erscheint nur auf Handys im Hochformat (siehe style.css) -->
   <div class="dreh-hinweis">
     <span class="dreh-hinweis-symbol">📱↻</span>

@@ -361,3 +361,152 @@ body {
 .notizbuch-liste span {
   font-size: 0.9rem;
 }
+
+/* Hervorgehobener Knopf (Hauptaktion) */
+.knopf-haupt {
+  background: var(--farbe-akzent);
+  color: var(--farbe-seite);
+}
+
+.knopf-haupt:hover,
+.knopf-haupt:focus-visible {
+  background: #e0bd74;
+}
+
+/* ---------- Zahlenschloss ---------- */
+.schloss-fenster {
+  background: #2a211a;
+  color: var(--farbe-text);
+  border-color: #6b5233;
+  text-align: center;
+}
+
+.schloss-fenster .textfenster-titel {
+  color: var(--farbe-akzent);
+}
+
+.schloss-raeder {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 0.5rem 0 0.8rem;
+}
+
+.rad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Messing-Rädchen: Verlauf von hell nach dunkel nach hell wirkt wie eine Rundung */
+.ziffer {
+  display: grid;
+  place-items: center;
+  width: 3.2rem;
+  height: 4rem;
+  border: 2px solid #5c4320;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #7a5a24, #e9c97a 30%, #f3dc9c 50%, #e9c97a 70%, #7a5a24);
+  color: #2b1d0c;
+  font-family: system-ui, sans-serif; /* Georgia hat keine gleich hohen Ziffern */
+  font-size: 2.2rem;
+  font-weight: bold;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+.rad-knopf {
+  width: 3.2rem;
+  padding: 0.25rem 0;
+  border: none;
+  background: none;
+  color: var(--farbe-akzent);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.rad-knopf:hover,
+.rad-knopf:focus-visible {
+  color: #f3dc9c;
+  outline: none;
+  transform: scale(1.25);
+}
+
+.schloss-meldung {
+  min-height: 1.5em;
+  margin: 0 0 0.8rem;
+  font-style: italic;
+  color: #e08a6b;
+}
+
+.schloss-knoepfe {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+.schloss-fenster .knopf:not(.knopf-haupt) {
+  border-color: var(--farbe-akzent);
+  color: var(--farbe-akzent);
+}
+
+.schloss-fenster .knopf:not(.knopf-haupt):hover,
+.schloss-fenster .knopf:not(.knopf-haupt):focus-visible {
+  background: var(--farbe-akzent);
+  color: var(--farbe-seite);
+}
+
+.schloss-fenster .knopf-haupt {
+  border-color: var(--farbe-akzent);
+  color: var(--farbe-seite);
+}
+
+.schloss-fenster .knopf-haupt:hover,
+.schloss-fenster .knopf-haupt:focus-visible {
+  background: #e0bd74;
+  color: var(--farbe-seite);
+}
+
+/* Falscher Code: Rädchen wackeln kurz */
+.schloss-raeder.wackeln {
+  animation: wackeln 0.45s;
+}
+
+@keyframes wackeln {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(9px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(4px); }
+}
+
+/* ---------- Spielende ---------- */
+.ende-fenster {
+  max-width: min(30rem, 90vw);
+  padding: 2rem 2.5rem;
+  border: 1px solid var(--farbe-akzent);
+  border-radius: 8px;
+  background: #1b1511;
+  color: var(--farbe-text);
+  text-align: center;
+  box-shadow: 0 0 60px rgba(201, 163, 91, 0.25);
+}
+
+.ende-fenster::backdrop {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.ende-symbol {
+  font-size: 3.5rem;
+}
+
+.ende-titel {
+  margin: 0.5rem 0;
+  font-size: 2rem;
+  font-weight: normal;
+  color: var(--farbe-akzent);
+}
+
+.ende-text {
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}

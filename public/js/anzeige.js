@@ -7,9 +7,16 @@ const zurueckKnopf = document.querySelector(".zurueck-knopf");
 const textfenster = document.querySelector(".beschreibung");
 const notizbuch = document.querySelector(".notizbuch");
 const notizbuchKnopf = document.querySelector(".notizbuch-knopf");
+const schlossFenster = document.querySelector(".schloss-fenster");
+const endeFenster = document.querySelector(".ende-fenster");
 
-// Die zuletzt angezeigten gefundenen Spuren (um neue zu erkennen und Objekte zu markieren)
+// Zuletzt angezeigter Spielstand – um Änderungen zu erkennen (neue Spur, Fehlversuch, Spielende)
 let gefundeneSpuren = [];
+let fehlversuche = 0;
+let status = "laeuft";
+
+// Wird beim Klick auf "Öffnen" mit dem eingestellten Code aufgerufen (siehe zeigeSchloss)
+let beiCodeVersuch = null;
 
 // Wer in den Systemeinstellungen "Bewegung reduzieren" gewählt hat, bekommt keine Zoom-Animation.
 const ohneAnimation = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -45,7 +52,74 @@ export function zeigeSpielstand(raum, spielstand) {
   markiereGefundene();
   zeichneNotizbuch(raum);
   if (neue.length > 0) meldeNeueSpur();
+
+  if (spielstand.fehlversuche > fehlversuche) meldeFalschenCode();
+  fehlversuche = spielstand.fehlversuche;
+
+  if (spielstand.status === "gewonnen" && status !== "gewonnen") {
+    zeigeEnde("Geschafft!", "Mit einem leisen Klicken springt das Schloss auf. Du bist aus dem Arbeitszimmer entkommen!");
+  }
+  status = spielstand.status;
 }
+
+// ---------- Zahlenschloss ----------
+
+// Öffnet das Schloss-Fenster. "beiVersuch" wird mit dem eingestellten Code (Text) aufgerufen.
+export function zeigeSchloss(schloss, beiVersuch) {
+  beiCodeVersuch = beiVersuch;
+  schlossFenster.querySelector(".textfenster-titel").textContent = schloss.name;
+  schlossFenster.querySelector(".textfenster-text").textContent = schloss.text;
+  schlossFenster.querySelector(".schloss-meldung").textContent = "";
+  const raeder = Array.from({ length: schloss.code.length }, erstelleRad);
+  schlossFenster.querySelector(".schloss-raeder").replaceChildren(...raeder);
+  schlossFenster.showModal();
+}
+
+// Ein Rädchen mit Ziffer 0–9, ▲ zählt hoch, ▼ zählt runter (nach 9 kommt wieder 0)
+function erstelleRad() {
+  const rad = document.createElement("div");
+  rad.className = "rad";
+  rad.innerHTML = `
+    <button class="rad-knopf" aria-label="Ziffer erhöhen">▲</button>
+    <span class="ziffer">0</span>
+    <button class="rad-knopf" aria-label="Ziffer verringern">▼</button>`;
+  const [hoch, runter] = rad.querySelectorAll("button");
+  const ziffer = rad.querySelector(".ziffer");
+  const aendere = (schritt) => {
+    ziffer.textContent = (Number(ziffer.textContent) + schritt + 10) % 10;
+    schlossFenster.querySelector(".schloss-meldung").textContent = "";
+  };
+  hoch.addEventListener("click", () => aendere(1));
+  runter.addEventListener("click", () => aendere(-1));
+  return rad;
+}
+
+schlossFenster.querySelector(".schloss-oeffnen").addEventListener("click", () => {
+  const code = [...schlossFenster.querySelectorAll(".ziffer")].map((z) => z.textContent).join("");
+  beiCodeVersuch?.(code);
+});
+
+function meldeFalschenCode() {
+  if (!schlossFenster.open) return;
+  schlossFenster.querySelector(".schloss-meldung").textContent = "Das Schloss rührt sich nicht.";
+  const raeder = schlossFenster.querySelector(".schloss-raeder");
+  raeder.classList.remove("wackeln");
+  void raeder.offsetWidth; // erzwingt Neustart der Animation
+  raeder.classList.add("wackeln");
+}
+
+// ---------- Spielende ----------
+
+function zeigeEnde(titel, text) {
+  document.querySelectorAll("dialog[open]").forEach((fenster) => fenster.close());
+  endeFenster.querySelector(".ende-titel").textContent = titel;
+  endeFenster.querySelector(".ende-text").textContent = text;
+  endeFenster.showModal();
+}
+
+// Das Ende-Fenster lässt sich nicht mit Esc schließen – nur über "Nochmal spielen"
+endeFenster.addEventListener("cancel", (ereignis) => ereignis.preventDefault());
+endeFenster.querySelector(".ende-neustart").addEventListener("click", () => location.reload());
 
 // Objekte, deren Spur schon gefunden wurde, bekommen ein Häkchen.
 function markiereGefundene() {
@@ -167,9 +241,15 @@ export function zeigeText(titel, text) {
   textfenster.showModal();
 }
 
-// Klick neben ein Fenster schließt es ebenfalls
+// Klick neben ein Fenster schließt es ebenfalls. Ein Klick auf den Innenrand des Fensters
+// meldet ebenfalls das Fenster als Ziel – deshalb zusätzlich prüfen, ob er wirklich außerhalb lag.
 for (const fenster of document.querySelectorAll("dialog.textfenster")) {
   fenster.addEventListener("click", (ereignis) => {
-    if (ereignis.target === fenster) fenster.close();
+    if (ereignis.target !== fenster) return;
+    const rahmen = fenster.getBoundingClientRect();
+    const ausserhalb =
+      ereignis.clientX < rahmen.left || ereignis.clientX > rahmen.right ||
+      ereignis.clientY < rahmen.top || ereignis.clientY > rahmen.bottom;
+    if (ausserhalb) fenster.close();
   });
 }

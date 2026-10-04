@@ -11,6 +11,7 @@
 // Objekte zeigen beim Klick ihren "text" – oder führen ihre "aktion" aus:
 //   { typ: "oeffneSzene", ziel: "<szene>" }  → in eine Detailansicht hineinzoomen
 //   { typ: "findeSpur", spur: "<spur>" }      → Text zeigen und die Spur ins Notizbuch eintragen
+//   { typ: "schloss", schloss: "<schloss>" }  → Zahlenschloss öffnen und einen Code probieren
 
 export default {
   id: "arbeitszimmer",
@@ -61,7 +62,7 @@ export default {
           emoji: "🚪",
           bild: null,
           x: 79, y: 14, breite: 14, hoehe: 56,
-          text: "Die einzige Tür ist verschlossen. Ein Zahlenschloss mit drei Ziffern hält sie zu.",
+          aktion: { typ: "schloss", schloss: "tuer" },
         },
       ],
     },
@@ -168,4 +169,16 @@ export default {
     blau: { titel: "Blaue 7", text: "Auf einem blauen Zettel an der Pinnwand." },
     reihenfolge: { titel: "Rot – Grün – Blau", text: "Notiz des Professors an der Pinnwand. Eine Reihenfolge?" },
   },
+
+  // Zahlenschlösser (Schlüssel = Name des Schlosses, siehe "schloss" oben)
+  schloesser: {
+    tuer: {
+      name: "Zahlenschloss an der Tür",
+      text: "Ein schweres Schloss aus Messing mit drei Rädchen. Die Tür ist der einzige Weg hinaus.",
+      code: "417",
+    },
+  },
+
+  // Wird dieses Schloss geöffnet, ist der Raum geschafft.
+  ausgang: "tuer",
 };

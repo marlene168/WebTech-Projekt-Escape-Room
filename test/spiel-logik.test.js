@@ -55,3 +55,43 @@ test("Jede Spur-Aktion im Raum verweist auf eine vorhandene Spur", () => {
     }
   }
 });
+
+// ---------- Zahlenschloss ----------
+const probiere = (spielstand, code, schloss = "tuer") =>
+  verarbeiteAktion(raum, spielstand, { typ: "probiereCode", schloss, code });
+
+test("Neues Spiel läuft und hat keine Fehlversuche", () => {
+  const start = erstelleSpielstand(raum);
+  assert.equal(start.status, "laeuft");
+  assert.equal(start.fehlversuche, 0);
+});
+
+test("Falscher Code zählt einen Fehlversuch, das Spiel läuft weiter", () => {
+  const spielstand = probiere(erstelleSpielstand(raum), "123");
+  assert.equal(spielstand.fehlversuche, 1);
+  assert.equal(spielstand.status, "laeuft");
+  assert.deepEqual(spielstand.geoeffneteSchloesser, []);
+});
+
+test("Richtiger Code am Ausgang öffnet das Schloss und gewinnt das Spiel", () => {
+  const spielstand = probiere(erstelleSpielstand(raum), "417");
+  assert.deepEqual(spielstand.geoeffneteSchloesser, ["tuer"]);
+  assert.equal(spielstand.status, "gewonnen");
+});
+
+test("Unbekanntes Schloss ändert nichts", () => {
+  const start = erstelleSpielstand(raum);
+  assert.equal(probiere(start, "417", "tresor"), start);
+});
+
+test("Nach dem Gewinnen ändern Aktionen nichts mehr", () => {
+  const gewonnen = probiere(erstelleSpielstand(raum), "417");
+  assert.equal(probiere(gewonnen, "000"), gewonnen);
+  assert.equal(untersuche(gewonnen, "kalender"), gewonnen);
+});
+
+test("Der Code muss als Text mit allen Ziffern stimmen", () => {
+  const start = erstelleSpielstand(raum);
+  assert.equal(probiere(start, 417).status, "laeuft");
+  assert.equal(probiere(start, "41").status, "laeuft");
+});
