@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Escape Room</title>
   <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/main.js"></script>
 </head>
 <body>
   <header class="kopfleiste">
-    <h1 class="raumtitel">Das Arbeitszimmer des Professors</h1>
+    <h1 class="raumtitel">Escape Room</h1>
   </header>
 
   <main class="buehnen-bereich">
@@ -16,7 +17,23 @@
     <div class="buehne">
       <!-- Hintergrund der aktuellen Szene (Wände und Boden, nicht klickbar) -->
       <div class="szene-hintergrund platzhalter-hintergrund"></div>
+      <!-- Die Objekte werden von js/anzeige.js hier eingefügt -->
     </div>
   </main>
+
+  <!-- Textfenster für Beschreibungen von Objekten -->
+  <dialog class="textfenster">
+    <h2 class="textfenster-titel"></h2>
+    <p class="textfenster-text"></p>
+    <form method="dialog">
+      <button class="knopf">Schließen</button>
+    </form>
+  </dialog>
+
+  <!-- Erscheint nur auf Handys im Hochformat (siehe style.css) -->
+  <div class="dreh-hinweis">
+    <span class="dreh-hinweis-symbol">📱↻</span>
+    <p>Bitte halte dein Gerät quer, um zu spielen.</p>
+  </div>
 </body>
 </html>

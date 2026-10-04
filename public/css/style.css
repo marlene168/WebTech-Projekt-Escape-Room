@@ -7,6 +7,13 @@
   --hoehe-leiste: 3.5rem;
 }
 
+/* Niedrige Bildschirme (z. B. Handy quer): schmalere Kopfleiste, damit mehr Platz für den Raum bleibt */
+@media (max-height: 500px) {
+  :root {
+    --hoehe-leiste: 2.2rem;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -55,8 +62,10 @@ body {
   overflow: hidden;
 }
 
-/* So groß wie möglich, aber immer 16:9: entweder volle Breite oder volle Höhe. */
+/* So groß wie möglich, aber immer 16:9: entweder volle Breite oder volle Höhe.
+   Die Bühne ist selbst ein "Container": Schriftgrößen in cqw wachsen mit ihrer Breite mit. */
 .buehne {
+  container-type: inline-size;
   position: relative;
   width: min(100cqw, 100cqh * 16 / 9);
   aspect-ratio: 16 / 9;
@@ -79,4 +88,138 @@ body {
     linear-gradient(to bottom, transparent 64%, rgba(0, 0, 0, 0.5) 64%, transparent 66%),
     repeating-linear-gradient(to right, #4a3020 0 6%, #3f2819 6% 6.3%) bottom / 100% 35% no-repeat,
     repeating-linear-gradient(to right, #2f3b2c 0 2.5%, #344230 2.5% 5%) top / 100% 65% no-repeat;
+}
+
+/* ---------- Objekte im Raum ---------- */
+.objekt {
+  position: absolute;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.2s, filter 0.2s;
+}
+
+.objekt img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.objekt:hover,
+.objekt:focus-visible {
+  transform: scale(1.03);
+  filter: brightness(1.25) drop-shadow(0 0 0.6cqw rgba(201, 163, 91, 0.7));
+  outline: none;
+}
+
+/* Platzhalter, bis eine echte Grafik vorhanden ist */
+.objekt.platzhalter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4cqw;
+  border: 0.15cqw dashed rgba(236, 220, 192, 0.45);
+  border-radius: 0.6cqw;
+  background: rgba(20, 14, 10, 0.45);
+}
+
+.platzhalter-emoji {
+  font-size: 4.5cqw;
+  line-height: 1;
+}
+
+.platzhalter-name {
+  font-size: max(10px, 1.2cqw);
+  color: var(--farbe-text);
+}
+
+/* ---------- Knöpfe ---------- */
+.knopf {
+  padding: 0.5em 1.4em;
+  border: 1px solid var(--farbe-akzent);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--farbe-akzent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.knopf:hover,
+.knopf:focus-visible {
+  background: var(--farbe-akzent);
+  color: var(--farbe-seite);
+}
+
+/* ---------- Textfenster ---------- */
+.textfenster {
+  max-width: min(32rem, 90vw);
+  padding: 1.5rem 1.8rem;
+  border: 1px solid #5a4632;
+  border-radius: 6px;
+  background: #f1e4c8;
+  color: #2b2118;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+}
+
+.textfenster::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.textfenster-titel {
+  margin: 0 0 0.6rem;
+  font-size: 1.3rem;
+  font-weight: normal;
+  color: #5a3d1e;
+}
+
+.textfenster-text {
+  margin: 0 0 1.2rem;
+  line-height: 1.5;
+}
+
+.textfenster form {
+  text-align: right;
+}
+
+.textfenster .knopf {
+  border-color: #5a3d1e;
+  color: #5a3d1e;
+}
+
+.textfenster .knopf:hover,
+.textfenster .knopf:focus-visible {
+  background: #5a3d1e;
+  color: #f1e4c8;
+}
+
+/* ---------- Hinweis "Gerät drehen" ---------- */
+/* Nur auf schmalen Bildschirmen im Hochformat (Handys), dort wäre die 16:9-Bühne zu klein. */
+.dreh-hinweis {
+  display: none;
+}
+
+@media (orientation: portrait) and (max-width: 700px) {
+  .dreh-hinweis {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--farbe-seite);
+    text-align: center;
+    font-size: 1.2rem;
+  }
+
+  .dreh-hinweis-symbol {
+    font-size: 3.5rem;
+    color: var(--farbe-akzent);
+  }
 }
