@@ -810,3 +810,160 @@ body.startseite {
     display: none;
   }
 }
+
+.raum-hinweis {
+  margin: 0;
+  padding: 0.3em 0.7em;
+  border: 1px solid #7a4a2a;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #f0b48a;
+}
+
+/* ---------- Geschichts-Videos ---------- */
+.video-bereich {
+  margin: 0 0 1rem;
+}
+
+.geschichte-video {
+  display: block;
+  width: 100%;
+  max-height: 50vh;
+  border-radius: 4px;
+  background: #000;
+}
+
+.video-leiste {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.video-leiste .knopf {
+  padding: 0.3em 0.9em;
+  font-size: 0.9rem;
+}
+
+.intro-knoepfe {
+  margin-top: 0.8rem;
+}
+
+.intro-fenster .intro-knoepfe .knopf-haupt {
+  margin-top: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro-fenster[open] .intro-knoepfe {
+    animation: einblenden 1.2s ease-out 3.8s both;
+  }
+}
+
+/* ---------- Spannungsaufbau und Schreckmoment ---------- */
+.schreck-ebene {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background: rgba(0, 0, 0, 0.92);
+  animation: abdunkeln 1.2s ease-out;
+}
+
+.schreck-ebene[hidden] {
+  display: none;
+}
+
+@keyframes abdunkeln {
+  from { background: rgba(0, 0, 0, 0); }
+}
+
+.schreck-spannung {
+  max-width: 34rem;
+  margin: 0;
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+  font-style: italic;
+  line-height: 1.7;
+  text-align: center;
+  color: #d8cbb2;
+}
+
+.schreck-spannung span {
+  animation: einblenden 1s ease-out both;
+}
+
+/* Taschenlampenlicht: ein einziger heller Lichtkegel, der schlagartig erscheint und langsam verblasst.
+   Bewusst kein Blinken (nur eine Einblendung), damit es für anfallsgefährdete Menschen unbedenklich bleibt. */
+.schreck-licht {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 45%, #fffbe8 0%, #fff3c4 18%, rgba(255, 230, 160, 0.55) 40%, rgba(0, 0, 0, 0) 75%);
+}
+
+.schreck-licht.an {
+  animation: taschenlampe 1.3s ease-out forwards;
+}
+
+@keyframes taschenlampe {
+  0% { opacity: 0; transform: scale(0.6); }
+  6% { opacity: 1; transform: scale(1.15); }
+  100% { opacity: 0; transform: scale(1.3); }
+}
+
+/* Bei "Bewegung reduzieren": sanfter und weniger hell */
+.schreck-licht.an.sanft {
+  animation: taschenlampe-sanft 1.8s ease-in-out forwards;
+}
+
+@keyframes taschenlampe-sanft {
+  0% { opacity: 0; }
+  35% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+
+/* Intro und Ende mit Video: Bei Platzmangel scrollt nur der Text, Video und Knöpfe bleiben sichtbar */
+.intro-fenster[open],
+.ende-fenster[open] {
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;
+}
+
+.intro-fenster .geschichte-text,
+.ende-fenster .geschichte-text {
+  flex: 1 1 auto;
+  min-height: 3em;
+  overflow-y: auto;
+}
+
+.intro-fenster .video-bereich,
+.ende-fenster .video-bereich,
+.intro-fenster .fenster-knoepfe,
+.ende-fenster .fenster-knoepfe {
+  flex-shrink: 0;
+}
+
+.intro-fenster .geschichte-video,
+.ende-fenster .geschichte-video {
+  max-height: 40vh;
+}
+
+@media (max-height: 500px) {
+  .intro-fenster .geschichte-video,
+  .ende-fenster .geschichte-video {
+    max-height: 30vh;
+  }
+
+  .intro-titel {
+    font-size: 1.3rem;
+  }
+
+  .intro-fenster .knopf-haupt,
+  .intro-fenster .knopf {
+    padding: 0.35em 1.2em;
+    font-size: 0.95rem;
+  }
+}

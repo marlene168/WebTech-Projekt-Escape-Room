@@ -1,7 +1,9 @@
 // Anzeige: zeichnet Szenen und Objekte auf die Bühne, zoomt zwischen Szenen und zeigt Texte an.
 // Enthält keine Spielregeln – nur Darstellung.
 import { restzeit } from "/shared/spiel-logik.js";
-import { schreibeAbsaetze } from "./geschichte.js";
+import {
+  schreibeAbsaetze, spieleVideo, stoppeVideo, spieleSpannung, spieleSchreck, versteckeSchreckEbene, gibTonFrei,
+} from "./geschichte.js";
 
 const szeneElement = document.querySelector(".szene");
 const hintergrund = document.querySelector(".szene-hintergrund");
@@ -12,6 +14,8 @@ const notizbuchKnopf = document.querySelector(".notizbuch-knopf");
 const schlossFenster = document.querySelector(".schloss-fenster");
 const endeFenster = document.querySelector(".ende-fenster");
 const introFenster = document.querySelector(".intro-fenster");
+const schreckEbene = document.querySelector(".schreck-ebene");
+let aktuellerRaum = null;
 const timer = document.querySelector(".timer");
 const hilfe = document.querySelector(".hilfe");
 const hilfeKnopf = document.querySelector(".hilfe-knopf");
@@ -54,6 +58,7 @@ export function zeichneSzene(szene, beiKlick) {
 
 // Zeigt den aktuellen Spielstand an: Notizbuch, Zähler und Markierungen.
 export function zeigeSpielstand(raum, spielstand) {
+  aktuellerRaum = raum;
   aktuellerSpielstand = spielstand;
   zeichneTimer();
 
@@ -78,15 +83,15 @@ export function zeigeSpielstand(raum, spielstand) {
       zeigeIntro(geschichte.intro);
     } else if (spielstand.status === "gewonnen") {
       zeigeEnde("🔓", "Geschafft!", geschichte.gewonnen.text,
-        `Restzeit: ${formatiereZeit(restzeit(spielstand, Date.now()))} · ${tippText}`);
+        `Restzeit: ${formatiereZeit(restzeit(spielstand, Date.now()))} · ${tippText}`, geschichte.gewonnen.video);
     } else if (spielstand.status === "verloren") {
-      const { spannung, text } = geschichte.verloren;
-      zeigeEnde("⌛", "Zeit abgelaufen", spannung ? [spannung, ...text] : text,
+      zeigeVerloren(geschichte.verloren,
         `Spuren gefunden: ${spielstand.gefundeneSpuren.length} von ${Object.keys(raum.spuren).length} · ${tippText}`);
     } else {
       // Das Spiel läuft (gerade gestartet oder neu gestartet)
       introFenster.close();
       endeFenster.close();
+      versteckeSchreckEbene(schreckEbene);
     }
   }
   status = spielstand.status;
@@ -97,14 +102,50 @@ export function zeigeSpielstand(raum, spielstand) {
 function zeigeIntro(intro) {
   introFenster.querySelector(".intro-titel").textContent = intro.titel;
   schreibeAbsaetze(introFenster.querySelector(".intro-text"), intro.text);
+  // Das Intro-Video startet erst nach einem Klick (Browser erlauben Ton nur nach einer Nutzeraktion)
+  introFenster.querySelector(".intro-video").hidden = !intro.video;
   introFenster.showModal();
 }
+
+introFenster.querySelector(".intro-video").addEventListener("click", () => {
+  spieleVideo(introFenster.querySelector(".video-bereich"), aktuellerRaum.geschichte.intro.video);
+});
 
 // Das Intro lässt sich nicht mit Esc wegklicken – nur über "Raum betreten"
 introFenster.addEventListener("cancel", (ereignis) => ereignis.preventDefault());
 
 export function beimRaumBetreten(callback) {
-  introFenster.querySelector(".intro-start").addEventListener("click", callback);
+  introFenster.querySelector(".intro-start").addEventListener("click", () => {
+    gibTonFrei(aktuellerRaum.geschichte.verloren.schreck); // jetzt, solange es ein Klick ist
+    callback();
+  });
+}
+
+// Videos anhalten, sobald ihr Fenster geschlossen wird
+for (const fenster of [introFenster, endeFenster]) {
+  fenster.addEventListener("close", () => stoppeVideo(fenster.querySelector(".video-bereich")));
+}
+
+// ---------- Zeit abgelaufen: Spannung, Schreck, Ende ----------
+
+async function zeigeVerloren(verloren, statistik) {
+  document.querySelectorAll("dialog[open]").forEach((fenster) => fenster.close());
+  const symbol = "⌛";
+  const titel = "Zeit abgelaufen";
+
+  // Ein Video ersetzt Spannungsaufbau und Schreck; der ganze Text bleibt als Untertitel
+  if (verloren.video) {
+    const alles = verloren.spannung ? [verloren.spannung, ...verloren.text] : verloren.text;
+    zeigeEnde(symbol, titel, alles, statistik, verloren.video);
+    return;
+  }
+
+  if (verloren.spannung) await spieleSpannung(schreckEbene, verloren.spannung);
+  if (status !== "verloren") return; // inzwischen neu gestartet
+  if (verloren.schreck) await spieleSchreck(schreckEbene, verloren.schreck);
+  versteckeSchreckEbene(schreckEbene);
+  if (status !== "verloren") return;
+  zeigeEnde(symbol, titel, verloren.text, statistik);
 }
 
 // ---------- Timer ----------
@@ -212,20 +253,24 @@ function meldeFalschenCode() {
 
 // ---------- Spielende ----------
 
-function zeigeEnde(symbol, titel, absaetze, statistik) {
+function zeigeEnde(symbol, titel, absaetze, statistik, video) {
   document.querySelectorAll("dialog[open]").forEach((fenster) => fenster.close());
   endeFenster.querySelector(".ende-symbol").textContent = symbol;
   endeFenster.querySelector(".ende-titel").textContent = titel;
   schreibeAbsaetze(endeFenster.querySelector(".ende-text"), absaetze);
   endeFenster.querySelector(".ende-statistik").textContent = statistik;
   endeFenster.showModal();
+  if (video) spieleVideo(endeFenster.querySelector(".video-bereich"), video);
 }
 
 // Das Ende-Fenster lässt sich nicht mit Esc schließen – nur über "Nochmal spielen"
 endeFenster.addEventListener("cancel", (ereignis) => ereignis.preventDefault());
 
 export function beimNeustart(callback) {
-  endeFenster.querySelector(".ende-neustart").addEventListener("click", callback);
+  endeFenster.querySelector(".ende-neustart").addEventListener("click", () => {
+    gibTonFrei(aktuellerRaum.geschichte.verloren.schreck);
+    callback();
+  });
 }
 
 // Objekte, deren Spur schon gefunden wurde, bekommen ein Häkchen.

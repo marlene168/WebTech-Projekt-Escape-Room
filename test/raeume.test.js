@@ -41,3 +41,22 @@ test("Jeder Raum hat eine vollständige Geschichte (Intro, Outro, Verloren-Text)
     assert.ok(istTextliste(g.verloren?.text), `Raum "${raum.id}": Verloren-Text fehlt`);
   }
 });
+
+test("Jeder Raum entscheidet ausdrücklich über den Schreckmoment (schreck: null oder { sound })", () => {
+  for (const raum of raeume) {
+    const verloren = raum.geschichte.verloren;
+    assert.ok(Object.hasOwn(verloren, "schreck"), `Raum "${raum.id}": Feld "schreck" fehlt (null = kein Schreck)`);
+    if (verloren.schreck !== null) {
+      assert.ok(Object.hasOwn(verloren.schreck, "sound"), `Raum "${raum.id}": schreck.sound fehlt (null = Ersatzton)`);
+    }
+  }
+});
+
+test("Videos sind entweder nicht gesetzt (null) oder ein Dateipfad", () => {
+  for (const raum of raeume) {
+    for (const teil of ["intro", "gewonnen", "verloren"]) {
+      const video = raum.geschichte[teil].video;
+      assert.ok(video == null || (typeof video === "string" && video), `Raum "${raum.id}": ${teil}.video ungültig`);
+    }
+  }
+});

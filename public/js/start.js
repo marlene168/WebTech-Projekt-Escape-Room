@@ -42,7 +42,17 @@ function erstelleKarte(raum) {
   spielen.href = `spiel.html?raum=${encodeURIComponent(raum.id)}`;
   spielen.textContent = "Spielen";
 
-  info.append(titel, eckdaten, beschreibung, spielen);
+  info.append(titel, eckdaten, beschreibung);
+
+  // Vorwarnung nur bei Räumen, die einen Schreckmoment haben (siehe "schreck" in den Raumdaten)
+  if (raum.geschichte.verloren.schreck) {
+    const hinweis = document.createElement("p");
+    hinweis.className = "raum-hinweis";
+    hinweis.textContent = "⚠ Enthält einen Schreckmoment mit Ton";
+    info.append(hinweis);
+  }
+
+  info.append(spielen);
   karte.append(vorschau, info);
   return karte;
 }

@@ -24,6 +24,7 @@ export default {
 
   // Die Geschichte dieses Raums. Jeder Raum braucht Intro, Outro ("gewonnen") und "verloren".
   // Texte sind Listen von Absätzen.
+  // "video": optional, z. B. "videos/arbeitszimmer/intro.mp4" – der Text bleibt als Untertitel bzw. Ersatz.
   geschichte: {
     intro: {
       titel: "Ein offenes Arbeitszimmer",
@@ -32,19 +33,28 @@ export default {
         "Heute Abend steht die Tür zu seinem Arbeitszimmer einen Spalt offen. Drinnen brennt noch die Schreibtischlampe. Kaum bist du eingetreten, fällt die Tür hinter dir ins Schloss, und mit einem metallischen Klicken rastet das Zahlenschloss ein.",
         "Auf dem Schreibtisch glänzt frische Tinte. Wer war gerade noch hier? In zehn Minuten schließt der Hausmeister das Gebäude ab, und bis dahin musst du hier raus.",
       ],
+      video: null,
     },
     gewonnen: {
       text: [
         "Das Schloss springt auf. Aus dem Türspalt fällt ein Umschlag, beschrieben in grüner Tinte: „Wer meine Farben lesen kann, dem kann ich vertrauen. Mir geht es gut, aber ich musste verschwinden. Suche mich nicht. Noch nicht.“",
         "Der Professor lebt, und er hat dir eine Nachricht hinterlassen.",
       ],
+      video: null,
     },
     verloren: {
+      // Optional: baut vor dem Ende Spannung auf (erscheint Satz für Satz)
       spannung: "Schritte auf dem Flur. Sie werden langsamer und bleiben direkt vor der Tür stehen. Stille. Ein Schlüssel dreht sich im Schloss …",
       text: [
         "… die Tür fliegt auf, und grelles Taschenlampenlicht trifft dich mitten ins Gesicht. „Was machen Sie hier drin?!“ Der Hausmeister.",
         "Das Rätsel um Professor Albers bleibt ungelöst.",
       ],
+      // Pflichtfeld, bewusst zu entscheiden:
+      //   null                → kein Schreckmoment (kein Licht, kein Ton, kein Hinweis auf der Raumkarte)
+      //   { sound: null }     → Schreckmoment mit eingebautem Ersatzton
+      //   { sound: "toene/arbeitszimmer/schreck.mp3" } → Schreckmoment mit eigener Sounddatei
+      schreck: { sound: null },
+      video: null, // ein Video ersetzt Spannungsaufbau und Schreckmoment
     },
   },
   strafeProTippSekunden: 60, // so viel Zeit kostet jeder Tipp

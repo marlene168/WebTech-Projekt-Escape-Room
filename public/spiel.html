@@ -84,14 +84,20 @@
   <!-- Vorgeschichte vor dem Start: der Timer läuft erst nach "Raum betreten" -->
   <dialog class="intro-fenster">
     <h2 class="intro-titel"></h2>
+    <!-- Optionales Video (siehe js/geschichte.js); der Text darunter bleibt als Untertitel bzw. Ersatz -->
+    <div class="video-bereich" hidden></div>
     <div class="geschichte-text intro-text"></div>
-    <button class="knopf knopf-haupt intro-start">Raum betreten</button>
+    <div class="fenster-knoepfe intro-knoepfe">
+      <button class="knopf intro-video" hidden>▶ Geschichte ansehen</button>
+      <button class="knopf knopf-haupt intro-start">Raum betreten</button>
+    </div>
   </dialog>
 
   <!-- Spielende (gewonnen oder Zeit abgelaufen) -->
   <dialog class="ende-fenster">
     <div class="ende-symbol"></div>
     <h2 class="ende-titel"></h2>
+    <div class="video-bereich" hidden></div>
     <div class="geschichte-text ende-text"></div>
     <p class="ende-statistik"></p>
     <div class="fenster-knoepfe">
@@ -99,6 +105,12 @@
       <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
     </div>
   </dialog>
+
+  <!-- Spannungsaufbau und Schreckmoment bei Zeitablauf (nur bei Räumen mit schreck, siehe js/geschichte.js) -->
+  <div class="schreck-ebene" hidden>
+    <p class="schreck-spannung" aria-live="polite"></p>
+    <div class="schreck-licht"></div>
+  </div>
 
   <!-- Erscheint nur auf Handys im Hochformat (siehe style.css) -->
   <div class="dreh-hinweis">
