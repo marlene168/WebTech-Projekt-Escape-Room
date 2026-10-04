@@ -15,9 +15,14 @@
   <main class="buehnen-bereich">
     <!-- Die Bühne hat immer das Seitenverhältnis 16:9. Alles darin wird in Prozent positioniert. -->
     <div class="buehne">
-      <!-- Hintergrund der aktuellen Szene (Wände und Boden, nicht klickbar) -->
-      <div class="szene-hintergrund platzhalter-hintergrund"></div>
-      <!-- Die Objekte werden von js/anzeige.js hier eingefügt -->
+      <!-- Die aktuelle Szene. Sie wird beim Wechsel in Detailansichten gezoomt. -->
+      <div class="szene">
+        <!-- Hintergrund der Szene (Wände und Boden, nicht klickbar) -->
+        <div class="szene-hintergrund"></div>
+        <!-- Die Objekte werden von js/anzeige.js hier eingefügt -->
+      </div>
+      <!-- Liegt außerhalb der Szene, damit er beim Zoomen stehen bleibt -->
+      <button class="knopf zurueck-knopf" hidden>← Zurück</button>
     </div>
   </main>
 
