@@ -4,11 +4,17 @@
 //
 // Der Spielstand wird nie verändert, sondern immer neu erzeugt. Ändert eine Aktion nichts,
 // kommt derselbe Spielstand zurück – so lässt sich leicht prüfen, ob sich etwas getan hat.
+//
+// Zeiten: "jetzt" ist immer ein Zeitpunkt in Millisekunden (wie Date.now()). Die Logik fragt die Uhr
+// nie selbst ab, sondern bekommt die Zeit übergeben – im Mehrspieler-Modus gibt sie der Server vor.
 
-export function erstelleSpielstand(raum) {
+export function erstelleSpielstand(raum, jetzt) {
   return {
     raumId: raum.id,
-    status: "laeuft", // "laeuft" oder "gewonnen"
+    status: "laeuft", // "laeuft", "gewonnen" oder "verloren"
+    startzeit: jetzt,
+    dauerSekunden: raum.dauerSekunden,
+    endzeit: null, // Zeitpunkt des Spielendes – danach bleibt die Restzeit stehen
     gefundeneSpuren: [], // Namen der Spuren in der Reihenfolge, in der sie gefunden wurden
     geoeffneteSchloesser: [],
     fehlversuche: 0, // falsch eingegebene Codes (die Anzeige lässt dann das Schloss wackeln)
@@ -18,18 +24,39 @@ export function erstelleSpielstand(raum) {
 // Aktionen:
 //   { typ: "untersuche", objekt: "<objekt-id>" }                   → ein Objekt wurde angeklickt
 //   { typ: "probiereCode", schloss: "<schloss>", code: "<ziffern>" } → Code an einem Schloss eingeben
-export function verarbeiteAktion(raum, spielstand, aktion) {
-  // Nach dem Ende des Spiels ändert sich nichts mehr
+//   { typ: "neustart" }                                             → neues Spiel, alles auf Anfang
+export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
+  if (aktion.typ === "neustart") return erstelleSpielstand(raum, jetzt);
+
+  // Ist die Zeit inzwischen abgelaufen, zählt die Aktion nicht mehr
+  spielstand = pruefeZeit(spielstand, jetzt);
   if (spielstand.status !== "laeuft") return spielstand;
 
   switch (aktion.typ) {
     case "untersuche":
       return untersuche(raum, spielstand, aktion.objekt);
     case "probiereCode":
-      return probiereCode(raum, spielstand, aktion.schloss, aktion.code);
+      return probiereCode(raum, spielstand, aktion.schloss, aktion.code, jetzt);
     default:
       return spielstand;
   }
+}
+
+// Verbleibende Zeit in Millisekunden (nie negativ). Nach dem Spielende bleibt sie stehen.
+export function restzeit(spielstand, jetzt) {
+  const ende = spielende(spielstand);
+  return Math.max(0, ende - (spielstand.endzeit ?? jetzt));
+}
+
+// Beendet das Spiel als verloren, sobald die Zeit abgelaufen ist.
+// Wird regelmäßig aufgerufen (auch ohne Klick), damit das Spiel pünktlich endet.
+export function pruefeZeit(spielstand, jetzt) {
+  if (spielstand.status !== "laeuft" || restzeit(spielstand, jetzt) > 0) return spielstand;
+  return { ...spielstand, status: "verloren", endzeit: spielende(spielstand) };
+}
+
+function spielende(spielstand) {
+  return spielstand.startzeit + spielstand.dauerSekunden * 1000;
 }
 
 function untersuche(raum, spielstand, objektId) {
@@ -42,7 +69,7 @@ function untersuche(raum, spielstand, objektId) {
   return { ...spielstand, gefundeneSpuren: [...spielstand.gefundeneSpuren, spur] };
 }
 
-function probiereCode(raum, spielstand, schlossName, code) {
+function probiereCode(raum, spielstand, schlossName, code, jetzt) {
   const schloss = raum.schloesser?.[schlossName];
   if (!schloss || spielstand.geoeffneteSchloesser.includes(schlossName)) return spielstand;
 
@@ -50,11 +77,15 @@ function probiereCode(raum, spielstand, schlossName, code) {
     return { ...spielstand, fehlversuche: spielstand.fehlversuche + 1 };
   }
 
-  return {
+  const neu = {
     ...spielstand,
     geoeffneteSchloesser: [...spielstand.geoeffneteSchloesser, schlossName],
-    status: schlossName === raum.ausgang ? "gewonnen" : spielstand.status,
   };
+  if (schlossName === raum.ausgang) {
+    neu.status = "gewonnen";
+    neu.endzeit = jetzt;
+  }
+  return neu;
 }
 
 // Sucht ein Objekt in allen Szenen des Raums.

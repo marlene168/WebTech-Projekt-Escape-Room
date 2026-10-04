@@ -1,5 +1,6 @@
 // Anzeige: zeichnet Szenen und Objekte auf die Bühne, zoomt zwischen Szenen und zeigt Texte an.
 // Enthält keine Spielregeln – nur Darstellung.
+import { restzeit } from "/shared/spiel-logik.js";
 
 const szeneElement = document.querySelector(".szene");
 const hintergrund = document.querySelector(".szene-hintergrund");
@@ -9,8 +10,10 @@ const notizbuch = document.querySelector(".notizbuch");
 const notizbuchKnopf = document.querySelector(".notizbuch-knopf");
 const schlossFenster = document.querySelector(".schloss-fenster");
 const endeFenster = document.querySelector(".ende-fenster");
+const timer = document.querySelector(".timer");
 
 // Zuletzt angezeigter Spielstand – um Änderungen zu erkennen (neue Spur, Fehlversuch, Spielende)
+let aktuellerSpielstand = null;
 let gefundeneSpuren = [];
 let fehlversuche = 0;
 let status = "laeuft";
@@ -46,6 +49,9 @@ export function zeichneSzene(szene, beiKlick) {
 
 // Zeigt den aktuellen Spielstand an: Notizbuch, Zähler und Markierungen.
 export function zeigeSpielstand(raum, spielstand) {
+  aktuellerSpielstand = spielstand;
+  zeichneTimer();
+
   const neue = spielstand.gefundeneSpuren.filter((spur) => !gefundeneSpuren.includes(spur));
   gefundeneSpuren = spielstand.gefundeneSpuren;
 
@@ -56,11 +62,31 @@ export function zeigeSpielstand(raum, spielstand) {
   if (spielstand.fehlversuche > fehlversuche) meldeFalschenCode();
   fehlversuche = spielstand.fehlversuche;
 
-  if (spielstand.status === "gewonnen" && status !== "gewonnen") {
-    zeigeEnde("Geschafft!", "Mit einem leisen Klicken springt das Schloss auf. Du bist aus dem Arbeitszimmer entkommen!");
+  if (spielstand.status !== status) {
+    if (spielstand.status === "gewonnen") {
+      zeigeEnde("🔓", "Geschafft!", "Mit einem leisen Klicken springt das Schloss auf. Du bist aus dem Arbeitszimmer entkommen!");
+    } else if (spielstand.status === "verloren") {
+      zeigeEnde("⌛", "Zeit abgelaufen", "Draußen schlägt eine Uhr. Die Tür bleibt verschlossen – und das Rätsel um den Professor ungelöst.");
+    } else {
+      endeFenster.close(); // neues Spiel hat begonnen
+    }
   }
   status = spielstand.status;
 }
+
+// ---------- Timer ----------
+
+// Die Restzeit wird bei jedem Aufruf aus dem Spielstand neu berechnet (keine eigene Zählvariable).
+function zeichneTimer() {
+  if (!aktuellerSpielstand) return;
+  const sekunden = Math.ceil(restzeit(aktuellerSpielstand, Date.now()) / 1000);
+  const minuten = String(Math.floor(sekunden / 60)).padStart(2, "0");
+  timer.querySelector(".timer-zeit").textContent = `${minuten}:${String(sekunden % 60).padStart(2, "0")}`;
+  // In der letzten Minute wird der Timer rot
+  timer.classList.toggle("knapp", sekunden <= 60 && aktuellerSpielstand.status === "laeuft");
+}
+
+setInterval(zeichneTimer, 250);
 
 // ---------- Zahlenschloss ----------
 
@@ -110,8 +136,9 @@ function meldeFalschenCode() {
 
 // ---------- Spielende ----------
 
-function zeigeEnde(titel, text) {
+function zeigeEnde(symbol, titel, text) {
   document.querySelectorAll("dialog[open]").forEach((fenster) => fenster.close());
+  endeFenster.querySelector(".ende-symbol").textContent = symbol;
   endeFenster.querySelector(".ende-titel").textContent = titel;
   endeFenster.querySelector(".ende-text").textContent = text;
   endeFenster.showModal();
@@ -119,7 +146,10 @@ function zeigeEnde(titel, text) {
 
 // Das Ende-Fenster lässt sich nicht mit Esc schließen – nur über "Nochmal spielen"
 endeFenster.addEventListener("cancel", (ereignis) => ereignis.preventDefault());
-endeFenster.querySelector(".ende-neustart").addEventListener("click", () => location.reload());
+
+export function beimNeustart(callback) {
+  endeFenster.querySelector(".ende-neustart").addEventListener("click", callback);
+}
 
 // Objekte, deren Spur schon gefunden wurde, bekommen ein Häkchen.
 function markiereGefundene() {

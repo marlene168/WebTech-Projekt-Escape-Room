@@ -510,3 +510,37 @@ body {
   margin: 0 0 1.5rem;
   line-height: 1.5;
 }
+
+/* ---------- Timer ---------- */
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.2em 0.7em;
+  border: 1px solid #3a2e24;
+  border-radius: 4px;
+  font-size: clamp(0.9rem, 1.8vw, 1.1rem);
+  white-space: nowrap;
+}
+
+.timer-zeit {
+  min-width: 3.2em;
+  font-family: system-ui, sans-serif; /* Georgia hat keine gleich hohen Ziffern */
+  font-variant-numeric: tabular-nums; /* gleich breite Ziffern, damit nichts hin und her springt */
+  font-weight: 600;
+  color: var(--farbe-text);
+}
+
+/* Letzte Minute: rot und pulsierend */
+.timer.knapp {
+  border-color: #a5432b;
+  animation: pulsieren 1s ease-in-out infinite;
+}
+
+.timer.knapp .timer-zeit {
+  color: #ff8a6b;
+}
+
+@keyframes pulsieren {
+  50% { box-shadow: 0 0 10px rgba(255, 110, 80, 0.6); }
+}

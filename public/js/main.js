@@ -3,7 +3,7 @@ import raum from "/shared/raeume/arbeitszimmer.js";
 import { erstelleLokaleVerbindung } from "./verbindung-lokal.js";
 import {
   zeichneSzene, zoomeHinein, zoomeHeraus, zeigeText, zeigeZurueckKnopf, beimZurueck, zeigeSpielstand,
-  zeigeSchloss,
+  zeigeSchloss, beimNeustart,
 } from "./anzeige.js";
 
 document.title = `${raum.titel} – Escape Room`;
@@ -37,6 +37,14 @@ function beiKlick(objekt) {
   }
 }
 
+// Zurück in den Hauptraum, ohne Animation (bei einem neuen Spiel)
+function zurueckZumStart() {
+  verlauf.length = 0;
+  aktuelleSzene = raum.startSzene;
+  zeigeZurueckKnopf(false);
+  zeichneSzene(raum.szenen[aktuelleSzene], beiKlick);
+}
+
 beimZurueck(() => {
   const vorher = verlauf.pop();
   if (!vorher) return;
@@ -45,5 +53,14 @@ beimZurueck(() => {
   zoomeHeraus(raum.szenen[aktuelleSzene], vorher.ursprung, beiKlick);
 });
 
+beimNeustart(() => verbindung.sendeAktion({ typ: "neustart" }));
+
 zeichneSzene(raum.szenen[aktuelleSzene], beiKlick);
-verbindung.beiAenderung((spielstand) => zeigeSpielstand(raum, spielstand));
+
+// Eine neue Startzeit bedeutet: Es hat ein neues Spiel begonnen (später auch, wenn jemand anderes neu startet).
+let startzeit = null;
+verbindung.beiAenderung((spielstand) => {
+  if (startzeit !== null && spielstand.startzeit !== startzeit) zurueckZumStart();
+  startzeit = spielstand.startzeit;
+  zeigeSpielstand(raum, spielstand);
+});

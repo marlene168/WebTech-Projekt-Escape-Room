@@ -16,6 +16,7 @@
 export default {
   id: "arbeitszimmer",
   titel: "Das Arbeitszimmer des Professors",
+  dauerSekunden: 600, // 10 Minuten
   startSzene: "raum",
 
   szenen: {

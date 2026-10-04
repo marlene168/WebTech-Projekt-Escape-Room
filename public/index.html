@@ -11,6 +11,7 @@
   <header class="kopfleiste">
     <h1 class="raumtitel">Escape Room</h1>
     <div class="kopfleiste-knoepfe">
+      <div class="timer" title="Verbleibende Zeit">⏳ <span class="timer-zeit">--:--</span></div>
       <button class="knopf notizbuch-knopf">📓 Notizbuch <span class="zaehler">0</span></button>
     </div>
   </header>
@@ -63,9 +64,9 @@
     </div>
   </dialog>
 
-  <!-- Spielende (gewonnen) -->
+  <!-- Spielende (gewonnen oder Zeit abgelaufen) -->
   <dialog class="ende-fenster">
-    <div class="ende-symbol">🔓</div>
+    <div class="ende-symbol"></div>
     <h2 class="ende-titel"></h2>
     <p class="ende-text"></p>
     <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
