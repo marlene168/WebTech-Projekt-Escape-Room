@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Die Tür öffnet ein Zahlenschloss mit drei Ziffernrädern: Ein falscher Code lässt die Rädchen wackeln, der richtige (417) zeigt den Gewinn-Bildschirm mit „Nochmal spielen“. Das Spiel ist damit von Anfang bis Ende lösbar. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
+- **Funktionen:** Ein Node.js/Express-Server liefert die Seite aus. Sie zeigt eine Kopfleiste mit Raumtitel und eine 16:9-Spielbühne mit Platzhalter-Hintergrund (Tapete, Holzboden), die sich an jede Fenstergröße anpasst. Im Arbeitszimmer stehen fünf klickbare Objekte (Bücherregal, Gemälde, Pinnwand, Schreibtisch, Tür), zunächst als Platzhalter mit Emoji und Namen. Ein Klick zeigt die Beschreibung in einem Textfenster. Schreibtisch, Pinnwand und Gemälde öffnen per Zoom-Animation eine Detailansicht mit eigenen Objekten; ein Zurück-Knopf zoomt wieder heraus. Fünf Objekte in den Detailansichten liefern Spuren. Diese landen im Notizbuch (Knopf mit Zähler in der Kopfleiste), und bereits untersuchte Objekte mit Spur tragen ein Häkchen. Die Tür öffnet ein Zahlenschloss mit drei Ziffernrädern: Ein falscher Code lässt die Rädchen wackeln, der richtige (417) zeigt den Gewinn-Bildschirm. Ein 10-Minuten-Countdown läuft in der Kopfleiste (in der letzten Minute rot); läuft er ab, erscheint „Zeit abgelaufen“. Beide Spielende-Bildschirme haben „Nochmal spielen“, das alles auf Anfang setzt. Das Spiel ist damit von Anfang bis Ende spielbar und verlierbar. Auf Handys im Hochformat erscheint der Hinweis, das Gerät quer zu halten. Starten mit `npm install` (einmalig) und `npm start`, dann `http://localhost:3000` öffnen. Tests: `npm test`.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/` – alles, was der Browser anzeigt (HTML, CSS, JavaScript, Bilder)
@@ -219,3 +219,30 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - „Nochmal spielen“ lädt vorerst einfach die Seite neu. Ein richtiger Neustart über die Spiellogik folgt mit dem Timer in Schritt 7.
   - Bekannte Einschränkung für später: Der Code steht in den Raumdaten, die der Browser lädt, und wäre damit für technisch Versierte auslesbar. Für die Einzelspieler-Version ist das unkritisch. Im Mehrspieler-Modus sollte der Server die Codes vor dem Ausliefern entfernen.
 - **Git-Commit:** `cfb6d5c`
+
+### 2026-10-04, 11:46 – Schritt 7: Timer und Spielende
+- **Auslöser:** Anweisung des Nutzers: „Lies DOKUMENTATION.md und den Plan in docs/plaene/. Schritt 6 ist abgeschlossen. Mach bitte mit Schritt 7 (Timer und Spielende) weiter.“
+- **Durchgeführte Schritte:**
+  - Raumdaten: `dauerSekunden: 600` ergänzt.
+  - Spiellogik: Der Spielstand hat neu `startzeit`, `dauerSekunden`, `endzeit` und den Status „verloren“.
+    - `restzeit(spielstand, jetzt)` berechnet die Restzeit jedes Mal neu; nach dem Spielende bleibt sie stehen.
+    - `pruefeZeit(spielstand, jetzt)` beendet das Spiel als verloren, sobald die Zeit um ist. Auch jede Aktion prüft zuerst die Zeit.
+    - Die neue Aktion `neustart` erzeugt einen frischen Spielstand.
+    - Die Logik bekommt die aktuelle Zeit (`jetzt`) übergeben, statt selbst die Uhr abzufragen.
+  - Tests auf feste Zeitpunkte umgestellt und 7 neue Tests ergänzt (Timer, Zeitende, eingefrorene Restzeit nach dem Gewinn, Neustart). Insgesamt 21 Tests, alle bestanden.
+  - `verbindung-lokal.js` ruft alle 250 ms `pruefeZeit` auf, damit das Spiel auch ohne Klick pünktlich endet.
+  - Anzeige:
+    - Countdown „⏳ mm:ss“ in der Kopfleiste, in der Systemschrift mit gleich breiten Ziffern; in der letzten Minute rot und pulsierend.
+    - Bildschirm „⌛ Zeit abgelaufen“.
+    - Das Ende-Fenster zeigt je nach Ergebnis ein eigenes Symbol.
+    - Bei einem Statuswechsel zurück auf „läuft“ schließt sich das Ende-Fenster.
+  - `main.js`: „Nochmal spielen“ sendet `neustart` statt die Seite neu zu laden. An einer neuen Startzeit erkennt `main.js` ein neues Spiel und kehrt ohne Animation in den Hauptraum zurück. Das funktioniert später auch, wenn im Mehrspieler-Modus jemand anderes neu startet.
+  - Sichtprüfung per Screenshot. Für die letzte Minute und das Zeitende wurde im Testbrowser `Date.now` vorgespult. Geprüft wurden: Start, letzte Minute, Zeitende in einer Detailansicht, Neustart danach, Handy quer. Zusätzlich wurde per Skript bestätigt, dass der Timer nach dem Gewinn stehen bleibt und nach dem Neustart wieder 10:00 zeigt.
+  - Abschnitt 2 aktualisiert.
+- **Geänderte/neue Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/spiel-logik.js`, `test/spiel-logik.test.js`, `public/js/verbindung-lokal.js`, `public/js/anzeige.js`, `public/js/main.js`, `public/index.html`, `public/css/style.css`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:** keine. Hinweis für den Mehrspieler-Modus: Die Anzeige rechnet die Restzeit mit der Uhr des eigenen Geräts. Weicht diese von der Serveruhr ab, muss die Online-Verbindung den Zeitunterschied ausgleichen.
+- **Ergebnis:** Das Spiel hat einen 10-Minuten-Countdown, kann durch Zeitablauf verloren werden und lässt sich ohne Neuladen neu starten. In keiner Ansicht gab es JS-Fehler.
+- **Bezug zur Planung:** 2026-10-04, 02:07 – Planung: Erste Version der Escape-Room-WebApp
+- **Abweichungen vom Plan:** Zusätzlich gibt es `pruefeZeit()` und das Feld `endzeit`, damit das Spiel ohne Klick endet und die Zeit nach dem Gewinn stehen bleibt. Der Neustart läuft als Aktion über die Spiellogik (in Schritt 6 angekündigt). Die Zeitstrafe für Tipps folgt wie geplant in Schritt 8.
+- **Git-Commit:** `09bd894`
