@@ -1,6 +1,6 @@
 # Projektdokumentation: Escape-Room
 
-> Diese Datei wird während der Entwicklung fortlaufend von Claude Code gepflegt (Regeln siehe `CLAUDE.md`).
+> Diese Datei wird während der Entwicklung fortlaufend von Claude Code bzw. Codex gepflegt (Regeln siehe `CLAUDE.md` bzw. `AGENTS.md`).
 > Einträge im Entwicklungsprotokoll werden nur angehängt und nachträglich nicht verändert.
 > Jeder Eintrag verweist auf den zugehörigen Git-Commit im GitHub-Repository.
 
@@ -9,7 +9,7 @@
 - **Rahmen:** Seminar-/Projektarbeit, Web Technologie 
 - **Zeitraum:** Start 03.10.2026 – laufend
 - **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`; später Socket.IO für den Mehrspieler-Modus (geplant)
-- **Werkzeuge:** VS Code, Claude Code, Git, GitHub, Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
+- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), Git, GitHub, Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
@@ -53,6 +53,7 @@ _Stand: erste Version abgeschlossen (Einzelspieler, ein Raum, alle Grafiken, Vid
 | 2026-10-04 | Neuer Spielstatus „bereit“ vor „läuft“; der Timer startet erst mit „Raum betreten“ | Intro kann in Ruhe gelesen werden; im Mehrspieler-Modus kann die Gruppe später gemeinsam starten (Lobby) | Timer startet beim Laden der Seite; Spielstand erst nach dem Intro erzeugen |
 | 2026-10-04 | Jeder Raum hat eine eigene Geschichte (Intro, Outro, Verloren-Text) in seinen Raumdaten, jeweils optional mit Video; der Text bleibt als Untertitel bzw. Ersatz; Tests prüfen, dass jeder Raum alle drei Texte hat | Räume bleiben eigenständig; das Spiel funktioniert auch ohne Videos oder wenn ein Video nicht lädt | Texte fest in der Anzeige; Videos ohne Text-Ersatz |
 | 2026-10-04 | Schreckmoment bei Zeitablauf pro Raum ausdrücklich an (`schreck: {…}`) oder aus (`schreck: null`); Hinweis auf der Raumkarte wird daraus abgeleitet; eingebauter Ersatzton, solange keine Sounddatei da ist; einmalige Lichteinblendung ohne Blinken, begrenzte Lautstärke | Kein Raum bekommt versehentlich einen Schreck; Spielende werden vorgewarnt; funktioniert sofort ohne Dateien; Rücksicht auf anfallsgefährdete und schreckhafte Personen | Schreck immer automatisch mit Ersatzton; Hinweis von Hand pflegen |
+| 2026-10-20 | Entwicklung im Wechsel mit Claude Code und Codex; `AGENTS.md` enthält für Codex dieselben Regeln wie `CLAUDE.md` | Arbeit kann weitergehen, wenn das Tageskontingent eines Werkzeugs aufgebraucht ist; gleiche Regeln halten Commits und Dokumentation einheitlich | Nur Claude Code (Pausen bei aufgebrauchtem Kontingent); Codex ohne eigene Regeldatei |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -414,3 +415,17 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-04, 20:56 – Planung: Startseite, Schwierigkeitsgrade und Vorgeschichte
 - **Abweichungen vom Plan:** Zusätzlich wurden die Medienordner schon angelegt, damit Dateien direkt abgelegt werden können.
 - **Git-Commit:** `e0bc26a`
+
+### 2026-10-20, 10:17 – AGENTS.md für die Arbeit mit Codex
+- **Auslöser:** Anweisung des Nutzers: „Doch ich würde nämlich gerne parallel auch mit Codex arbeiten bzw. im Wechsel. Dafür sollte die Agents.md sein denke ich. Meine Idee ist, wenn ich hier mein Nutzungskontingent aufgebraucht habe für den Tag, würde ich mit Codex weiter machen.“
+- **Durchgeführte Schritte:**
+  - Die von der Nutzerin angelegte `AGENTS.md` geprüft: Sie ist inhaltlich gleich mit `CLAUDE.md`, nur „Claude“ ist durch „Codex“ ersetzt.
+  - `AGENTS.md` committet.
+  - Kopf der Dokumentation und Werkzeuge in Abschnitt 1 um Codex ergänzt, Entscheidung in Abschnitt 3 eingetragen.
+- **Geänderte/neue Dateien:** `AGENTS.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Codex findet beim Start im Projekt dieselben Regeln für Commits, Dokumentation und Plan-Modus wie Claude Code.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `180c184`
