@@ -8,7 +8,7 @@
 - **Ziel der App:** Entwicklung einer browserbasierten WebApp, die das Erlebnis eines Escape Rooms digital simuliert. Spielende wählen einen Raum aus und versuchen, durch das Untersuchen anklickbarer Objekte und das Kombinieren von Hinweisen ein Rätsel unter Zeitdruck zu lösen. Als Erweiterung sind mehrere Räume mit unterschiedlichen Themen und Schwierigkeitsgraden vorgesehen.
 - **Rahmen:** Seminar-/Projektarbeit, Web Technologie 
 - **Zeitraum:** Start 03.10.2026 – laufend
-- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`; später Socket.IO für den Mehrspieler-Modus (geplant)
+- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`; später Anmeldung und Mehrspieler-Modus (geplant; Varianten: Express mit Socket.IO bei Render oder Vercel mit Supabase, siehe `docs/ideen.md`)
 - **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), Git, GitHub, Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
@@ -429,3 +429,20 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** `180c184`
+
+### 2026-10-20, 10:23 – Varianten für Anmeldung und gemeinsames Spielen gesammelt
+- **Auslöser:** Anweisung des Nutzers: „Wir können aber auch jetzt schon in den weiteren Plan aufnehmen, dass ich gerne mit Vercel und Supabase arbeiten und hosten möchte. Es sollen schließlich Leute sich anmelden können und gemeinsam einen Raum spielen können.“ Auf den ersten Entwurf (nur Vercel und Supabase) folgte: „Übernehme beide Varianten bezüglich der Datenbank und des Hostings. Ich möchte deine erste Idee auch drin haben.“ Außerdem bat die Nutzerin darum, ihr Zitat professioneller als Ziel zu formulieren.
+- **Durchgeführte Schritte:**
+  - In `docs/ideen.md` einen Eintrag mit Ziel und zwei Varianten angelegt, Status „offen“:
+    - Variante A: eigener Express-Server mit Socket.IO bei Render (ursprünglicher Vorschlag von Claude aus dem Plan der ersten Version).
+    - Variante B: Vercel mit Supabase Auth, Datenbank und Realtime (Wunsch der Nutzerin).
+    - Je Variante Funktionsweise, Vorteile und Nachteile sowie offene Fragen für die spätere Planung.
+  - Tech-Stack in Abschnitt 1 angepasst.
+  - Der Nutzerin erklärt, dass Variante A ein eigener Vorschlag war und nicht aus Seminarvorgaben stammt (laut erster Planung gibt es keine).
+- **Geänderte/neue Dateien:** `docs/ideen.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** Vercel kann keine dauerhaften WebSocket-Verbindungen halten, Socket.IO funktioniert dort also nicht. In Variante B übernimmt deshalb Supabase Realtime die Live-Synchronisation.
+- **Ergebnis:** Beide Varianten sind nachvollziehbar festgehalten. Die Entscheidung fällt in einer eigenen Planung im Plan-Modus, deshalb noch kein Eintrag in Abschnitt 3.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `3453c10`
