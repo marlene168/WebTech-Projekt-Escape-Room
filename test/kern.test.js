@@ -70,3 +70,33 @@ test("Ändert eine Aktion nichts, kommt derselbe Zustand zurück (dann speichert
   assert.equal(bearbeite(s, { typ: "untersuche", objekt: "regal" }, ERSTELLER, START + 1000).zustand, s.zustand);
   assert.equal(bearbeite(s, { typ: "tipp", nummer: 2 }, ERSTELLER, START + 1000).zustand, s.zustand);
 });
+
+// ---------- Verlassen durch die erstellende Person ----------
+
+test("Verlässt die erstellende Person die Sitzung vor dem Start, ist sie beendet", () => {
+  const ergebnis = bearbeite(sitzung(), { typ: "verlassen" });
+  assert.equal(ergebnis.zustand.status, "beendet");
+  assert.equal(ergebnis.zustand.endzeit, START);
+});
+
+test("Verlässt die erstellende Person die Sitzung während des Spiels, ist sie beendet und die Zeit bleibt stehen", () => {
+  const ergebnis = bearbeite(sitzung(gestartet()), { typ: "verlassen" }, ERSTELLER, START + 30_000);
+  assert.equal(ergebnis.zustand.status, "beendet");
+  assert.equal(ergebnis.zustand.endzeit, START + 30_000);
+});
+
+test("Nur die erstellende Person kann die Sitzung beenden", () => {
+  assert.deepEqual(bearbeite(sitzung(gestartet()), { typ: "verlassen" }, MITGLIED), { abgelehnt: "nur_ersteller_beendet" });
+});
+
+test("Eine schon beendete oder entschiedene Sitzung ändert sich durch Verlassen nicht mehr", () => {
+  const beendet = bearbeite(sitzung(), { typ: "verlassen" }).zustand;
+  assert.equal(bearbeite(sitzung(beendet), { typ: "verlassen" }).zustand, beendet);
+  const gewonnen = bearbeite(sitzung(gestartet()), { typ: "loese", raetsel: "tuer", eingabe: "417" }, ERSTELLER, START + 1000).zustand;
+  assert.equal(bearbeite(sitzung(gewonnen), { typ: "verlassen" }).zustand, gewonnen);
+});
+
+test("In einer beendeten Sitzung wirken keine Aktionen mehr", () => {
+  const beendet = bearbeite(sitzung(), { typ: "verlassen" }).zustand;
+  assert.equal(bearbeite(sitzung(beendet), { typ: "start" }).zustand, beendet);
+});

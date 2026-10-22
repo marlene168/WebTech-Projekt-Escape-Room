@@ -1,9 +1,11 @@
 // Tests für die Raumliste: Vorgaben, die jeder Raum erfüllen muss. Ausführen mit: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { raeume, SCHWIERIGKEITEN, findeRaum } from "../shared/raeume/index.js";
-import { geheimnisseVon } from "../shared/raeume/geheim.js";
-import { RAETSELTYPEN } from "../shared/raetsel/index.js";
+import { raeume, SCHWIERIGKEITEN, findeRaum } from "../public/shared/raeume/index.js";
+import { geheimnisseVon } from "../supabase/functions/_shared/raeume/geheim.js";
+import { RAETSELTYPEN } from "../public/shared/raetsel/index.js";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 test("Jeder Raum hat einen gültigen Schwierigkeitsgrad", () => {
   for (const raum of raeume) {
@@ -133,6 +135,25 @@ test("Öffentliche Raumdaten enthalten keine Lösungen und keine Tipp-Texte", ()
     }
     for (const tipp of geheim.tipps) {
       assert.ok(!text.includes(tipp), `Raum "${raum.id}": ein Tipp-Text steht in den öffentlichen Daten`);
+    }
+  }
+});
+
+// Alles in public/ wird an den Browser ausgeliefert – dort darf keine Lösung und kein Tipp-Text stehen.
+const alleDateien = (ordner) =>
+  readdirSync(ordner, { withFileTypes: true }).flatMap((eintrag) =>
+    eintrag.isDirectory() ? alleDateien(join(ordner, eintrag.name)) : [join(ordner, eintrag.name)]);
+
+test("Keine Datei im Ordner public/ enthält Lösungen oder Tipp-Texte", () => {
+  const textdateien = alleDateien("public").filter((datei) => /\.(js|html|css|json)$/.test(datei));
+  for (const raum of raeume) {
+    const { loesungen, tipps } = geheimnisseVon(raum.id);
+    const verboten = [...Object.values(loesungen).map((loesung) => JSON.stringify(loesung)), ...tipps];
+    for (const datei of textdateien) {
+      const inhalt = readFileSync(datei, "utf8");
+      for (const geheim of verboten) {
+        assert.ok(!inhalt.includes(geheim), `${datei} enthält Geheimes aus Raum "${raum.id}"`);
+      }
     }
   }
 });

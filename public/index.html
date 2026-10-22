@@ -11,9 +11,18 @@
   <header class="start-kopf">
     <h1 class="start-titel">Escape Room</h1>
     <p class="start-untertitel">Wähle einen Raum. Jeder Raum ist ein eigenes Abenteuer – je weiter unten, desto kniffliger.</p>
+
+    <!-- Beitritt zu einer Sitzung, die jemand anderes erstellt hat (nur vor dem Spielstart möglich) -->
+    <form class="beitreten">
+      <label for="beitrittscode">Code von deiner Gruppe:</label>
+      <input id="beitrittscode" name="code" autocomplete="off" spellcheck="false" maxlength="6" placeholder="z. B. K7XQ2M" required>
+      <button class="knopf knopf-haupt">Beitreten</button>
+    </form>
+    <p class="start-meldung" role="alert" hidden></p>
   </header>
 
-  <!-- Die Raumkarten werden von js/start.js aus shared/raeume/index.js erzeugt -->
+  <!-- Die Raumkarten werden von js/start.js aus shared/raeume/index.js erzeugt.
+       "Spielen" erstellt eine neue Sitzung – allein oder zum Teilen des Codes mit bis zu drei weiteren Personen. -->
   <main class="raum-liste"></main>
 </body>
 </html>

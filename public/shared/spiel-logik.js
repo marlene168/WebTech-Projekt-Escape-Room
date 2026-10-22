@@ -9,14 +9,15 @@
 // nie selbst ab, sondern bekommt die Zeit übergeben – im Mehrspieler-Modus gibt sie der Server vor.
 //
 // "raum" ist der vollständige Raum: öffentliche Raumdaten plus "geheim" (Lösungen, Tipp-Texte),
-// zusammengesetzt mit mitGeheimnissen() aus shared/raeume/geheim.js.
+// zusammengesetzt im Backend mit mitGeheimnissen() (supabase/functions/_shared/raeume/geheim.js).
+// Der Browser nutzt aus dieser Datei nur restzeit() für die Anzeige.
 import { RAETSELTYPEN } from "./raetsel/index.js";
 
 // Ein neues Spiel wartet zuerst im Status "bereit" (Intro wird gelesen), die Zeit läuft erst nach "start".
 export function erstelleSpielstand(raum) {
   return {
     raumId: raum.id,
-    status: "bereit", // "bereit", "laeuft", "gewonnen" oder "verloren"
+    status: "bereit", // "bereit", "laeuft", "gewonnen", "verloren" oder "beendet" (von der erstellenden Person verlassen)
     startzeit: null, // wird beim Start gesetzt
     dauerSekunden: raum.dauerSekunden,
     strafSekunden: 0, // Zeitabzug durch Tipps
@@ -33,9 +34,8 @@ export function erstelleSpielstand(raum) {
 //   { typ: "untersuche", objekt: "<objekt-id>" }                     → ein Objekt wurde angeklickt
 //   { typ: "loese", raetsel: "<rätsel>", eingabe: "<z. B. ziffern>" } → Lösung eines Rätsels probieren
 //   { typ: "tipp", nummer: <n> }                                      → Tipp Nummer n holen (kostet Zeit)
-//   { typ: "neustart" }                                               → neues Spiel, startet sofort (ohne Intro)
+// Erneutes Spielen erzeugt eine neue Sitzung – einen Neustart innerhalb eines Spiels gibt es nicht.
 export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
-  if (aktion.typ === "neustart") return starte(erstelleSpielstand(raum), jetzt);
   if (aktion.typ === "start") return spielstand.status === "bereit" ? starte(spielstand, jetzt) : spielstand;
 
   // Ist die Zeit inzwischen abgelaufen, zählt die Aktion nicht mehr
@@ -61,7 +61,7 @@ function starte(spielstand, jetzt) {
 // Verbleibende Zeit in Millisekunden (nie negativ). Vor dem Start ist es die volle Zeit,
 // nach dem Spielende bleibt sie stehen.
 export function restzeit(spielstand, jetzt) {
-  if (spielstand.status === "bereit") return (spielstand.dauerSekunden - spielstand.strafSekunden) * 1000;
+  if (spielstand.startzeit === null) return (spielstand.dauerSekunden - spielstand.strafSekunden) * 1000;
   const ende = spielende(spielstand);
   return Math.max(0, ende - (spielstand.endzeit ?? jetzt));
 }
@@ -103,7 +103,7 @@ function untersuche(raum, spielstand, objektId) {
   return { ...spielstand, gefundeneSpuren: [...spielstand.gefundeneSpuren, spur] };
 }
 
-// Ob die Eingabe stimmt, entscheidet der Rätseltyp (siehe shared/raetsel/).
+// Ob die Eingabe stimmt, entscheidet der Rätseltyp (siehe public/shared/raetsel/).
 function loese(raum, spielstand, raetselName, eingabe, jetzt) {
   const typ = RAETSELTYPEN[raum.raetsel?.[raetselName]?.typ];
   if (!typ || spielstand.geloesteRaetsel.includes(raetselName)) return spielstand;

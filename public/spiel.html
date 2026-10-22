@@ -10,10 +10,12 @@
 <body>
   <header class="kopfleiste">
     <div class="kopfleiste-links">
-      <a class="knopf zurueck-link" href="./" title="Zur Raumauswahl">← Räume</a>
+      <a class="knopf zurueck-link verlassen-link" href="./" title="Sitzung verlassen und zur Raumauswahl">← Verlassen</a>
       <h1 class="raumtitel">Escape Room</h1>
     </div>
     <div class="kopfleiste-knoepfe">
+      <!-- Code für Mitspielende und Anzahl der Mitglieder (Sitzung, siehe js/main.js) -->
+      <div class="sitzungsinfo" title="Code für Mitspielende · Mitspielende">🔑 <span class="sitzungscode">······</span> · 👥 <span class="mitglieder-anzahl">–</span></div>
       <div class="timer" title="Verbleibende Zeit">⏳ <span class="timer-zeit">--:--</span></div>
       <button class="knopf hilfe-knopf">💡 Hilfe</button>
       <button class="knopf notizbuch-knopf">📓 Notizbuch <span class="zaehler">0</span></button>
@@ -81,19 +83,22 @@
     </div>
   </dialog>
 
-  <!-- Vorgeschichte vor dem Start: der Timer läuft erst nach "Raum betreten" -->
+  <!-- Vorgeschichte vor dem Start: der Timer läuft erst, wenn die erstellende Person "Raum betreten" klickt -->
   <dialog class="intro-fenster">
     <h2 class="intro-titel"></h2>
     <!-- Optionales Video (siehe js/geschichte.js); der Text darunter bleibt als Untertitel bzw. Ersatz -->
     <div class="video-bereich" hidden></div>
     <div class="geschichte-text intro-text"></div>
+    <p class="intro-lobby">Code für Mitspielende: <strong class="sitzungscode"></strong> · Mitspielende: <span class="mitglieder-anzahl">–</span></p>
+    <p class="intro-warten" hidden>Warte, bis die Person, die die Sitzung erstellt hat, den Raum betritt …</p>
     <div class="fenster-knoepfe intro-knoepfe">
+      <a class="knopf verlassen-link" href="./">Verlassen</a>
       <button class="knopf intro-video" hidden>▶ Geschichte ansehen</button>
       <button class="knopf knopf-haupt intro-start">Raum betreten</button>
     </div>
   </dialog>
 
-  <!-- Spielende (gewonnen oder Zeit abgelaufen) -->
+  <!-- Spielende (gewonnen, Zeit abgelaufen oder Sitzung beendet) -->
   <dialog class="ende-fenster">
     <div class="ende-symbol"></div>
     <h2 class="ende-titel"></h2>
@@ -102,7 +107,7 @@
     <p class="ende-statistik"></p>
     <div class="fenster-knoepfe">
       <a class="knopf" href="./">Zur Raumauswahl</a>
-      <button class="knopf knopf-haupt ende-neustart">Nochmal spielen</button>
+      <button class="knopf knopf-haupt ende-neustart" title="Erstellt eine neue Sitzung mit neuem Code">Nochmal spielen</button>
     </div>
   </dialog>
 

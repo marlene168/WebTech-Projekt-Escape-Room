@@ -768,14 +768,19 @@ body.startseite {
 @media (prefers-reduced-motion: no-preference) {
   .intro-fenster[open] .intro-titel,
   .intro-fenster[open] .intro-text p,
-  .intro-fenster[open] .intro-start {
+  .intro-fenster[open] .intro-lobby,
+  .intro-fenster[open] .intro-warten,
+  .intro-fenster[open] .intro-knoepfe {
     animation: einblenden 1.2s ease-out both;
   }
 
   .intro-fenster[open] .intro-text p:nth-child(1) { animation-delay: 0.6s; }
   .intro-fenster[open] .intro-text p:nth-child(2) { animation-delay: 1.8s; }
   .intro-fenster[open] .intro-text p:nth-child(n + 3) { animation-delay: 3s; }
-  .intro-fenster[open] .intro-start { animation-delay: 3.8s; }
+  /* Sitzungsinfos und Knöpfe erscheinen nach der Geschichte */
+  .intro-fenster[open] .intro-lobby,
+  .intro-fenster[open] .intro-warten,
+  .intro-fenster[open] .intro-knoepfe { animation-delay: 3.8s; }
 }
 
 @keyframes einblenden {
@@ -965,5 +970,75 @@ body.startseite {
   .intro-fenster .knopf {
     padding: 0.35em 1.2em;
     font-size: 0.95rem;
+  }
+}
+
+/* ---------- Sitzungen (Beitritt, Code, Mitspielende) ---------- */
+.beitreten {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+
+.beitreten input {
+  width: 8.5em;
+  padding: 0.45em 0.6em;
+  border: 1px solid #3a2e24;
+  border-radius: 4px;
+  background: var(--farbe-leiste);
+  color: var(--farbe-text);
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.start-meldung {
+  max-width: 36rem;
+  margin: 1rem auto 0;
+  padding: 0.5em 0.9em;
+  border: 1px solid #7a4a2a;
+  border-radius: 4px;
+  color: #f0b48a;
+}
+
+.knopf:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.sitzungsinfo {
+  padding: 0.2em 0.7em;
+  border: 1px solid #3a2e24;
+  border-radius: 4px;
+  font-size: clamp(0.8rem, 1.6vw, 1rem);
+  white-space: nowrap;
+}
+
+.sitzungscode {
+  font-family: system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.intro-lobby,
+.intro-warten {
+  margin: 0.8rem 0 0;
+  text-align: center;
+}
+
+.intro-warten {
+  font-style: italic;
+  color: var(--farbe-akzent);
+}
+
+/* Auf schmalen Bildschirmen ist die Kopfleiste knapp – dort steht der Code nur im Intro */
+@media (max-width: 700px) {
+  .sitzungsinfo {
+    display: none;
   }
 }
