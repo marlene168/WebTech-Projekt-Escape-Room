@@ -1,10 +1,61 @@
 // Startseite: zeigt für jeden Raum eine Karte mit Schwierigkeit, Dauer und Kurzbeschreibung.
+// "Spielen" erstellt eine neue Sitzung; über den Code tritt man der Sitzung einer anderen Person bei.
 import { raeume, SCHWIERIGKEITEN } from "/shared/raeume/index.js";
+import { erstelleSitzung, trittBei, BACKEND_EINGERICHTET } from "./verbindung-online.js";
 
 const liste = document.querySelector(".raum-liste");
+const meldung = document.querySelector(".start-meldung");
+const beitretenFormular = document.querySelector(".beitreten");
+
+const MELDUNGEN = {
+  unbekannter_code: "Diesen Code gibt es nicht. Bitte prüfe die Eingabe.",
+  schon_gestartet: "Diese Sitzung hat schon begonnen oder ist beendet. Beitreten geht nur vor dem Start.",
+  voll: "Diese Sitzung ist voll (höchstens vier Personen).",
+  kein_zugriff: "Du bist kein Mitglied dieser Sitzung. Bitte tritt über den Code deiner Gruppe bei.",
+  keine_verbindung: "Keine Verbindung zum Server. Bitte versuche es noch einmal.",
+  netzwerk: "Keine Verbindung zum Server. Bitte versuche es noch einmal.",
+  nicht_eingerichtet: "Das Online-Spiel ist hier noch nicht eingerichtet.",
+};
+
+function zeigeMeldung(grund) {
+  meldung.textContent = MELDUNGEN[grund] ?? `Das hat nicht geklappt (${grund}).`;
+  meldung.hidden = false;
+}
+
+// Hinweis von der Spielseite, z. B. ?hinweis=kein_zugriff
+const hinweis = new URLSearchParams(location.search).get("hinweis");
+if (hinweis) zeigeMeldung(hinweis);
+if (!BACKEND_EINGERICHTET) {
+  zeigeMeldung("nicht_eingerichtet");
+  beitretenFormular.hidden = true;
+}
 
 for (const raum of raeume) {
   liste.append(erstelleKarte(raum));
+}
+
+beitretenFormular.addEventListener("submit", async (ereignis) => {
+  ereignis.preventDefault();
+  const knopf = beitretenFormular.querySelector("button");
+  knopf.disabled = true;
+  try {
+    location.href = `spiel.html?sitzung=${await trittBei(beitretenFormular.code.value)}`;
+  } catch (fehler) {
+    zeigeMeldung(fehler.grund);
+    knopf.disabled = false;
+  }
+});
+
+async function spielen(raum, knopf) {
+  knopf.disabled = true;
+  knopf.textContent = "Sitzung wird erstellt …";
+  try {
+    location.href = `spiel.html?sitzung=${await erstelleSitzung(raum.id)}`;
+  } catch (fehler) {
+    zeigeMeldung(fehler.grund);
+    knopf.disabled = false;
+    knopf.textContent = "Spielen";
+  }
 }
 
 function erstelleKarte(raum) {
@@ -37,10 +88,11 @@ function erstelleKarte(raum) {
   beschreibung.className = "raum-beschreibung";
   beschreibung.textContent = raum.kurzbeschreibung;
 
-  const spielen = document.createElement("a");
-  spielen.className = "knopf knopf-haupt";
-  spielen.href = `spiel.html?raum=${encodeURIComponent(raum.id)}`;
-  spielen.textContent = "Spielen";
+  const spielenKnopf = document.createElement("button");
+  spielenKnopf.className = "knopf knopf-haupt";
+  spielenKnopf.textContent = "Spielen";
+  spielenKnopf.disabled = !BACKEND_EINGERICHTET;
+  spielenKnopf.addEventListener("click", () => spielen(raum, spielenKnopf));
 
   info.append(titel, eckdaten, beschreibung);
 
@@ -52,7 +104,7 @@ function erstelleKarte(raum) {
     info.append(hinweis);
   }
 
-  info.append(spielen);
+  info.append(spielenKnopf);
   karte.append(vorschau, info);
   return karte;
 }

@@ -1,9 +1,9 @@
 // Tests für die Spiellogik. Ausführen mit: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import arbeitszimmer from "../shared/raeume/arbeitszimmer.js";
-import { mitGeheimnissen } from "../shared/raeume/geheim.js";
-import { erstelleSpielstand, verarbeiteAktion, restzeit, pruefeZeit } from "../shared/spiel-logik.js";
+import arbeitszimmer from "../public/shared/raeume/arbeitszimmer.js";
+import { mitGeheimnissen } from "../supabase/functions/_shared/raeume/geheim.js";
+import { erstelleSpielstand, verarbeiteAktion, restzeit, pruefeZeit } from "../public/shared/spiel-logik.js";
 
 // Feste Zeitpunkte statt der echten Uhr, damit die Tests immer gleich ablaufen
 const START = 1_000_000;
@@ -147,15 +147,18 @@ test("Nach dem Gewinnen bleibt die Restzeit stehen", () => {
   assert.equal(pruefeZeit(gewonnen, START + DAUER_MS * 2), gewonnen);
 });
 
-// ---------- Neustart ----------
+// ---------- Kein Neustart (erneutes Spielen = neue Sitzung) ----------
 
-test("Neustart setzt alles zurück und startet die Zeit neu", () => {
-  let spielstand = untersuche(neuesSpiel(), "kalender");
-  spielstand = pruefeZeit(spielstand, START + DAUER_MS);
-  const neustartZeit = START + DAUER_MS + 10_000;
-  const neu = verarbeiteAktion(raum, spielstand, { typ: "neustart" }, neustartZeit);
-  assert.deepEqual(neu, starte(erstelleSpielstand(raum), neustartZeit));
-  assert.equal(neu.status, "laeuft"); // ohne erneutes Intro
+test("Einen Neustart innerhalb eines Spiels gibt es nicht", () => {
+  const verloren = pruefeZeit(untersuche(neuesSpiel(), "kalender"), START + DAUER_MS);
+  assert.equal(verarbeiteAktion(raum, verloren, { typ: "neustart" }, START + DAUER_MS + 10_000), verloren);
+});
+
+test("Ein beendetes Spiel ohne Start hat die volle Zeit und nimmt keine Aktionen an", () => {
+  const beendet = { ...erstelleSpielstand(raum), status: "beendet", endzeit: START };
+  assert.equal(restzeit(beendet, START + 99_000), DAUER_MS);
+  assert.equal(starte(beendet), beendet);
+  assert.equal(untersuche(beendet, "kalender"), beendet);
 });
 
 // ---------- Vor dem Start (Intro) ----------

@@ -1,5 +1,5 @@
 // Geheime Daten des Arbeitszimmers: Lösungen und Tipp-Texte.
-// Diese Datei darf später nicht mehr an den Browser gehen (ab AP 4 nur noch im Backend).
+// Liegt nur im Backend und geht nie an den Browser (öffentlicher Teil: public/shared/raeume/arbeitszimmer.js).
 // Ändert sich hier etwas an den Lösungen, muss "version" in arbeitszimmer.js erhöht werden.
 
 export default {

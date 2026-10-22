@@ -1,8 +1,8 @@
 // Geheime Raumdaten (Lösungen, Tipp-Texte) und das Zusammensetzen mit den öffentlichen Raumdaten.
 //
-// Die Spiellogik braucht den vollständigen Raum: öffentliche Daten plus "geheim".
-// Vorübergehend nutzt auch die lokale Verbindung im Browser diese Datei. Ab AP 4 zieht sie
-// ins Backend (supabase/functions/_shared/), und der Browser bekommt keine Geheimnisse mehr.
+// Die Spiellogik braucht den vollständigen Raum: öffentliche Daten (public/shared/raeume/) plus "geheim".
+// Diese Dateien liegen nur im Backend und werden nie an den Browser ausgeliefert.
+// Neuer Raum: seine .geheim.js-Datei hier importieren und unten eintragen.
 import arbeitszimmer from "./arbeitszimmer.geheim.js";
 
 const geheimeDaten = { arbeitszimmer };

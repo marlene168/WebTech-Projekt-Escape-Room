@@ -138,3 +138,29 @@ test("Der richtige Code gewinnt das Spiel; die Antwort enthält keine Lösungen"
   assert.ok(!JSON.stringify(antwort.daten).includes('"417"'));
   assert.ok(API_URL); // nur lokal (siehe hilfe.js)
 });
+
+test("Verlässt die erstellende Person die Sitzung vor dem Start, ist sie für alle beendet", async () => {
+  const [a, b, spaet] = [await neuerGast(), await neuerGast(), await neuerGast()];
+  const sitzung = await erstelleSitzung(a);
+  await beitreten(b, sitzung.beitrittscode);
+
+  assert.equal((await aktion(a, sitzung.id, { typ: "verlassen" })).daten.sitzung.zustand.status, "beendet");
+  assert.equal((await laden(b, sitzung.id)).daten.sitzung.zustand.status, "beendet"); // B sieht die Meldung
+  assert.equal((await aktion(a, sitzung.id, { typ: "start" })).daten.sitzung.zustand.status, "beendet");
+  assert.equal((await beitreten(spaet, sitzung.beitrittscode)).status, 409);
+});
+
+test("Verlässt die erstellende Person die Sitzung während des Spiels, ist sie beendet; andere können nicht beenden", async () => {
+  const [a, b] = [await neuerGast(), await neuerGast()];
+  const sitzung = await erstelleSitzung(a);
+  await beitreten(b, sitzung.beitrittscode);
+  await aktion(a, sitzung.id, { typ: "start" });
+
+  const versuchB = await aktion(b, sitzung.id, { typ: "verlassen" });
+  assert.equal(versuchB.status, 403);
+  assert.equal(versuchB.daten.fehler, "nur_ersteller_beendet");
+
+  assert.equal((await aktion(a, sitzung.id, { typ: "verlassen" })).daten.sitzung.zustand.status, "beendet");
+  const nachher = await aktion(b, sitzung.id, { typ: "untersuche", objekt: "kalender" });
+  assert.deepEqual(nachher.daten.sitzung.zustand.gefundeneSpuren, []);
+});

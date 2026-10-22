@@ -13,6 +13,7 @@ const MAX_VERSUCHE = 8;
 const FEHLER = {
   ungueltige_aktion: 400,
   nur_ersteller_startet: 403,
+  nur_ersteller_beendet: 403,
   raum_veraltet: 409,
 };
 

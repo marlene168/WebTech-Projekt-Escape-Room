@@ -1,6 +1,7 @@
 // Raumdaten: Das Arbeitszimmer des Professors.
 // Hier steht nur, WAS es im Raum gibt – wie es angezeigt wird, entscheidet public/js/anzeige.js.
-// Diese Datei ist öffentlich: Lösungen und Tipp-Texte stehen in arbeitszimmer.geheim.js.
+// Diese Datei ist öffentlich: Lösungen und Tipp-Texte stehen nur im Backend
+// (supabase/functions/_shared/raeume/arbeitszimmer.geheim.js).
 //
 // Positionen (x, y, breite, hoehe) sind Prozentwerte der Bühne:
 // x/y = linke obere Ecke, 0/0 = oben links, 100/100 = unten rechts.
@@ -215,8 +216,8 @@ export default {
     reihenfolge: { titel: "Rot – Grün – Blau", text: "Notiz des Professors an der Pinnwand. Eine Reihenfolge?" },
   },
 
-  // Rätsel (Schlüssel = Name des Rätsels, siehe "raetsel" oben). "typ" verweist auf shared/raetsel/.
-  // Die Lösungen stehen in arbeitszimmer.geheim.js.
+  // Rätsel (Schlüssel = Name des Rätsels, siehe "raetsel" oben). "typ" verweist auf public/shared/raetsel/.
+  // Die Lösungen stehen im Backend (arbeitszimmer.geheim.js).
   raetsel: {
     tuer: {
       typ: "zahlenschloss",
@@ -229,6 +230,6 @@ export default {
   // Wird dieses Rätsel gelöst, ist der Raum geschafft.
   ausgang: "tuer",
 
-  // So viele Tipps gibt es für den Hilfe-Knopf (die Texte stehen in arbeitszimmer.geheim.js)
+  // So viele Tipps gibt es für den Hilfe-Knopf (die Texte stehen im Backend in arbeitszimmer.geheim.js)
   anzahlTipps: 3,
 };

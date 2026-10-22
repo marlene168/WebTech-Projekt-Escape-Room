@@ -30,6 +30,12 @@ let status = "laeuft";
 // Wird beim Klick auf "Öffnen" mit dem eingestellten Code aufgerufen (siehe zeigeSchloss)
 let beiCodeVersuch = null;
 
+// Uhr für die Restzeit: im Online-Spiel die Uhr des Servers (siehe setzeUhr), damit alle dieselbe Zeit sehen
+let jetzt = () => Date.now();
+export function setzeUhr(uhr) {
+  jetzt = uhr;
+}
+
 // Wer in den Systemeinstellungen "Bewegung reduzieren" gewählt hat, bekommt keine Zoom-Animation.
 const ohneAnimation = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const ZOOM_DAUER = 450; // Millisekunden
@@ -83,9 +89,13 @@ export function zeigeSpielstand(raum, spielstand) {
       zeigeIntro(geschichte.intro);
     } else if (spielstand.status === "gewonnen") {
       zeigeEnde("🔓", "Geschafft!", geschichte.gewonnen.text,
-        `Restzeit: ${formatiereZeit(restzeit(spielstand, Date.now()))} · ${tippText}`, geschichte.gewonnen.video);
+        `Restzeit: ${formatiereZeit(restzeit(spielstand, jetzt()))} · ${tippText}`, geschichte.gewonnen.video);
     } else if (spielstand.status === "verloren") {
       zeigeVerloren(geschichte.verloren,
+        `Spuren gefunden: ${spielstand.gefundeneSpuren.length} von ${Object.keys(raum.spuren).length} · ${tippText}`);
+    } else if (spielstand.status === "beendet") {
+      zeigeEnde("🚪", "Sitzung beendet",
+        ["Die Person, die diese Sitzung erstellt hat, hat sie verlassen. Das Spiel ist damit für alle beendet."],
         `Spuren gefunden: ${spielstand.gefundeneSpuren.length} von ${Object.keys(raum.spuren).length} · ${tippText}`);
     } else {
       // Das Spiel läuft (gerade gestartet oder neu gestartet)
@@ -153,7 +163,7 @@ async function zeigeVerloren(verloren, statistik) {
 // Die Restzeit wird bei jedem Aufruf aus dem Spielstand neu berechnet (keine eigene Zählvariable).
 function zeichneTimer() {
   if (!aktuellerSpielstand) return;
-  const millisekunden = restzeit(aktuellerSpielstand, Date.now());
+  const millisekunden = restzeit(aktuellerSpielstand, jetzt());
   timer.querySelector(".timer-zeit").textContent = formatiereZeit(millisekunden);
   // In der letzten Minute wird der Timer rot
   timer.classList.toggle("knapp", millisekunden <= 60_000 && aktuellerSpielstand.status === "laeuft");
@@ -267,6 +277,30 @@ function zeigeEnde(symbol, titel, absaetze, statistik, video) {
 
 // Das Ende-Fenster lässt sich nicht mit Esc schließen – nur über "Nochmal spielen"
 endeFenster.addEventListener("cancel", (ereignis) => ereignis.preventDefault());
+
+// ---------- Sitzung (Code, Mitspielende, Verlassen) ----------
+
+// Zeigt den Beitrittscode. Wer nicht starten darf, sieht im Intro statt "Raum betreten" einen Wartehinweis.
+export function zeigeSitzung({ code, darfStarten }) {
+  for (const element of document.querySelectorAll(".sitzungscode")) element.textContent = code;
+  introFenster.querySelector(".intro-start").hidden = !darfStarten;
+  introFenster.querySelector(".intro-warten").hidden = darfStarten;
+}
+
+export function zeigeMitglieder(anzahl, maximum) {
+  for (const element of document.querySelectorAll(".mitglieder-anzahl")) element.textContent = `${anzahl}/${maximum}`;
+}
+
+// Klick auf "Verlassen" (Kopfleiste oder Intro). "callback" entscheidet, ob wirklich gegangen wird
+// (Rückgabe false = bleiben); danach geht es zur Raumauswahl.
+export function beimVerlassen(callback) {
+  for (const link of document.querySelectorAll(".verlassen-link")) {
+    link.addEventListener("click", async (ereignis) => {
+      ereignis.preventDefault();
+      if ((await callback()) !== false) location.href = link.href;
+    });
+  }
+}
 
 export function beimNeustart(callback) {
   endeFenster.querySelector(".ende-neustart").addEventListener("click", () => {

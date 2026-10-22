@@ -64,7 +64,7 @@ Siehe [Plan Mehrspieler-Grundlage](plaene/2026-10-22_mehrspieler-grundlage.md) u
   - Spiellogik in Edge Functions, Speichern über atomare Datenbankfunktionen.
   - `server.js` bleibt als lokaler Entwicklungsserver.
 - **Weiterhin offen:**
-  - Was passiert, wenn die erstellende Person die Sitzung *vor* dem Start verlässt (sonst darf niemand starten)? Bis AP 4 klären.
+  - ~~Was passiert, wenn die erstellende Person die Sitzung *vor* dem Start verlässt?~~ Entschieden am 2026-10-22: Verlässt die erstellende Person die Sitzung bewusst, vor dem Start oder während des Spiels, wird sie für alle beendet. Die anderen erhalten eine Meldung, die Startberechtigung wird nicht übergeben. Neuladen oder ein kurzer Verbindungsabbruch gelten nicht als Verlassen.
   - ~~Darf man einer bereits laufenden Sitzung noch beitreten?~~ Entschieden am 2026-10-22: Neue Mitglieder treten nur im Status „bereit“ bei (vor dem Spielstart). Bereits vorhandene Mitglieder steigen nach Neuladen oder Verbindungsabbruch jederzeit wieder ein, der Timer läuft dabei weiter. Der Vorschlag „ja, bis zum Spielende“ wurde nicht übernommen.
   - Wie werden beendete Sitzungen aufgeräumt (z. B. Löschen nach X Tagen)?
   - Anzeigenamen der Mitspielenden.

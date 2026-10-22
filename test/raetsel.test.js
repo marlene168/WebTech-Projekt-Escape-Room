@@ -1,7 +1,7 @@
 // Tests für die Rätseltypen (shared/raetsel/). Ausführen mit: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { RAETSELTYPEN } from "../shared/raetsel/index.js";
+import { RAETSELTYPEN } from "../public/shared/raetsel/index.js";
 
 test("Jeder Rätseltyp hat eine Funktion pruefe(eingabe, loesung)", () => {
   for (const [name, typ] of Object.entries(RAETSELTYPEN)) {

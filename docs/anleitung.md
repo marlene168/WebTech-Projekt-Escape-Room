@@ -27,12 +27,16 @@ npm run backend:stop    # Supabase wieder beenden
 
 Beim ersten Start lädt Docker einige Images herunter, das dauert ein paar Minuten. Die lokale Verwaltungsoberfläche (Supabase Studio) ist dann unter http://127.0.0.1:54323 erreichbar.
 
+**Online spielen (lokal):** Backend starten, dann `npm start` und http://localhost:3000 öffnen. „Spielen“ erstellt eine Sitzung, der angezeigte Code lässt bis zu drei weitere Personen beitreten (nur vor dem Start). Zum Ausprobieren mit mehreren Personen einen zweiten Browser oder ein privates Fenster nehmen, denn jedes Fenster mit eigenem Speicher ist ein eigener Gast.
+
+**Wichtig nach Änderungen an geteilten Dateien:** Die Edge Functions nutzen Dateien aus `public/shared/` (Spiellogik, Raumdaten). Nach Änderungen dort oder nach dem Verschieben von Dateien das Backend neu starten (`npm run backend:stop`, dann `npm run backend:start`). Sonst arbeiten die Edge Functions mit dem alten Stand oder finden Dateien nicht.
+
 ---
 
 ## 2. Grafik austauschen
 
 1. Datei in den Bilderordner des Raums legen, z. B. `public/bilder/arbeitszimmer/schreibtisch.png`.
-2. In der Raumdatei (`shared/raeume/arbeitszimmer.js`) beim Objekt den Pfad eintragen, **ohne** `public/`:
+2. In der Raumdatei (`public/shared/raeume/arbeitszimmer.js`) beim Objekt den Pfad eintragen, **ohne** `public/`:
    ```js
    bild: "bilder/arbeitszimmer/schreibtisch.png",
    ```
@@ -71,10 +75,10 @@ Beim ersten Start lädt Docker einige Images herunter, das dauert ein paar Minut
 Jeder Raum ist **inhaltlich eigenständig**: eigene Geschichte, eigenes Thema, eigene Rätsel, ohne Bezug zu anderen Räumen.
 
 1. **Raumdateien anlegen:** Jeder Raum besteht aus zwei Dateien:
-   - **öffentlich**: `shared/raeume/arbeitszimmer.js` kopieren, z. B. nach `shared/raeume/labor.js`. Darin `id`, `version: 1`, `titel`, `kurzbeschreibung`, `dauerSekunden`, Szenen, Objekte, Spuren, Rätsel (`raetsel`, ohne Lösungen), `ausgang` und `anzahlTipps` anpassen.
-   - **geheim**: `shared/raeume/arbeitszimmer.geheim.js` kopieren, z. B. nach `shared/raeume/labor.geheim.js`. Darin stehen die Lösungen (`loesungen`, je Rätsel) und die Tipp-Texte (`tipps`). Die Datei in `shared/raeume/geheim.js` eintragen.
+   - **öffentlich**: `public/shared/raeume/arbeitszimmer.js` kopieren, z. B. nach `public/shared/raeume/labor.js`. Darin `id`, `version: 1`, `titel`, `kurzbeschreibung`, `dauerSekunden`, Szenen, Objekte, Spuren, Rätsel (`raetsel`, ohne Lösungen), `ausgang` und `anzahlTipps` anpassen.
+   - **geheim** (nur im Backend, wird nie an den Browser ausgeliefert): `supabase/functions/_shared/raeume/arbeitszimmer.geheim.js` kopieren, z. B. nach `supabase/functions/_shared/raeume/labor.geheim.js`. Darin stehen die Lösungen (`loesungen`, je Rätsel) und die Tipp-Texte (`tipps`). Die Datei in `supabase/functions/_shared/raeume/geheim.js` eintragen.
 
-   Jedes Rätsel hat einen `typ` aus `shared/raetsel/` (bisher: `zahlenschloss` mit `stellen` = Anzahl der Rädchen). Ein neuer Rätseltyp braucht ein eigenes Modul in `shared/raetsel/` und eine Anzeige in `public/js/main.js`.
+   Jedes Rätsel hat einen `typ` aus `public/shared/raetsel/` (bisher: `zahlenschloss` mit `stellen` = Anzahl der Rädchen). Ein neuer Rätseltyp braucht ein eigenes Modul in `public/shared/raetsel/` und eine Anzeige in `public/js/main.js`.
 
    **Raumversion:** Ändern sich später Rätsel oder Lösungen eines Raums, `version` um 1 erhöhen.
 2. **Schwierigkeit festlegen:** `schwierigkeit: 1` (leicht), `2` (mittel) oder `3` (schwer). Spätere Räume sind schwerer als frühere, also mindestens so schwer wie der letzte Raum in der Liste.
@@ -91,7 +95,7 @@ Jeder Raum ist **inhaltlich eigenständig**: eigene Geschichte, eigenes Thema, e
 
    Bei einem Schreckmoment erscheint auf der Raumkarte automatisch „⚠ Enthält einen Schreckmoment mit Ton“.
 5. **Eigene Ordner anlegen:** `public/bilder/<raum>/`, `public/videos/<raum>/`, `public/toene/<raum>/`.
-6. **Raum eintragen:** In `shared/raeume/index.js` importieren und **hinten** an die Liste `raeume` anhängen.
+6. **Raum eintragen:** In `public/shared/raeume/index.js` importieren und **hinten** an die Liste `raeume` anhängen.
 7. **Prüfen:** `npm test` ausführen. Die Tests melden zum Beispiel eine fehlende Geschichte, ein fehlendes `schreck`-Feld, einen ungültigen Schwierigkeitsgrad, einen Raum, der leichter ist als sein Vorgänger, eine fehlende Lösung oder eine Lösung bzw. einen Tipp-Text in der öffentlichen Raumdatei.
 
 ---
