@@ -8,12 +8,16 @@
 - **Ziel der App:** Entwicklung einer browserbasierten WebApp, die das Erlebnis eines Escape Rooms digital simuliert. Spielende wählen einen Raum aus und versuchen, durch das Untersuchen anklickbarer Objekte und das Kombinieren von Hinweisen ein Rätsel unter Zeitdruck zu lösen. Als Erweiterung sind mehrere Räume mit unterschiedlichen Themen und Schwierigkeitsgraden vorgesehen.
 - **Rahmen:** Seminar-/Projektarbeit, Web Technologie 
 - **Zeitraum:** Start 03.10.2026 – laufend
-- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`; später Anmeldung und Mehrspieler-Modus (geplant; Varianten: Express mit Socket.IO bei Render oder Vercel mit Supabase, siehe `docs/ideen.md`)
-- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), Git, GitHub, Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
+- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`. Geplant, noch nicht umgesetzt: Vercel für die Bereitstellung der Website; Supabase für Authentifizierung, Datenbank, Backend-Funktionen (bevorzugt Edge Functions) und Echtzeit-Kommunikation; automatische CI-Prüfungen (siehe Abschnitt 3 und `docs/ideen.md`)
+- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), ChatGPT (Planungsgespräche der Nutzerin), Git, GitHub, Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
 _Stand: erste Version abgeschlossen (Einzelspieler, ein Raum, alle Grafiken, Videos und Töne noch als Platzhalter)._
+
+_Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp**. Die Trennung von Raumdaten, Spiellogik, Anzeige und lokaler Verbindung ist eine brauchbare Grundlage, aber noch keine Mehrspieler-Architektur. Was geplant und noch nicht umgesetzt ist, steht am Ende dieses Abschnitts._
+
+**Umgesetzt:**
 
 - **Funktionen:**
   - **Startseite** mit Raumkarten: Titel, Schwierigkeit als Sterne, Dauer, Kurzbeschreibung, bei Räumen mit Schreckmoment ein Hinweis. „Spielen“ öffnet `spiel.html?raum=<id>`. Räume sind frei wählbar und nach Schwierigkeit sortiert.
@@ -35,6 +39,19 @@ _Stand: erste Version abgeschlossen (Einzelspieler, ein Raum, alle Grafiken, Vid
   - `docs/plaene/` – freigegebene Pläne; `docs/anleitung.md` – Grafiken, Videos und Ton austauschen, neuen Raum anlegen, Liste aller benötigten Dateien; `docs/ideen.md` – Ideensammlung inklusive verworfener Ideen
 - **Wichtigste Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/spiel-logik.js`, `public/js/anzeige.js`, `public/js/geschichte.js`, `public/js/main.js`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
+- **Grenzen des Prototyps (Abgleich mit dem Code am 2026-10-22):**
+  - Spielstand und Timer existieren nur im Browser (`public/js/verbindung-lokal.js`). Die Zeit kommt von der Uhr des Geräts (`Date.now()`). Nach dem Neuladen beginnt das Spiel von vorn.
+  - `server.js` liefert nur Dateien aus. Unter `/shared` sind die vollständigen Raumdaten öffentlich abrufbar, einschließlich Schlosscode und aller Tipps (`shared/raeume/arbeitszimmer.js`).
+  - Raumvorlagen und Spielsitzungen sind nicht getrennt. Es gibt keine Sitzungs-ID, keine Mitglieder, keine Anmeldung und keine Behandlung gleichzeitiger oder doppelt gesendeter Aktionen.
+  - Wiederverwendbar sind die Spiellogik `shared/spiel-logik.js` (reine Funktionen, die Zeit wird übergeben), die Verbindungsschicht mit `sendeAktion` und `beiAenderung` sowie die Szene, die schon jetzt pro Gerät verwaltet wird.
+
+**Geplant (noch nicht umgesetzt):**
+
+- **Mehrspieler-Modus als wichtigste technische Anforderung:** Mehrere Personen lösen einen Raum gemeinsam. Andere Gruppen spielen dieselbe Raumvorlage unabhängig davon.
+- **Technik:** Vercel (Bereitstellung) und Supabase (Authentifizierung, Datenbank, Backend-Funktionen, Echtzeit). Das Frontend bleibt bei HTML, CSS und JavaScript. Architekturziel siehe Abschnitt 3.
+- **Erster Mehrspieler-Meilenstein:** Zwei Personen spielen das Arbeitszimmer gemeinsam. Eine dritte Person spielt gleichzeitig dieselbe Raumvorlage in einer unabhängigen Sitzung.
+- **Später:** automatische CI-Prüfungen, bewusst ausgelöste Deployments, eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
+- **Offen:** Rolle von `server.js`, Aufteilung zwischen Edge Functions und Datenbank, Umgang mit gleichzeitigen Aktionen, Kontopflicht oder Gastzugang, Gruppengröße, Rechte (Start, Neustart, Tipps), Verlassen der Sitzung durch die erstellende Person, Beenden und Aufräumen von Sitzungen, Datenmodell, Schnittstellen und Berechtigungsregeln. Details stehen in [`docs/ideen.md`](docs/ideen.md).
 
 ## 3. Wichtige Entscheidungen
 | Datum | Entscheidung | Begründung | Verworfene Alternativen |
@@ -54,6 +71,14 @@ _Stand: erste Version abgeschlossen (Einzelspieler, ein Raum, alle Grafiken, Vid
 | 2026-10-04 | Jeder Raum hat eine eigene Geschichte (Intro, Outro, Verloren-Text) in seinen Raumdaten, jeweils optional mit Video; der Text bleibt als Untertitel bzw. Ersatz; Tests prüfen, dass jeder Raum alle drei Texte hat | Räume bleiben eigenständig; das Spiel funktioniert auch ohne Videos oder wenn ein Video nicht lädt | Texte fest in der Anzeige; Videos ohne Text-Ersatz |
 | 2026-10-04 | Schreckmoment bei Zeitablauf pro Raum ausdrücklich an (`schreck: {…}`) oder aus (`schreck: null`); Hinweis auf der Raumkarte wird daraus abgeleitet; eingebauter Ersatzton, solange keine Sounddatei da ist; einmalige Lichteinblendung ohne Blinken, begrenzte Lautstärke | Kein Raum bekommt versehentlich einen Schreck; Spielende werden vorgewarnt; funktioniert sofort ohne Dateien; Rücksicht auf anfallsgefährdete und schreckhafte Personen | Schreck immer automatisch mit Ersatzton; Hinweis von Hand pflegen |
 | 2026-10-20 | Entwicklung im Wechsel mit Claude Code und Codex; `AGENTS.md` enthält für Codex dieselben Regeln wie `CLAUDE.md` | Arbeit kann weitergehen, wenn das Tageskontingent eines Werkzeugs aufgebraucht ist; gleiche Regeln halten Commits und Dokumentation einheitlich | Nur Claude Code (Pausen bei aufgebrauchtem Kontingent); Codex ohne eigene Regeldatei |
+| 2026-10-22 | Mehrspieler-Modus ist die wichtigste technische Anforderung und wird früh umgesetzt. Mehrere Personen lösen einen Raum gemeinsam, andere Personen oder Gruppen spielen dieselbe Raumvorlage unabhängig | Ergebnis der Planung der Nutzerin mit ChatGPT; gemeinsames Spielen ist der Kern der geplanten App | Mehrspieler erst als späte Erweiterung |
+| 2026-10-22 | Vercel für die Bereitstellung der Website; Supabase für Authentifizierung, Datenbank, Backend-Funktionen und Echtzeit-Kommunikation | Ergebnis der Planung der Nutzerin mit ChatGPT; Anmeldung, Datenbank und Echtzeit sind fertig verfügbar und müssen nicht selbst gebaut werden; Spielstände bleiben gespeichert (Abwägung siehe `docs/ideen.md`). Ersetzt die Planung mit Socket.IO aus dem Eintrag vom 2026-10-04 | Eigener Express-Server mit Socket.IO bei Render (Variante A, derzeit nicht gewählt); Mischung aus beiden Varianten |
+| 2026-10-22 | Das Frontend bleibt bei HTML, CSS und JavaScript ohne Framework | Bestehender Code bleibt nutzbar; bestätigt die Entscheidung vom 2026-10-04 | Wechsel zu React oder Next.js (derzeit nicht vorgesehen) |
+| 2026-10-22 | Architekturziel für den Mehrspieler-Modus: Raumvorlagen sind von Spielsitzungen getrennt (je Sitzung eine ID, ein Beitrittscode, Mitglieder und ein eigener verbindlicher Spielstand). Fortschritt und Timer sind in der Sitzung geteilt, die Szene bleibt pro Gerät. Der Browser zeigt an und sendet Aktionsversuche. Das Backend prüft Identität, Mitgliedschaft, Berechtigungen, Eingaben, Status und Zeit und entscheidet über den neuen Spielstand. Realtime verteilt nur bestätigte Änderungen. Startzeit und Zeitbewertung werden zentral bestimmt. Geheime Lösungen und nicht freigegebene Hinweise gehen nicht mehr an den Browser. Gleichzeitige Aktionen überschreiben nichts, doppelt gesendete wirken nur einmal (z. B. keine doppelte Tippstrafe). Der Sitzungsstand wird nach Neuladen oder Verbindungsabbruch wiederhergestellt. Daten und Realtime sind auf berechtigte Mitglieder begrenzt. Bestehende Spiellogik wird soweit sinnvoll weiterverwendet; die lokale Verbindung bekommt eine Online-Verbindung zur Seite. Bevorzugt werden Supabase Edge Functions | Ergebnis der Planung der Nutzerin mit ChatGPT; ein Spiel mit mehreren Personen ist nur fair und sicher, wenn eine zentrale Stelle entscheidet; im jetzigen Prototyp sind Lösungen öffentlich abrufbar und der Spielstand ist manipulierbar (siehe Abschnitt 2). Offen: Aufteilung zwischen Edge Functions und Datenbank, Umgang mit gleichzeitigen Aktionen, Rolle von `server.js` | Spiellogik im Browser, Realtime synchronisiert nur den Stand (manipulierbar, Lösungen sichtbar) |
+| 2026-10-22 | Erster Mehrspieler-Meilenstein: Zwei Personen spielen das Arbeitszimmer gemeinsam, eine dritte gleichzeitig in einer unabhängigen Sitzung. Nachzuweisen sind gemeinsamer Fortschritt in der Gruppe, getrennter Fortschritt zwischen Sitzungen, korrekt verarbeitete gleichzeitige Aktionen, geschützte Zugriffe und Wiederaufnahme nach Neuladen | Ergebnis der Planung der Nutzerin mit ChatGPT; prüft die Kernanforderungen der Architektur an einem kleinen, vorhandenen Raum | – |
+| 2026-10-22 | Automatische CI-Prüfungen sind gewünscht. Deployments, auch Vorschau-Deployments, werden bewusst ausgelöst bzw. freigegeben | Ergebnis der Planung der Nutzerin mit ChatGPT; Fehler früh erkennen, ohne dass jeder Push eine Veröffentlichung erzeugt | Automatisches Deployment nach jedem Push |
+| 2026-10-22 | Rangliste mit Anzeigenamen und Bestzeiten als spätere Erweiterung; sie misst Wiederholung und Geschwindigkeit, deshalb ist eine bekannte Lösung kein Ausschlussgrund | Ergebnis der Planung der Nutzerin mit ChatGPT. Offen: Einzel- und Teamergebnisse, Bewertungsregeln | Ausschluss von Personen, die die Lösung schon kennen |
+| 2026-10-22 | Die endgültige Gestaltung wird abgestimmt, bevor die Grafiken in größerem Umfang umgesetzt werden | Ergebnis der Planung der Nutzerin mit ChatGPT; Design und Atmosphäre sind wichtig, die Gestaltung ist aber noch offen | Grafiken sofort vollständig umsetzen |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -446,3 +471,38 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** `3453c10`
+
+### 2026-10-22, 11:52 – Ergebnisse der Mehrspieler-Planung mit ChatGPT übernommen
+- **Auslöser:** Anweisung des Nutzers nach einem eigenen Planungsgespräch mit ChatGPT: „Ich habe mein Escape-Room-Projekt mit ChatGPT besprochen. Übernimm die folgenden Ergebnisse nachvollziehbar in die bestehende Projektdokumentation.“ Der Auftrag enthielt die beschlossene Richtung und die Prioritäten, das Architekturziel, den ersten Mehrspieler-Meilenstein und offene Entscheidungen. Er beschränkte sich ausdrücklich auf die Dokumentation: keine Code-Änderungen, keine Einrichtung externer Dienste, keine neuen Markdown-Dateien, offene Details nicht als beschlossen darstellen, Arbeitsregeldateien und historische Pläne unverändert lassen. Die technischen Einschätzungen stammen aus diesem Gespräch und sind keine Vorgaben des Dozenten.
+- **Durchgeführte Schritte:**
+  - `CLAUDE.md`, `DOKUMENTATION.md`, `docs/ideen.md`, `server.js`, `public/js/verbindung-lokal.js`, `public/js/main.js`, `shared/spiel-logik.js` und `shared/raeume/arbeitszimmer.js` gelesen und die Einordnung als Einzelspieler-Prototyp mit dem Code abgeglichen. Bestätigt:
+    - Spielstand und Timer liegen nur im Browser, die Zeit kommt von der Geräteuhr, und nach dem Neuladen startet das Spiel neu.
+    - Schlosscode und Tipps sind über `/shared` öffentlich abrufbar.
+    - Raumvorlage und Sitzung sind nicht getrennt.
+    - Spiellogik und Verbindungsschicht sind als Grundlage wiederverwendbar.
+  - Die Aussage „Vercel kann keine dauerhaften WebSocket-Verbindungen halten“ (Eintrag vom 2026-10-20 und `docs/ideen.md`) anhand der offiziellen Vercel-Dokumentation geprüft. Sie ist veraltet:
+    - Vercel Functions bedienen WebSocket-Verbindungen auf allen Tarifen, auch mit Socket.IO. Seit Ende Juni 2026 war das in der Public Beta, seit dem 2026-10-20 ist es allgemein verfügbar.
+    - Voraussetzung ist Fluid compute.
+    - Verbindungen enden spätestens mit der maximalen Funktionsdauer (Hobby: 300 s; Pro und Enterprise: bis 800 s).
+    - Gemeinsamer Zustand gehört in einen externen Speicher.
+    - Quellen: [Vercel Docs: WebSockets](https://vercel.com/docs/functions/websockets), [Vercel Changelog: WebSocket support is now generally available](https://vercel.com/changelog/websocket-support-is-now-generally-available), [Vercel Docs: Functions Limits](https://vercel.com/docs/functions/limitations), abgerufen am 2026-10-22.
+  - `docs/ideen.md`:
+    - Vercel und Supabase als gewählte Richtung gekennzeichnet, Variante A als derzeit nicht gewählt. Der Text vom 2026-10-20 bleibt erhalten.
+    - Korrekturhinweis zu WebSockets mit Quellen ergänzt.
+    - Abschnitt „Stand nach der Planung mit ChatGPT“ mit offenen Fragen angelegt.
+    - Neue Einträge „Rangliste mit Anzeigenamen und Bestzeiten“ (geplant) und „Gestaltung und Atmosphäre“ (offen).
+  - Abschnitt 1: geplanter Tech-Stack (Vercel, Supabase, CI) als „noch nicht umgesetzt“ gekennzeichnet, ChatGPT bei den Werkzeugen ergänzt.
+  - Abschnitt 2: Einordnung als Einzelspieler-Prototyp, gegliedert in „Umgesetzt“ (unverändert, dazu die Grenzen des Prototyps) und „Geplant (noch nicht umgesetzt)“.
+  - Abschnitt 3: acht Entscheidungen eingetragen (Priorität Mehrspieler, Vercel und Supabase, Frontend ohne Framework, Architekturziel, erster Meilenstein, CI und bewusste Deployments, Rangliste, Abstimmung der Gestaltung).
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/ideen.md`
+- **Genutzte Tools:** Claude Code (Websuche und Abruf der Vercel-Dokumentation), Git; Planungsgespräch der Nutzerin mit ChatGPT (außerhalb dieses Projekts)
+- **Probleme & Lösungen:**
+  - Die frühere Aussage zu WebSockets auf Vercel war veraltet. Sie war am 2026-10-20 geschrieben worden, dem Tag, an dem Vercel die allgemeine Verfügbarkeit meldete; die Public Beta lief schon seit Juni 2026. Der historische Protokolleintrag bleibt unverändert, die Korrektur steht in `docs/ideen.md` und in diesem Eintrag.
+  - Die Vercel-Wissensdatenbank bezeichnet WebSockets noch als Public Beta, Dokumentation und Changelog dagegen als allgemein verfügbar. Übernommen wurde der neuere Stand aus dem Changelog vom 2026-10-20.
+- **Ergebnis:**
+  - Die Mehrspieler-Richtung ist mit Begründungen dokumentiert, und der umgesetzte Stand ist klar vom geplanten getrennt.
+  - Offen bleiben: Kontopflicht oder Gastzugang, maximale Gruppengröße, Rechte für Start, Neustart und Tipps, Verlassen der Sitzung durch die erstellende Person, Beenden und Aufräumen von Sitzungen, Aufteilung zwischen Edge Functions und Datenbank, Umgang mit gleichzeitigen Aktionen, Rolle von `server.js`, Anmeldearten sowie Einzel- und Teamwertung der Rangliste.
+  - Als Nächstes werden Datenmodell, Schnittstellen und Berechtigungsregeln gemeinsam ausgearbeitet.
+- **Bezug zur Planung:** keiner (die Planung fand im Gespräch der Nutzerin mit ChatGPT statt, nicht im Plan-Modus; es gibt keine Plandatei)
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
