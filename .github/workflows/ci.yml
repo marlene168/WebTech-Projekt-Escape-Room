@@ -1,6 +1,6 @@
 # Automatische Prüfungen bei jedem Push und Pull Request.
-# Nur Tests – dieser Workflow veröffentlicht nichts (kein Deployment).
-# Lokal laufen dieselben Befehle: npm ci && npm test
+# Nur Tests – dieser Workflow veröffentlicht nichts (kein Deployment) und hat keinen Zugang
+# zum Supabase-Cloud-Projekt. Lokal laufen dieselben Befehle (siehe package.json).
 name: CI
 
 on:
@@ -11,6 +11,7 @@ permissions:
   contents: read
 
 jobs:
+  # Unit-Tests ohne Backend: npm ci && npm test
   tests:
     runs-on: ubuntu-latest
     steps:
@@ -21,3 +22,24 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+
+  # Backend-Tests gegen eine frische, temporäre Supabase-Umgebung auf dem GitHub-Rechner
+  # (Docker ist dort vorhanden). Wird nach dem Lauf wieder abgebaut.
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run backend:start
+      - run: npm run test:backend
+      - name: Protokolle von Edge Functions und Realtime bei Fehlern
+        if: failure()
+        run: |
+          docker logs $(docker ps -q --filter name=supabase_edge_runtime) 2>&1 | tail -60
+          docker logs $(docker ps -q --filter name=supabase_realtime) 2>&1 | tail -60
+      - run: npm run backend:stop
+        if: always()

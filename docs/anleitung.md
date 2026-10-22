@@ -13,6 +13,20 @@ npm start     # danach http://localhost:3000 öffnen
 npm test      # prüft Spiellogik und Raumdaten
 ```
 
+### Backend lokal (Supabase in Docker)
+
+Für den Mehrspieler-Modus läuft lokal ein eigenes Supabase in Docker. Es ist unabhängig vom Cloud-Projekt, dort wird nichts verändert.
+
+Voraussetzung ist Docker Desktop, gestartet und mit dem Befehl `docker` im Terminal. Falls `docker` nicht gefunden wird: In Docker Desktop unter *Settings → Advanced* die Option „System (requires password)“ wählen.
+
+```bash
+npm run backend:start   # Supabase starten und Datenbank frisch aus den Migrationen aufbauen
+npm run test:backend    # Backend-Tests (Sitzungen, Rechte, Gleichzeitigkeit, Realtime)
+npm run backend:stop    # Supabase wieder beenden
+```
+
+Beim ersten Start lädt Docker einige Images herunter, das dauert ein paar Minuten. Die lokale Verwaltungsoberfläche (Supabase Studio) ist dann unter http://127.0.0.1:54323 erreichbar.
+
 ---
 
 ## 2. Grafik austauschen
