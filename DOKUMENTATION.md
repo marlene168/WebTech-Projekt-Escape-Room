@@ -9,7 +9,7 @@
 - **Rahmen:** Seminar-/Projektarbeit, Web Technologie 
 - **Zeitraum:** Start 03.10.2026 – laufend
 - **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`. Geplant, noch nicht umgesetzt: Vercel für die Bereitstellung der Website; Supabase für Authentifizierung, Datenbank, Backend-Funktionen (bevorzugt Edge Functions) und Echtzeit-Kommunikation; automatische CI-Prüfungen (siehe Abschnitt 3 und `docs/ideen.md`)
-- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), ChatGPT (Planungsgespräche der Nutzerin), Git, GitHub, Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
+- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), ChatGPT (Planungsgespräche der Nutzerin), Git, GitHub, GitHub Actions (CI), GitHub CLI (`gh`), Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
@@ -27,7 +27,8 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
   - **Timer:** 10 Minuten, in der letzten Minute rot. Der Hilfe-Knopf gibt drei gestufte Tipps für je 1 Minute Strafe.
   - **Spielende:** Die Ende-Bildschirme zeigen eine Statistik und bieten „Nochmal spielen“ und „Zur Raumauswahl“.
   - **Handy:** Im Hochformat erscheint der Hinweis, das Gerät quer zu halten.
-  - **Starten:** `npm install` (einmalig), `npm start`, dann `http://localhost:3000`. Tests: `npm test` (36 Tests).
+  - **Starten:** Node.js 24 (siehe `.nvmrc`), `npm install` (einmalig), `npm start`, dann `http://localhost:3000`. Tests: `npm test` (36 Tests).
+  - **CI:** GitHub Actions führt bei jedem Push und Pull Request `npm ci` und `npm test` aus (`.github/workflows/ci.yml`). Der Workflow veröffentlicht nichts.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/index.html` (Startseite) und `public/spiel.html` (Spielseite), `public/css/style.css`
@@ -575,3 +576,25 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Squash- oder Rebase-Merge
   - Ablaufmeldung durch den Browser
 - **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu Mehrspieler-Grundlage“)
+
+### 2026-10-22, 13:17 – AP 1: CI mit GitHub Actions
+- **Auslöser:** Anweisung des Nutzers bei der Freigabe des Plans: „Dokumentiere den freigegebenen Plan gemäß Projektregeln und setze anschließend zunächst nur AP 1 auf dem Branch ap1-ci um. Prüfe die Tests lokal und in GitHub Actions und bereite den Pull Request vor.“ Laut Plan übernimmt Claude die technische Einrichtung der Pipeline: zuerst prüfen, ob schon Workflows existieren, dann feste Node-Version, `npm ci`, vorhandene Tests, kein automatisches Deployment.
+- **Durchgeführte Schritte:**
+  - Geprüft: Es gab noch kein `.github/` und keine Workflows.
+  - Branch `ap1-ci` von `main` angelegt.
+  - `.nvmrc` mit Node-Version 24 angelegt (lokal läuft Node 24) und `engines` (`24.x`) in `package.json` ergänzt; `package-lock.json` per `npm install --package-lock-only` angeglichen.
+  - `.github/workflows/ci.yml` mit dem Job `tests`, ausgelöst bei jedem Push und Pull Request:
+    - Checkout, Node aus `.nvmrc` (mit npm-Cache), `npm ci`, `npm test`.
+    - Nur Leserechte (`contents: read`), kein Deploy-Schritt.
+  - Lokal geprüft:
+    - `npm ci && npm test` ergab 36 von 36 Tests bestanden.
+    - Gegenprobe: Ein absichtlich fehlschlagender Test im Scratchpad (nicht im Projekt) lässt `npm test` mit Exit-Code 1 scheitern. Ein roter Test macht die CI also rot.
+  - In GitHub Actions geprüft: Der Lauf zum Code-Commit war nach 14 s grün, mit Node 24.21.0 und 36 von 36 Tests bestanden.
+  - Abschnitt 1 (Werkzeuge) und Abschnitt 2 (Starten, CI) aktualisiert.
+- **Geänderte/neue Dateien:** `.nvmrc`, `.github/workflows/ci.yml`, `package.json`, `package-lock.json`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js/npm, Git, GitHub Actions, GitHub CLI (`gh`)
+- **Probleme & Lösungen:** Der Code-Commit wurde vor dem Doku-Eintrag gepusht, damit das Ergebnis aus GitHub Actions im Eintrag stehen kann. Beide Commits liegen auf dem Branch `ap1-ci`.
+- **Ergebnis:** Jeder Push und jeder Pull Request wird automatisch mit denselben Befehlen wie lokal geprüft. Es wird nichts veröffentlicht. Der Pull Request nach `main` ist vorbereitet und wartet auf die Freigabe der Nutzerin.
+- **Bezug zur Planung:** 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `ce59ecc`
