@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { admin, neuerGast, erstelleSitzung, beitreten, aktion, sitzungInDb, mitgliederInDb } from "./hilfe.js";
+import { admin, neuerGast, erstelleSitzung, beitreten, aktion, sitzungInDb, mitgliederInDb, warte } from "./hilfe.js";
 
 // Sitzung mit erstellender Person A und Mitglied B, bereits gestartet
 async function laufendeSitzung() {
@@ -60,12 +60,13 @@ test("Fünf gleichzeitige Beitritte zu einer Sitzung mit einer Person → genau 
 test("Gleichzeitiger Beitritt und Spielstart: niemand kommt nach dem Start neu hinein", async () => {
   const ergebnisse = { beigetreten: 0, abgewiesen: 0 };
 
-  for (let runde = 0; runde < 8; runde++) {
+  // Der Beitritt wird von Runde zu Runde etwas später losgeschickt, damit beide Reihenfolgen vorkommen
+  for (let runde = 0; runde < 12; runde++) {
     const [a, b] = [await neuerGast(), await neuerGast()];
     const sitzung = await erstelleSitzung(a);
     const [start, beitritt] = await Promise.all([
       aktion(a, sitzung.id, { typ: "start" }),
-      beitreten(b, sitzung.beitrittscode),
+      warte(runde * 5).then(() => beitreten(b, sitzung.beitrittscode)),
     ]);
 
     assert.equal(start.status, 200);

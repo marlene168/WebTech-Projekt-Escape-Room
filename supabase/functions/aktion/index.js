@@ -8,6 +8,8 @@ import {
   antworteMitSitzung, lehneAb, leseEingabe, nutzerId, istUuid, ladeSitzung, istMitglied,
 } from "../_shared/sitzungen.js";
 
+const MAX_VERSUCHE = 8;
+
 const FEHLER = {
   ungueltige_aktion: 400,
   nur_ersteller_startet: 403,
@@ -25,7 +27,9 @@ export default {
       if (!(await istMitglied(admin, sitzungId, userId))) return lehneAb(403, "kein_zugriff");
 
       // Kommt jemand anderes zuvor (Versionskonflikt), wird mit dem neuen Stand neu gerechnet.
-      for (let versuch = 0; versuch < 3; versuch++) {
+      // Bei bis zu vier Personen reichen einige Versuche; die kurze Zufallspause verteilt sie.
+      for (let versuch = 0; versuch < MAX_VERSUCHE; versuch++) {
+        if (versuch > 0) await new Promise((weiter) => setTimeout(weiter, Math.random() * 20 * versuch));
         const sitzung = await ladeSitzung(admin, sitzungId);
         const raum = vollstaendigerRaum(sitzung.raum_id);
         const jetzt = Date.now();

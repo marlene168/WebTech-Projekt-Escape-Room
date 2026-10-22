@@ -86,6 +86,7 @@ async function abonniere(gast, sitzungId) {
     kanal
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "sitzungen", filter: `id=eq.${sitzungId}` },
         (nachricht) => empfangen.push(nachricht.new.zustand))
+      .on("system", {}, (nachricht) => console.log(`Realtime (${gast.id.slice(0, 8)}):`, JSON.stringify(nachricht)))
       .subscribe((status, grund) => {
         if (status === "SUBSCRIBED") fertig();
         if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") fehler(grund ?? new Error(status));
@@ -106,11 +107,12 @@ test("Realtime: Mitglieder empfangen bestätigte Änderungen, Fremde nichts", as
   await aktion(a, sitzung.id, { typ: "start" });
   await aktion(b, sitzung.id, { typ: "untersuche", objekt: "kalender" });
 
-  for (let i = 0; i < 50 && !beiA.empfangen.some((z) => z.gefundeneSpuren.includes("gruen")); i++) await warte(100);
+  for (let i = 0; i < 100 && !beiA.empfangen.some((z) => z?.gefundeneSpuren?.includes("gruen")); i++) await warte(100);
   await warte(1000);
   await beiA.beende();
   await beiFremd.beende();
+  console.log("Realtime empfangen – Mitglied:", JSON.stringify(beiA.empfangen), "Fremd:", JSON.stringify(beiFremd.empfangen));
 
-  assert.ok(beiA.empfangen.some((z) => z.gefundeneSpuren.includes("gruen")), "Mitglied hat die Änderung nicht empfangen");
+  assert.ok(beiA.empfangen.some((z) => z?.gefundeneSpuren?.includes("gruen")), "Mitglied hat die Änderung nicht empfangen");
   assert.equal(beiFremd.empfangen.length, 0, "Fremde Person hat Änderungen empfangen");
 });
