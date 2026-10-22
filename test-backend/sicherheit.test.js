@@ -80,7 +80,8 @@ test("Scheitert der Aktionseintrag, wird auch die Änderung am Spielstand zurüc
 // Abonniert Änderungen an einer Sitzung und sammelt die empfangenen Spielstände
 async function abonniere(gast, sitzungId) {
   const empfangen = [];
-  gast.client.realtime.setAuth(gast.token);
+  if (gast.token) await gast.client.realtime.setAuth(gast.token);
+  console.log(`Realtime-Token (${gast.id.slice(0, 8)}):`, String(gast.client.realtime.accessTokenValue).slice(0, 12));
   const kanal = gast.client.channel(`test-${randomUUID()}`);
   await new Promise((fertig, fehler) => {
     kanal
@@ -102,6 +103,7 @@ test("Realtime: Mitglieder empfangen bestätigte Änderungen, Fremde nichts", as
 
   const beiA = await abonniere(a, sitzung.id);
   const beiFremd = await abonniere(fremd, sitzung.id);
+  const beimBackend = await abonniere({ client: admin, id: "backend-" }, sitzung.id); // Diagnose: ohne Zugriffsregeln
   await warte(1000); // Abonnements sind serverseitig aktiv
 
   await aktion(a, sitzung.id, { typ: "start" });
@@ -111,7 +113,9 @@ test("Realtime: Mitglieder empfangen bestätigte Änderungen, Fremde nichts", as
   await warte(1000);
   await beiA.beende();
   await beiFremd.beende();
-  console.log("Realtime empfangen – Mitglied:", JSON.stringify(beiA.empfangen), "Fremd:", JSON.stringify(beiFremd.empfangen));
+  await beimBackend.beende();
+  console.log("Realtime empfangen – Mitglied:", beiA.empfangen.length, "Fremd:", beiFremd.empfangen.length,
+    "Backend:", beimBackend.empfangen.length);
 
   assert.ok(beiA.empfangen.some((z) => z?.gefundeneSpuren?.includes("gruen")), "Mitglied hat die Änderung nicht empfangen");
   assert.equal(beiFremd.empfangen.length, 0, "Fremde Person hat Änderungen empfangen");
