@@ -3,7 +3,9 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { admin, neuerGast, erstelleSitzung, beitreten, aktion, sitzungInDb, mitgliederInDb, warte } from "./hilfe.js";
+import {
+  admin, neuerGast, erstelleSitzung, beitreten, aktion, sitzungInDb, mitgliederInDb, warte, mikrosekunden,
+} from "./hilfe.js";
 
 // Sitzung mit erstellender Person A und Mitglied B, bereits gestartet
 async function laufendeSitzung() {
@@ -66,7 +68,7 @@ test("Gleichzeitiger Beitritt und Spielstart: niemand kommt nach dem Start neu h
     const sitzung = await erstelleSitzung(a);
     const [start, beitritt] = await Promise.all([
       aktion(a, sitzung.id, { typ: "start" }),
-      warte(runde * 5).then(() => beitreten(b, sitzung.beitrittscode)),
+      warte(runde).then(() => beitreten(b, sitzung.beitrittscode)),
     ]);
 
     assert.equal(start.status, 200);
@@ -75,12 +77,13 @@ test("Gleichzeitiger Beitritt und Spielstart: niemand kommt nach dem Start neu h
 
     if (beitritt.status === 200) {
       ergebnisse.beigetreten++;
-      // Der Beitritt muss vor dem Start gespeichert worden sein (beide Zeitpunkte setzt die Datenbank)
+      // Der Beitritt muss vor dem Start gespeichert worden sein (beide Zeitpunkte setzt die Datenbank,
+      // auf die Mikrosekunde genau – lokal liegen sie oft innerhalb derselben Millisekunde)
       const { data: startEintrag } = await admin
         .from("aktionen").select("erstellt_am").eq("sitzung_id", sitzung.id).eq("typ", "start").single();
       assert.ok(istMitglied);
-      assert.ok(new Date(istMitglied.beigetreten_am) < new Date(startEintrag.erstellt_am),
-        `Runde ${runde}: Beitritt nach dem Start gespeichert`);
+      assert.ok(mikrosekunden(istMitglied.beigetreten_am) < mikrosekunden(startEintrag.erstellt_am),
+        `Runde ${runde}: Beitritt (${istMitglied.beigetreten_am}) nach dem Start (${startEintrag.erstellt_am}) gespeichert`);
     } else {
       ergebnisse.abgewiesen++;
       assert.equal(beitritt.status, 409);

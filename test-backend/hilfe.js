@@ -75,3 +75,11 @@ export async function mitgliederInDb(sitzungId) {
 }
 
 export const warte = (ms) => new Promise((fertig) => setTimeout(fertig, ms));
+
+// Zeitstempel der Datenbank in Mikrosekunden. JavaScripts Date rechnet nur mit Millisekunden –
+// zu grob, wenn zwei Einträge innerhalb derselben Millisekunde gespeichert werden.
+export function mikrosekunden(zeitstempel) {
+  const [, ohneBruch, bruch = ""] = zeitstempel.match(/^([^.+Z]+)(?:\.(\d+))?/);
+  const zone = zeitstempel.slice(zeitstempel.search(/[+-]\d\d:?\d\d$|Z$/));
+  return BigInt(Date.parse(ohneBruch + zone)) * 1000n + BigInt(bruch.padEnd(6, "0").slice(0, 6));
+}

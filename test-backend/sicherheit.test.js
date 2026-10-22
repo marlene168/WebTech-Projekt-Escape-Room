@@ -77,19 +77,22 @@ test("Scheitert der Aktionseintrag, wird auch die Änderung am Spielstand zurüc
   assert.equal(inDb.zustand.status, "bereit");
 });
 
-// Abonniert Änderungen an einer Sitzung und sammelt die empfangenen Spielstände
+// Abonniert Änderungen an einer Sitzung und sammelt die empfangenen Spielstände.
+// Wichtig: "SUBSCRIBED" heißt nur, dass der Kanal steht. Datenbankänderungen kommen erst an,
+// wenn Realtime zusätzlich "Subscribed to PostgreSQL" meldet – erst danach darf man sich darauf verlassen.
 async function abonniere(gast, sitzungId) {
   const empfangen = [];
-  if (gast.token) await gast.client.realtime.setAuth(gast.token);
-  console.log(`Realtime-Token (${gast.id.slice(0, 8)}):`, String(gast.client.realtime.accessTokenValue).slice(0, 12));
+  await gast.client.realtime.setAuth(gast.token);
   const kanal = gast.client.channel(`test-${randomUUID()}`);
   await new Promise((fertig, fehler) => {
+    setTimeout(() => fehler(new Error("Realtime-Abonnement nicht rechtzeitig aktiv")), 10_000);
     kanal
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "sitzungen", filter: `id=eq.${sitzungId}` },
         (nachricht) => empfangen.push(nachricht.new.zustand))
-      .on("system", {}, (nachricht) => console.log(`Realtime (${gast.id.slice(0, 8)}):`, JSON.stringify(nachricht)))
+      .on("system", {}, (nachricht) => {
+        if (nachricht.extension === "postgres_changes" && nachricht.status === "ok") fertig();
+      })
       .subscribe((status, grund) => {
-        if (status === "SUBSCRIBED") fertig();
         if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") fehler(grund ?? new Error(status));
       });
   });
@@ -103,20 +106,16 @@ test("Realtime: Mitglieder empfangen bestätigte Änderungen, Fremde nichts", as
 
   const beiA = await abonniere(a, sitzung.id);
   const beiFremd = await abonniere(fremd, sitzung.id);
-  const beimBackend = await abonniere({ client: admin, id: "backend-" }, sitzung.id); // Diagnose: ohne Zugriffsregeln
-  await warte(1000); // Abonnements sind serverseitig aktiv
 
   await aktion(a, sitzung.id, { typ: "start" });
   await aktion(b, sitzung.id, { typ: "untersuche", objekt: "kalender" });
 
-  for (let i = 0; i < 100 && !beiA.empfangen.some((z) => z?.gefundeneSpuren?.includes("gruen")); i++) await warte(100);
-  await warte(1000);
+  const hatSpur = () => beiA.empfangen.some((zustand) => zustand.gefundeneSpuren.includes("gruen"));
+  for (let i = 0; i < 50 && !hatSpur(); i++) await warte(100);
+  await warte(500); // der fremden Person Zeit geben, falls doch etwas durchrutschen würde
   await beiA.beende();
   await beiFremd.beende();
-  await beimBackend.beende();
-  console.log("Realtime empfangen – Mitglied:", beiA.empfangen.length, "Fremd:", beiFremd.empfangen.length,
-    "Backend:", beimBackend.empfangen.length);
 
-  assert.ok(beiA.empfangen.some((z) => z?.gefundeneSpuren?.includes("gruen")), "Mitglied hat die Änderung nicht empfangen");
+  assert.ok(hatSpur(), "Mitglied hat die Änderung nicht empfangen");
   assert.equal(beiFremd.empfangen.length, 0, "Fremde Person hat Änderungen empfangen");
 });
