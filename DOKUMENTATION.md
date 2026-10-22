@@ -51,7 +51,17 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 - **Technik:** Vercel (Bereitstellung) und Supabase (Authentifizierung, Datenbank, Backend-Funktionen, Echtzeit). Das Frontend bleibt bei HTML, CSS und JavaScript. Architekturziel siehe Abschnitt 3.
 - **Erster Mehrspieler-Meilenstein:** Zwei Personen spielen das Arbeitszimmer gemeinsam. Eine dritte Person spielt gleichzeitig dieselbe Raumvorlage in einer unabhängigen Sitzung.
 - **Später:** automatische CI-Prüfungen, bewusst ausgelöste Deployments, eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
-- **Offen:** Rolle von `server.js`, Aufteilung zwischen Edge Functions und Datenbank, Umgang mit gleichzeitigen Aktionen, Kontopflicht oder Gastzugang, Gruppengröße, Rechte (Start, Neustart, Tipps), Verlassen der Sitzung durch die erstellende Person, Beenden und Aufräumen von Sitzungen, Datenmodell, Schnittstellen und Berechtigungsregeln. Details stehen in [`docs/ideen.md`](docs/ideen.md).
+- **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md). Sieben Arbeitspakete auf eigenen Branches: CI, Trennung der Raumdaten, Supabase-Backend (lokal), Online-Spiel, Cloud und Vercel, Raum 2, Raum 3.
+- **Offen:**
+  - Verlassen der Sitzung durch die erstellende Person vor dem Start
+  - Beitritt zu bereits laufenden Sitzungen
+  - Aufräumen beendeter Sitzungen
+  - Anzeigenamen
+  - E-Mail-Konten
+  - manuell ausgelöster Deployment-Workflow
+  - Inhalte von Raum 2 und 3
+
+  Details stehen in [`docs/ideen.md`](docs/ideen.md).
 
 ## 3. Wichtige Entscheidungen
 | Datum | Entscheidung | Begründung | Verworfene Alternativen |
@@ -79,6 +89,16 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 | 2026-10-22 | Automatische CI-Prüfungen sind gewünscht. Deployments, auch Vorschau-Deployments, werden bewusst ausgelöst bzw. freigegeben | Ergebnis der Planung der Nutzerin mit ChatGPT; Fehler früh erkennen, ohne dass jeder Push eine Veröffentlichung erzeugt | Automatisches Deployment nach jedem Push |
 | 2026-10-22 | Rangliste mit Anzeigenamen und Bestzeiten als spätere Erweiterung; sie misst Wiederholung und Geschwindigkeit, deshalb ist eine bekannte Lösung kein Ausschlussgrund | Ergebnis der Planung der Nutzerin mit ChatGPT. Offen: Einzel- und Teamergebnisse, Bewertungsregeln | Ausschluss von Personen, die die Lösung schon kennen |
 | 2026-10-22 | Die endgültige Gestaltung wird abgestimmt, bevor die Grafiken in größerem Umfang umgesetzt werden | Ergebnis der Planung der Nutzerin mit ChatGPT; Design und Atmosphäre sind wichtig, die Gestaltung ist aber noch offen | Grafiken sofort vollständig umsetzen |
+| 2026-10-22 | Gastzugang (anonyme Anmeldung bei Supabase) für den ersten Mehrspieler-Meilenstein; E-Mail-Konten später | Jede Person hat ohne Registrierung eine echte Nutzer-ID, die Zugriffsregeln funktionieren von Anfang an; ein Gastzugang lässt sich später mit einem Konto verknüpfen (Entscheidung der Nutzerin auf Empfehlung von Claude) | E-Mail-Konto ab Meilenstein 1 (mehr Aufwand, drei E-Mail-Adressen zum Testen nötig) |
+| 2026-10-22 | Gespielt wird nur online; ein Einzelspiel ist eine Sitzung mit einer Person; ein lokales Backend während der Entwicklung bleibt erlaubt | Nur ein Weg durchs Spiel; nur so bleiben Lösungen und Tipps aus dem Browser (Entscheidung der Nutzerin auf Empfehlung von Claude) | Offline-Modus mit lokaler Verbindung behalten |
+| 2026-10-22 | Spielregeln für Sitzungen: Beitritt neuer Mitglieder nur per Beitrittscode; Laden per Sitzungs-ID nur für Mitglieder; nur die erstellende Person startet; höchstens vier Personen; alle Mitglieder dürfen Tipps anfordern; erneutes Spielen erzeugt eine neue Sitzung | Von der Nutzerin festgelegt | Neustart innerhalb einer Sitzung über eine „Runde“; alle Mitglieder dürfen starten |
+| 2026-10-22 | Datenmodell: Spielstand als ein `jsonb`-Dokument pro Sitzung mit Versionsnummer; Raumvorlagen bleiben im Code, die Sitzung speichert `raum_id` und `raum_version`; eine Aktionen-Tabelle dient nur gegen Doppelverarbeitung und zur Nachvollziehbarkeit | Vorschlag von Claude nach Abgleich mit dem Code: Der Spielstand ist schon ein kleines JSON-Objekt, drei Räume mit verschiedenen Rätseln brauchen so kein eigenes Backend; Raumversion verhindert Rechnen mit veralteten Lösungen (Raumversion auf Wunsch der Nutzerin) | Fortschritt in vielen normalisierten Tabellen; Raumvorlagen in der Datenbank; Event-Sourcing |
+| 2026-10-22 | Jeder Raum besteht aus einer öffentlichen und einer geheimen Datei (Lösungen, Tipp-Texte); öffentlich später unter `public/shared/`, geheim unter `supabase/functions/_shared/`; Vercel liefert nur `public/` aus | Geheimnisse erreichen den Browser nicht; die vorhandene reine Spiellogik wird im Backend mit dem zusammengesetzten Raum weiterverwendet | Geheimnisse weiter im Browser; Raumdaten nur im Backend (Browser bräuchte für jede Anzeige eine Anfrage) |
+| 2026-10-22 | Aufgabenverteilung: Edge Functions `sitzung-erstellen`, `sitzung-beitreten`, `sitzung-laden`, `aktion` prüfen Anmeldung, Mitgliedschaft, Rechte, Eingaben, Raumversion und Zeit; Datenbankfunktionen speichern atomar mit Versionsprüfung (Aktionseintrag und Spielstand gelingen gemeinsam oder gar nicht), Beitritte mit Zeilensperre; schreibende Datenbankfunktionen nur für das Backend (`service_role`), getestet; RLS erlaubt Mitgliedern nur Lesen; Realtime („Postgres Changes“) verteilt nur bestätigte Änderungen; Tipps tragen die gesehene Tipp-Nummer; Zeitablauf erkennt der Server beim Laden, Beitritt und bei Aktionen; beim Wiederverbinden erst abonnieren, dann abgleichen | Das Backend ist alleiniger Schiedsrichter; gleichzeitige und doppelte Aktionen bleiben korrekt; keine verpassten Änderungen (Vorschlag von Claude, ergänzt um Anforderungen der Nutzerin zu Atomarität, Beitritten, Zeitablauf, Rechten der Datenbankfunktionen und Abgleich) | Spiellogik im Browser; Realtime-Broadcast statt Postgres Changes (erst bei großer Last nötig); Ablaufmeldung durch den Browser |
+| 2026-10-22 | Rätseltyp-Register: jeder Rätseltyp als kleines Logik- und Anzeige-Modul, Raumdaten nennen den Typ, allgemeine Aktion `loese` statt `probiereCode` | Neue Räume mit neuen Rätseltypen brauchen keine Änderungen an Edge Functions, Tabellen oder Regeln | Sonderlogik pro Raum im Backend; Rätseltypen schon auf Vorrat bauen |
+| 2026-10-22 | Supabase lokal (CLI als npm-Entwicklungsabhängigkeit mit fester Version, Docker-kompatible Laufzeit) für Entwicklung und CI; das Cloud-Projekt nur für Gerätetests und den späteren Betrieb | Auf Wunsch der Nutzerin: Die CI baut eine frische, temporäre Umgebung und verändert nie das gemeinsam genutzte Cloud-Projekt; lokal und in der CI dieselbe CLI-Version | Nur mit dem Cloud-Projekt arbeiten; CI gegen das Cloud-Projekt |
+| 2026-10-22 | CI mit GitHub Actions, eingerichtet von Claude: Node-Version aus `.nvmrc`, `npm ci`, `npm test`; ab dem Backend zusätzlich `npm run test:backend` gegen ein frisches lokales Supabase; lokal und in der CI dieselben Befehle; Tests entstehen mit den Funktionen; kein automatisches Deployment, ein manuell ausgelöster Deployment-Workflow wird vor AP 5 konkretisiert | Auf Wunsch der Nutzerin: Fehler früh erkennen, ohne dass etwas veröffentlicht wird; ein Test-Werkzeug (`node:test` mit supabase-js) | pgTAP als zweites Test-Werkzeug; automatische Deployments nach jedem Push |
+| 2026-10-22 | Arbeitspakete nacheinander auf eigenen Branches (Code, Tests und Doku auf demselben Branch); Pull Request nach erfolgreichen Prüfungen; Zusammenführen nach Freigabe der Nutzerin mit Merge-Commit; Planungsdoku direkt auf `main` | Auf Wunsch der Nutzerin; der Merge-Commit erhält die Commit-Kennungen, auf die `DOKUMENTATION.md` verweist (Vorschlag von Claude) | Arbeit direkt auf `main`; Squash- oder Rebase-Merge (Commit-Kennungen in der Doku wären auf `main` nicht mehr auffindbar); eigene Branches für kleine Änderungen |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -506,3 +526,52 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner (die Planung fand im Gespräch der Nutzerin mit ChatGPT statt, nicht im Plan-Modus; es gibt keine Plandatei)
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase
+- **Auslöser:** Anweisung des Nutzers: „Plane die nächste Entwicklungsphase anhand des aktuellen Codes, der bestehenden Dokumentation und unserer Arbeitsregeln. Noch nichts implementieren oder an externen Diensten ändern. Verbindlicher Zielumfang sind insgesamt drei eigenständige Escape Rooms. Multiplayer hat Priorität: gemeinsame Spielsitzungen sowie gleichzeitig unabhängige Sitzungen derselben Raumvorlage müssen funktionieren.“ Verlangt waren: Supabase-Grundlage, Datenmodell, Trennung öffentlicher und geheimer Daten, Aufgabenverteilung, Erweiterbarkeit für Rätseltypen und kleine Umsetzungsschritte bis zum ersten Mehrspieler-Meilenstein.
+- **Ausgangsidee:** Die Ergebnisse der Planung mit ChatGPT (Eintrag vom 2026-10-22, 11:52) in einen umsetzbaren Plan überführen. Grundlage war der Abgleich mit dem Code: Spielstand nur im Browser, Lösungen öffentlich, Raumvorlage und Sitzung nicht getrennt, Spiellogik als reine Funktionen wiederverwendbar.
+- **Rückfragen & Antworten:**
+  - Frage: Womit melden sich Spielende für den ersten Meilenstein an? → Antwort: Gastzugang zuerst (Empfehlung übernommen)
+  - Frage: Soll man weiterhin offline allein spielen können? → Antwort: Nur online (Empfehlung übernommen)
+  - Kommentar der Nutzerin zum ersten Entwurf: „Bestätigte Spielregeln übernehmen. Nur der Ersteller startet; maximal vier Personen; erneutes Spielen erzeugt eine neue Sitzung.“
+  - Überarbeitungswünsche der Nutzerin zum zweiten Entwurf:
+    - **CI:** Claude richtet die GitHub-Actions-Pipeline ein (feste Node-Version, `npm ci`, vorhandene Tests). Mit dem Backend kommen Integrationsprüfungen dazu. Lokal und in der CI gelten dieselben Befehle, es gibt kein automatisches Deployment.
+    - **Supabase:** lokal mit CLI und Docker-kompatibler Laufzeit. Die CI baut eine frische Testumgebung und verändert nie das Cloud-Projekt.
+    - **Branches:** Arbeitspakete auf eigenen Branches, Pull Request nach Prüfung, Merge nach Freigabe.
+    - **Spielregeln:** Beitritt per Code, Laden per ID nur für Mitglieder, alle dürfen Tipps anfordern, keine „Runde“.
+    - **Daten und Ablauf:** eine Raumversion speichern. Aktionseintrag und Spielstandänderung atomar. Gruppengrenze und Beitritte gegen gleichzeitige Zugriffe absichern. Zeitablauf erkennt der Server beim Laden, Wiederbeitritt und bei Aktionen.
+  - Ergänzungen der Nutzerin bei der Freigabe:
+    - Schreibende Datenbankfunktionen darf nur das Backend aufrufen, das wird getestet.
+    - Beim Wiederverbinden verhindert ein erneuter Abgleich zwischen Laden und Abonnement, dass Änderungen verpasst werden.
+    - Vor AP 5 wird ein manuell ausgelöster Deployment-Workflow konkretisiert, jetzt wird keine Veröffentlichung eingerichtet.
+    - Danach zunächst nur AP 1 auf dem Branch `ap1-ci` umsetzen.
+- **Kurzfassung des Plans:**
+  - **Datenmodell:** `sitzungen` (Spielstand als `jsonb` mit Versionsnummer, `raum_id`, `raum_version`, Beitrittscode), `sitzung_mitglieder`, `aktionen` (gegen Doppelverarbeitung). Raumvorlagen bleiben im Code.
+  - **Raumdaten:** je Raum eine öffentliche und eine geheime Datei. Die Spiellogik wird im Backend weiterverwendet, dazu kommt ein Rätseltyp-Register mit der allgemeinen Aktion `loese`.
+  - **Edge Functions:** `sitzung-erstellen`, `sitzung-beitreten`, `sitzung-laden` und `aktion`.
+  - **Datenbank:** atomare Datenbankfunktionen mit Versionsprüfung und Zeilensperre beim Beitritt, nur für das Backend aufrufbar. RLS erlaubt Mitgliedern nur Lesen, Realtime verteilt bestätigte Änderungen.
+  - **Supabase lokal** für Entwicklung und CI, das Cloud-Projekt erst ab AP 5.
+  - **Arbeitspakete:**
+    1. CI
+    2. Trennung der Raumdaten
+    3. Backend lokal
+    4. Online-Spiel (Meilenstein 1 lokal)
+    5. Cloud und Vercel (Meilenstein 1 auf Geräten)
+    6. Raum 2
+    7. Raum 3
+- **Plandatei:** [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md)
+- **Verworfene Ideen & Alternativen:**
+  - Fortschritt in normalisierten Tabellen
+  - Raumvorlagen in der Datenbank
+  - Event-Sourcing
+  - Offline-Modus
+  - E-Mail-Konto ab Meilenstein 1
+  - Realtime-Broadcast statt Postgres Changes
+  - nur mit dem Cloud-Projekt arbeiten
+  - CI gegen das Cloud-Projekt
+  - pgTAP als zweites Test-Werkzeug
+  - Neustart innerhalb einer Sitzung über eine „Runde“
+  - alle Mitglieder dürfen starten
+  - Squash- oder Rebase-Merge
+  - Ablaufmeldung durch den Browser
+- **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu Mehrspieler-Grundlage“)

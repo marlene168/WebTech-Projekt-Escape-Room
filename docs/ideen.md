@@ -54,6 +54,24 @@ Status: **offen** (noch nicht entschieden), **geplant**, **umgesetzt**, **verwor
   - Wie werden gleichzeitige Aktionen technisch behandelt?
 - **Nächster Schritt:** Datenmodell, Schnittstellen und Berechtigungsregeln gemeinsam ausarbeiten. Es gibt noch keine endgültigen Tabellen und keine Implementierungsdetails.
 
+### Stand nach der Planung „Mehrspieler-Grundlage“ (2026-10-22)
+Siehe [Plan Mehrspieler-Grundlage](plaene/2026-10-22_mehrspieler-grundlage.md) und Abschnitt 3 in `DOKUMENTATION.md`.
+- **Entschieden:**
+  - Gastzugang für Meilenstein 1, gespielt wird nur online.
+  - Beitritt per Code, Laden per ID nur für Mitglieder.
+  - Nur die erstellende Person startet, höchstens vier Personen, alle dürfen Tipps anfordern.
+  - Erneutes Spielen erzeugt eine neue Sitzung.
+  - Spiellogik in Edge Functions, Speichern über atomare Datenbankfunktionen.
+  - `server.js` bleibt als lokaler Entwicklungsserver.
+- **Weiterhin offen:**
+  - Was passiert, wenn die erstellende Person die Sitzung *vor* dem Start verlässt (sonst darf niemand starten)? Bis AP 4 klären.
+  - Darf man einer bereits laufenden Sitzung noch beitreten? Vorschlag: ja, bis zum Spielende. Bis AP 3 klären.
+  - Wie werden beendete Sitzungen aufgeräumt (z. B. Löschen nach X Tagen)?
+  - Anzeigenamen der Mitspielenden.
+  - E-Mail-Konten zusätzlich zum Gastzugang.
+  - Wie wird der manuell ausgelöste Deployment-Workflow aufgebaut? Vor AP 5 klären.
+  - Inhalte von Raum 2 und 3 (eigene Planungen).
+
 ## Rangliste mit Anzeigenamen und Bestzeiten
 - **Status:** geplant als spätere Erweiterung (2026-10-22)
 - **Idee:** Eine Rangliste zeigt Anzeigenamen und Bestzeiten je Raum.
