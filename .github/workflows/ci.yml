@@ -1,0 +1,23 @@
+# Automatische Prüfungen bei jedem Push und Pull Request.
+# Nur Tests – dieser Workflow veröffentlicht nichts (kein Deployment).
+# Lokal laufen dieselben Befehle: npm ci && npm test
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc # dieselbe Node-Version wie lokal
+          cache: npm
+      - run: npm ci
+      - run: npm test
