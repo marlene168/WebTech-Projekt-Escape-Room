@@ -8,8 +8,8 @@
 - **Ziel der App:** Entwicklung einer browserbasierten WebApp, die das Erlebnis eines Escape Rooms digital simuliert. Spielende wählen einen Raum aus und versuchen, durch das Untersuchen anklickbarer Objekte und das Kombinieren von Hinweisen ein Rätsel unter Zeitdruck zu lösen. Als Erweiterung sind mehrere Räume mit unterschiedlichen Themen und Schwierigkeitsgraden vorgesehen.
 - **Rahmen:** Seminar-/Projektarbeit, Web Technologie 
 - **Zeitraum:** Start 03.10.2026 – laufend
-- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`. Geplant, noch nicht umgesetzt: Vercel für die Bereitstellung der Website; Supabase für Authentifizierung, Datenbank, Backend-Funktionen (bevorzugt Edge Functions) und Echtzeit-Kommunikation; automatische CI-Prüfungen (siehe Abschnitt 3 und `docs/ideen.md`)
-- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), ChatGPT (Planungsgespräche der Nutzerin), Git, GitHub, GitHub Actions (CI), GitHub CLI (`gh`), Node.js/npm, Google Chrome (Headless-Screenshots zur Sichtprüfung)
+- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); Node.js mit Express als Server; Tests mit `node:test`; CI mit GitHub Actions. Supabase (Gastanmeldung, PostgreSQL mit RLS, Edge Functions in Deno, Realtime) seit AP 3 lokal in Docker umgesetzt, noch nicht in der Cloud und noch nicht vom Browser genutzt. Geplant, noch nicht umgesetzt: Supabase-Cloud-Projekt und Vercel für die Bereitstellung der Website (siehe Abschnitt 3 und `docs/ideen.md`)
+- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), ChatGPT (Planungsgespräche der Nutzerin), Git, GitHub, GitHub Actions (CI), GitHub CLI (`gh`), Node.js/npm, Docker Desktop, Supabase CLI (als npm-Abhängigkeit), Google Chrome (Headless-Screenshots zur Sichtprüfung)
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
@@ -27,8 +27,9 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
   - **Timer:** 10 Minuten, in der letzten Minute rot. Der Hilfe-Knopf gibt drei gestufte Tipps für je 1 Minute Strafe.
   - **Spielende:** Die Ende-Bildschirme zeigen eine Statistik und bieten „Nochmal spielen“ und „Zur Raumauswahl“.
   - **Handy:** Im Hochformat erscheint der Hinweis, das Gerät quer zu halten.
-  - **Starten:** Node.js 24 (siehe `.nvmrc`), `npm install` (einmalig), `npm start`, dann `http://localhost:3000`. Tests: `npm test` (47 Tests).
-  - **CI:** GitHub Actions führt bei jedem Push und Pull Request `npm ci` und `npm test` aus (`.github/workflows/ci.yml`). Der Workflow veröffentlicht nichts.
+  - **Starten:** Node.js 24 (siehe `.nvmrc`), `npm install` (einmalig), `npm start`, dann `http://localhost:3000`. Tests: `npm test` (57 Tests).
+  - **CI:** GitHub Actions führt bei jedem Push und Pull Request `npm ci` und `npm test` aus, dazu im Job `backend` die Backend-Tests gegen ein frisches, temporäres Supabase (`.github/workflows/ci.yml`). Der Workflow veröffentlicht nichts und hat keinen Zugang zum Cloud-Projekt.
+  - **Backend (lokal, seit AP 3):** Sitzungen erstellen, per Code beitreten (nur im Status „bereit“, höchstens vier Personen), laden (nur Mitglieder) und Aktionen ausführen (nur die erstellende Person startet). Alles läuft über Edge Functions mit der geteilten Spiellogik und der Serverzeit. Gleichzeitige und doppelte Aktionen werden sicher verarbeitet, Realtime meldet Änderungen nur an Mitglieder. Starten mit `npm run backend:start`, Tests mit `npm run test:backend` (22 Tests), siehe `docs/anleitung.md`. Der Browser nutzt das Backend noch nicht (folgt in AP 4).
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
   - `public/index.html` (Startseite) und `public/spiel.html` (Spielseite), `public/css/style.css`
@@ -37,14 +38,17 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
   - `shared/spiel-logik.js` – Spielregeln als reine Funktionen (Spielstand + Aktion → neuer Spielstand)
   - `shared/raeume/` – Raumdaten inklusive Geschichte, je Raum eine öffentliche Datei (z. B. `arbeitszimmer.js`, mit `version`) und eine geheime Datei mit Lösungen und Tipp-Texten (`arbeitszimmer.geheim.js`); `index.js` listet alle Räume (nach Schwierigkeit aufsteigend), `geheim.js` setzt öffentliche und geheime Daten für die Spiellogik zusammen (vorübergehend auch im Browser, ab AP 4 nur noch im Backend)
   - `shared/raetsel/` – Rätseltyp-Register; jeder Typ ist ein Modul mit `pruefe(eingabe, loesung)` (bisher: `zahlenschloss`)
-  - `test/` – Tests der Spiellogik und der Raumdaten (`node:test`)
+  - `supabase/` – lokales Backend: `config.toml` (u. a. Gastanmeldung), `migrations/` (Tabellen `sitzungen`, `sitzung_mitglieder`, `aktionen`, Zugriffsregeln, Datenbankfunktionen), `functions/` (Edge Functions `sitzung-erstellen`, `sitzung-beitreten`, `sitzung-laden`, `aktion`; gemeinsamer Kern in `functions/_shared/`)
+  - `test/` – Unit-Tests der Spiellogik, Raumdaten, Rätseltypen und des Backend-Kerns (`node:test`, `npm test`)
+  - `test-backend/` – Backend-Tests gegen das lokale Supabase (`npm run test:backend`)
+  - `.github/workflows/ci.yml` – CI (Unit- und Backend-Tests)
   - `docs/plaene/` – freigegebene Pläne; `docs/anleitung.md` – Grafiken, Videos und Ton austauschen, neuen Raum anlegen, Liste aller benötigten Dateien; `docs/ideen.md` – Ideensammlung inklusive verworfener Ideen
-- **Wichtigste Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/spiel-logik.js`, `public/js/anzeige.js`, `public/js/geschichte.js`, `public/js/main.js`, `docs/anleitung.md`
+- **Wichtigste Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/spiel-logik.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `public/js/anzeige.js`, `public/js/geschichte.js`, `public/js/main.js`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
 - **Grenzen des Prototyps (Abgleich mit dem Code am 2026-10-22):**
   - Spielstand und Timer existieren nur im Browser (`public/js/verbindung-lokal.js`). Die Zeit kommt von der Uhr des Geräts (`Date.now()`). Nach dem Neuladen beginnt das Spiel von vorn.
   - `server.js` liefert nur Dateien aus. Unter `/shared` sind die vollständigen Raumdaten öffentlich abrufbar, einschließlich Schlosscode und aller Tipps. Seit AP 2 stehen sie in eigenen Dateien (`shared/raeume/arbeitszimmer.geheim.js`). Sie werden aber noch ausgeliefert, weil die Spiellogik bis AP 4 im Browser läuft.
-  - Raumvorlagen und Spielsitzungen sind nicht getrennt. Es gibt keine Sitzungs-ID, keine Mitglieder, keine Anmeldung und keine Behandlung gleichzeitiger oder doppelt gesendeter Aktionen.
+  - Im Browser sind Raumvorlagen und Spielsitzungen noch nicht getrennt. Das Backend dafür gibt es seit AP 3 (lokal), angebunden wird es in AP 4.
   - Wiederverwendbar sind die Spiellogik `shared/spiel-logik.js` (reine Funktionen, die Zeit wird übergeben), die Verbindungsschicht mit `sendeAktion` und `beiAenderung` sowie die Szene, die schon jetzt pro Gerät verwaltet wird.
 
 **Geplant (noch nicht umgesetzt):**
@@ -52,7 +56,7 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 - **Mehrspieler-Modus als wichtigste technische Anforderung:** Mehrere Personen lösen einen Raum gemeinsam. Andere Gruppen spielen dieselbe Raumvorlage unabhängig davon.
 - **Technik:** Vercel (Bereitstellung) und Supabase (Authentifizierung, Datenbank, Backend-Funktionen, Echtzeit). Das Frontend bleibt bei HTML, CSS und JavaScript. Architekturziel siehe Abschnitt 3.
 - **Erster Mehrspieler-Meilenstein:** Zwei Personen spielen das Arbeitszimmer gemeinsam. Eine dritte Person spielt gleichzeitig dieselbe Raumvorlage in einer unabhängigen Sitzung.
-- **Später:** automatische CI-Prüfungen, bewusst ausgelöste Deployments, eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
+- **Später:** bewusst ausgelöste Deployments, eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
 - **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md). Sieben Arbeitspakete auf eigenen Branches: CI, Trennung der Raumdaten, Supabase-Backend (lokal), Online-Spiel, Cloud und Vercel, Raum 2, Raum 3.
 - **Offen:**
   - Verlassen der Sitzung durch die erstellende Person vor dem Start
@@ -101,6 +105,9 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 | 2026-10-22 | CI mit GitHub Actions, eingerichtet von Claude: Node-Version aus `.nvmrc`, `npm ci`, `npm test`; ab dem Backend zusätzlich `npm run test:backend` gegen ein frisches lokales Supabase; lokal und in der CI dieselben Befehle; Tests entstehen mit den Funktionen; kein automatisches Deployment, ein manuell ausgelöster Deployment-Workflow wird vor AP 5 konkretisiert | Auf Wunsch der Nutzerin: Fehler früh erkennen, ohne dass etwas veröffentlicht wird; ein Test-Werkzeug (`node:test` mit supabase-js) | pgTAP als zweites Test-Werkzeug; automatische Deployments nach jedem Push |
 | 2026-10-22 | Arbeitspakete nacheinander auf eigenen Branches (Code, Tests und Doku auf demselben Branch); Pull Request nach erfolgreichen Prüfungen; Zusammenführen nach Freigabe der Nutzerin mit Merge-Commit; Planungsdoku direkt auf `main` | Auf Wunsch der Nutzerin; der Merge-Commit erhält die Commit-Kennungen, auf die `DOKUMENTATION.md` verweist (Vorschlag von Claude) | Arbeit direkt auf `main`; Squash- oder Rebase-Merge (Commit-Kennungen in der Doku wären auf `main` nicht mehr auffindbar); eigene Branches für kleine Änderungen |
 | 2026-10-22 | Neue Mitglieder treten nur bei, solange die Sitzung den Status „bereit“ hat (vor dem Spielstart). Bereits vorhandene Mitglieder steigen nach Neuladen oder Verbindungsabbruch jederzeit wieder ein, der Timer läuft dabei weiter. Beitritt und Spielstart werden in der Datenbank gegeneinander abgesichert und getestet | Von der Nutzerin festgelegt | Beitritt bis zum Spielende erlauben (Vorschlag von Claude) |
+| 2026-10-22 | Edge Functions in JavaScript mit `@supabase/server` (`withSupabase({ auth: "user" })`): Anmeldung, CORS und Backend-Zugang kommen aus dem Paket; Spielregeln liegen in einem reinen Kern (`supabase/functions/_shared/kern.js`), der die geteilte Spiellogik direkt aus `shared/` importiert; feste Versionen (CLI 2.120.0, supabase-js 2.117.3, `@supabase/server` 1.9.1) | Vorschlag von Claude bei der Umsetzung: Die aktuelle Supabase-Vorlage nutzt dieses Paket; JavaScript passt zum übrigen Projekt; der Kern ist ohne Datenbank mit `node:test` prüfbar; der Import von außerhalb `supabase/` funktioniert lokal und in der CI | TypeScript-Vorlage; eigene Prüfung der Anmelde-Token; Kopie der Spiellogik ins Backend |
+| 2026-10-22 | Gleichzeitige Aktionen: bis zu 8 Versuche mit kurzer Zufallspause bei Versionskonflikten; `speichere_aktion` meldet einen Versionskonflikt als Ergebnis (es wurde dann noch nichts geschrieben) statt als Fehler | Bei vier gleichzeitigen Aktionen ging mit 3 Versuchen eine verloren (CI-Befund); als Ergebnis ist der Konflikt für die Edge Function einfacher zu behandeln | 3 Versuche (Plan); Konflikt als Datenbankfehler |
+| 2026-10-22 | Realtime gilt erst als bereit, wenn nach `SUBSCRIBED` auch die Systemnachricht „Subscribed to PostgreSQL“ eingetroffen ist; erst danach wird abgeglichen (gilt für das Wiederverbinden im Browser ab AP 4) | Befund aus den Tests: Änderungen kurz nach `SUBSCRIBED` kamen nicht an. Wer zu früh abgleicht, kann Änderungen verpassen | Nach `SUBSCRIBED` sofort abgleichen; feste Wartezeit |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -666,3 +673,59 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase (offene Entscheidung „Beitritt zu laufenden Sitzungen“)
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-22, 15:00 – AP 3: Supabase-Backend für Sitzungen (lokal)
+- **Auslöser:** Anweisung des Nutzers: „Du bekommst hiermit die Freigabe. Ich werde parallel Docker herunterladen und einrichten.“ Dazu kam die Entscheidung zum Beitritt (siehe Eintrag 14:09) mit dem Auftrag, sie im Backend zu berücksichtigen, „einschließlich eines Tests für gleichzeitigen Beitritt und Spielstart“. Vorher wurde PR #2 (AP 2) mit Merge-Commit `97c5e0f` nach `main` übernommen und der Branch `ap3-backend` angelegt.
+- **Durchgeführte Schritte:**
+  - **Werkzeuge:**
+    - Supabase CLI 2.120.0 und supabase-js 2.117.3 als Entwicklungsabhängigkeiten mit festen Versionen, bewusst nicht die neuesten, sondern etwa zwei Wochen alte.
+    - `supabase init`: Projekt-ID `escape-room`, Gastanmeldung an, für die lokalen Tests höheres Limit für Gastanmeldungen.
+  - **Migration** `supabase/migrations/20261022141522_sitzungen.sql`:
+    - Tabellen `sitzungen` (Spielstand als `jsonb`, `version`, `raum_id`, `raum_version`, Beitrittscode), `sitzung_mitglieder` und `aktionen`.
+    - RLS: Mitglieder lesen nur ihre Sitzung und deren Mitglieder. Schreibrechte für Browser sind entzogen, `aktionen` ist für Browser gesperrt. Hilfsfunktion `ist_mitglied`.
+    - Realtime-Freigabe für `sitzungen` und `sitzung_mitglieder`.
+    - Datenbankfunktionen, jeweils eine Transaktion und nur für `service_role` ausführbar:
+      - `erstelle_sitzung`: Code aus 6 Zeichen ohne verwechselbare Zeichen.
+      - `tritt_bei`: Zeilensperre, neue Mitglieder nur im Status „bereit“ und höchstens 4, bestehende Mitglieder jederzeit.
+      - `speichere_aktion`: Aktion und Spielstand gemeinsam, mit Versionsprüfung und Erkennung doppelter `aktion_id`.
+      - `speichere_zustand`: für den Zeitablauf.
+  - **Edge Functions** (JavaScript, `@supabase/server` 1.9.1):
+    - `sitzung-erstellen`, `sitzung-beitreten` (per Code), `sitzung-laden` (nur Mitglieder) und `aktion`.
+    - Gemeinsamer Kern `_shared/kern.js`: Aktionen prüfen und bereinigen, „start“ nur durch die erstellende Person, Raumversion prüfen, Zeitablauf mit der Serverzeit, `neustart` online nicht erlaubt.
+    - Hilfsfunktionen in `_shared/sitzungen.js`. Laden und Beitreten erkennen den Zeitablauf und speichern ihn.
+  - **Tests:**
+    - `npm test` jetzt mit festem Muster `test/**/*.test.js`: 57 Unit-Tests, davon 10 neue für den Backend-Kern.
+    - `npm run test:backend` mit 22 Backend-Tests in `test-backend/`:
+      - **Sitzungsregeln:** Erstellen, Beitritt per Code, Laden nur als Mitglied, Start nur durch die erstellende Person, Tipps durch alle, Abweisung nach dem Start, Wiedereinstieg mit weiterlaufender Zeit, höchstens vier Personen, Zeitablauf beim Laden, veraltete Raumversion, doppelte `aktion_id`, Sieg ohne Lösung in der Antwort.
+      - **Gleichzeitigkeit:** paralleler Tipp, vier parallele verschiedene Aktionen, doppelte Aktion parallel, fünf parallele Beitritte, **gleichzeitiger Beitritt und Spielstart** (12 Runden mit versetztem Beitritt; geprüft wird auf die Mikrosekunde, dass jeder erfolgreiche Beitritt vor dem Start gespeichert wurde).
+      - **Sicherheit:** schreibende Datenbankfunktionen aus dem Browser gesperrt, Tabellen für Browser nicht beschreibbar, Fremde sehen nichts, Versionskonflikt schreibt nichts, gescheiterter Aktionseintrag nimmt auch die Spielstandänderung zurück, Realtime nur für Mitglieder.
+    - Alle Backend-Tests laufen nur gegen das lokale Supabase, die Hilfsdatei bricht bei einer anderen Adresse ab.
+  - **CI:** zweiter Job `backend`. Er startet auf dem GitHub-Rechner ein frisches Supabase (`npm run backend:start`), führt `npm run test:backend` aus, zeigt bei Fehlern die Protokolle und räumt am Ende auf.
+  - `docs/anleitung.md` um „Backend lokal“ ergänzt, Abschnitte 1 bis 3 aktualisiert. In Abschnitt 1 und 2 stand CI noch als geplant, das ist korrigiert.
+- **Geänderte/neue Dateien:** `package.json`, `package-lock.json`, `.github/workflows/ci.yml`, `supabase/config.toml`, `supabase/.gitignore`, `supabase/migrations/20261022141522_sitzungen.sql`, `supabase/functions/_shared/kern.js`, `supabase/functions/_shared/sitzungen.js`, `supabase/functions/{sitzung-erstellen,sitzung-beitreten,sitzung-laden,aktion}/index.js` und `deno.json`, `test/kern.test.js`, `test-backend/hilfe.js`, `test-backend/sitzungen.test.js`, `test-backend/gleichzeitigkeit.test.js`, `test-backend/sicherheit.test.js`, `docs/anleitung.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Supabase CLI, Docker Desktop (bei der Nutzerin eingerichtet), Git, GitHub Actions, GitHub CLI (`gh`)
+- **Probleme & Lösungen:**
+  - **Docker fehlte zu Beginn lokal.** Die Backend-Tests liefen deshalb zuerst nur in der CI, der erste Commit ist als „noch ungeprüft“ gekennzeichnet. Später lief Docker Desktop bei der Nutzerin, der Befehl `docker` war aber nicht im Suchpfad. Claude hat ihn für die eigenen Befehle ergänzt, die Anleitung beschreibt die Einstellung.
+  - **CI-Lauf 1: vier gleichzeitige Aktionen.** Eine scheiterte nach 3 Versuchen mit „zu viele gleichzeitige Änderungen“. Überschrieben wurde nichts, die Aktion ging aber verloren → bis zu 8 Versuche mit kurzer Zufallspause.
+  - **CI-Lauf 1: Test „Beitritt und Start gleichzeitig“.** Der Beitritt gewann immer, der Test prüfte also nur eine Reihenfolge → Beitritt je Runde etwas versetzt.
+  - **Realtime: Mitglieder empfingen nichts** (CI-Läufe 1 bis 3).
+    - Diagnose:
+      - Das Abonnement war bestätigt, Publikation und Rechte stimmten.
+      - Lokal empfing das Backend die Änderungen, das Mitglied nicht.
+      - Mit einem offenen Abonnement im Diagnoseskript empfing auch das Mitglied.
+    - Ursache: `SUBSCRIBED` kommt vor der Freischaltung der Datenbankänderungen. Die meldet Realtime erst mit „Subscribed to PostgreSQL“, und die Aktionen im Test liefen schon vorher.
+    - Lösung: Der Test wartet auf diese Systemnachricht. Für AP 4 ist das als Entscheidung festgehalten.
+  - **Test „Beitritt und Start gleichzeitig“ schlug lokal gelegentlich fehl.**
+    - Diagnose: Die Datenbank bestätigte, dass alle Beitritte vor dem Start gespeichert waren, oft aber in derselben Millisekunde. JavaScripts `Date` vergleicht nur Millisekunden.
+    - Lösung: Vergleich auf die Mikrosekunde genau. Danach liefen die Tests lokal 5-mal hintereinander grün.
+- **Ergebnis:**
+  - Das Backend für Sitzungen läuft lokal und in der CI: CI-Lauf zu `d96d2b0` grün mit 57 Unit-Tests und 22 Backend-Tests. Im Test zu Beitritt und Start kamen beide Reihenfolgen vor (4 Beitritte, 8 Abweisungen).
+  - Das Cloud-Projekt wurde nicht angefasst, der Browser nutzt das Backend noch nicht (AP 4).
+- **Bezug zur Planung:** 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase
+- **Abweichungen vom Plan:**
+  - Versionskonflikte meldet `speichere_aktion` als Ergebnis statt als Fehler. Es wurde dann noch nichts geschrieben, also muss nichts zurückgenommen werden. Dass ein gescheiterter Aktionseintrag die Spielstandänderung zurücknimmt, prüft ein eigener Test.
+  - 8 statt 3 Versuche bei Versionskonflikten (siehe Probleme).
+  - Die Edge Functions nutzen `@supabase/server` aus der aktuellen CLI-Vorlage. Das stand nicht im Plan, ändert aber nichts an der Aufgabenverteilung.
+  - Die Hilfsfunktion `ist_mitglied` darf die Rolle `authenticated` ausführen, das ist für die Zugriffsregeln nötig. Sie verrät nur die eigene Mitgliedschaft.
+  - Die Backend-Tests liefen zuerst nur in der CI, weil lokal noch kein Docker eingerichtet war.
+- **Git-Commit:** `918df50` (Backend, noch ungeprüft), `8cafe8e` (mehr Versuche, Diagnose), `9756cac` (Diagnose), `d96d2b0` (Realtime-Bereitschaft, Zeitvergleich)
