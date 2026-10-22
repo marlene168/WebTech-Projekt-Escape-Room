@@ -59,7 +59,6 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 - **Später:** bewusst ausgelöste Deployments, eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
 - **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md). Sieben Arbeitspakete auf eigenen Branches: CI, Trennung der Raumdaten, Supabase-Backend (lokal), Online-Spiel, Cloud und Vercel, Raum 2, Raum 3.
 - **Offen:**
-  - Verlassen der Sitzung durch die erstellende Person vor dem Start
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
@@ -108,6 +107,7 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 | 2026-10-22 | Edge Functions in JavaScript mit `@supabase/server` (`withSupabase({ auth: "user" })`): Anmeldung, CORS und Backend-Zugang kommen aus dem Paket; Spielregeln liegen in einem reinen Kern (`supabase/functions/_shared/kern.js`), der die geteilte Spiellogik direkt aus `shared/` importiert; feste Versionen (CLI 2.120.0, supabase-js 2.117.3, `@supabase/server` 1.9.1) | Vorschlag von Claude bei der Umsetzung: Die aktuelle Supabase-Vorlage nutzt dieses Paket; JavaScript passt zum übrigen Projekt; der Kern ist ohne Datenbank mit `node:test` prüfbar; der Import von außerhalb `supabase/` funktioniert lokal und in der CI | TypeScript-Vorlage; eigene Prüfung der Anmelde-Token; Kopie der Spiellogik ins Backend |
 | 2026-10-22 | Gleichzeitige Aktionen: bis zu 8 Versuche mit kurzer Zufallspause bei Versionskonflikten; `speichere_aktion` meldet einen Versionskonflikt als Ergebnis (es wurde dann noch nichts geschrieben) statt als Fehler | Bei vier gleichzeitigen Aktionen ging mit 3 Versuchen eine verloren (CI-Befund); als Ergebnis ist der Konflikt für die Edge Function einfacher zu behandeln | 3 Versuche (Plan); Konflikt als Datenbankfehler |
 | 2026-10-22 | Realtime gilt erst als bereit, wenn nach `SUBSCRIBED` auch die Systemnachricht „Subscribed to PostgreSQL“ eingetroffen ist; erst danach wird abgeglichen (gilt für das Wiederverbinden im Browser ab AP 4) | Befund aus den Tests: Änderungen kurz nach `SUBSCRIBED` kamen nicht an. Wer zu früh abgleicht, kann Änderungen verpassen | Nach `SUBSCRIBED` sofort abgleichen; feste Wartezeit |
+| 2026-10-22 | Verlässt die erstellende Person die Sitzung bewusst (vor dem Start oder während des Spiels), wird die Sitzung für alle beendet. Die übrigen Mitglieder erhalten eine Meldung, die Startberechtigung wird nicht übergeben. Neuladen oder ein kurzer Verbindungsabbruch gelten nicht als Verlassen; bewusstes Verlassen ist nur der ausdrückliche Klick auf „Verlassen“ | Von der Nutzerin festgelegt, möglichst einfache Umsetzung | Übergabe der Startberechtigung an ein anderes Mitglied; Sitzung läuft ohne die erstellende Person weiter; Verbindungsabbruch als Verlassen werten |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -729,3 +729,18 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Die Hilfsfunktion `ist_mitglied` darf die Rolle `authenticated` ausführen, das ist für die Zugriffsregeln nötig. Sie verrät nur die eigene Mitgliedschaft.
   - Die Backend-Tests liefen zuerst nur in der CI, weil lokal noch kein Docker eingerichtet war.
 - **Git-Commit:** `918df50` (Backend, noch ungeprüft), `8cafe8e` (mehr Versuche, Diagnose), `9756cac` (Diagnose), `d96d2b0` (Realtime-Bereitschaft, Zeitvergleich)
+
+### 2026-10-22, 20:58 – Entscheidung: Verlassen durch die erstellende Person beendet die Sitzung
+- **Auslöser:** Anweisung des Nutzers: „Wenn die erstellende Person die Sitzung bewusst verlässt, wird die Sitzung für alle beendet – sowohl vor dem Start als auch während des Spiels. Die übrigen Mitglieder erhalten eine entsprechende Meldung. Es gibt keine Übergabe der Startberechtigung. Ein Neuladen oder kurzer Verbindungsabbruch soll nicht als bewusstes Verlassen gelten. Bitte halte die Umsetzung möglichst einfach und dokumentiere diese Regel.“ In derselben Nachricht kamen die Freigabe von PR #3 und AP 4 sowie die Bitte, `docker info` zu prüfen.
+- **Durchgeführte Schritte:**
+  - `docker info` geprüft: Docker ist jetzt im Terminal erreichbar (Server 29.9.2, Docker Desktop). Die Supabase CLI startet ohne weitere Einstellungen.
+  - PR #3 (AP 3) mit Merge-Commit `6c177cb` nach `main` übernommen und den Branch `ap4-online-spiel` angelegt.
+  - Regel in Abschnitt 3 eingetragen, die offene Frage in Abschnitt 2 entfernt, in `docs/ideen.md` als entschieden markiert.
+  - Die Umsetzung folgt in AP 4 auf demselben Branch: Nur ein ausdrücklicher Klick auf „Verlassen“ durch die erstellende Person beendet die Sitzung, es gibt keine Erkennung von Verbindungsabbrüchen.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/ideen.md`
+- **Genutzte Tools:** Claude Code, Docker, Git, GitHub CLI (`gh`)
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Alle für AP 4 offenen Fragen sind geklärt.
+- **Bezug zur Planung:** 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase (offene Entscheidung „erstellende Person verlässt die Sitzung“)
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
