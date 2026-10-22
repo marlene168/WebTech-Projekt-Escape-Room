@@ -7,6 +7,9 @@ import {
   zeigeSchloss, beimNeustart, beimTippAnfordern, beimRaumBetreten,
 } from "./anzeige.js";
 
+// Welche Anzeige zu welchem Rätseltyp gehört (die Typen selbst stehen in shared/raetsel/)
+const RAETSEL_ANZEIGEN = { zahlenschloss: zeigeSchloss };
+
 const raum = findeRaum(new URLSearchParams(location.search).get("raum"));
 
 if (raum) {
@@ -34,11 +37,12 @@ function starteSpiel(raum) {
       aktuelleSzene = objekt.aktion.ziel;
       zeigeZurueckKnopf(true);
       zoomeHinein(raum.szenen[aktuelleSzene], mitte, beiKlick);
-    } else if (objekt.aktion?.typ === "schloss") {
-      const schloss = objekt.aktion.schloss;
-      // Ob der Code stimmt, entscheidet die Spiellogik
-      zeigeSchloss(raum.schloesser[schloss], (code) => {
-        verbindung.sendeAktion({ typ: "probiereCode", schloss, code });
+    } else if (objekt.aktion?.typ === "raetsel") {
+      const name = objekt.aktion.raetsel;
+      const raetsel = raum.raetsel[name];
+      // Ob die Lösung stimmt, entscheidet die Spiellogik
+      RAETSEL_ANZEIGEN[raetsel.typ](raetsel, (eingabe) => {
+        verbindung.sendeAktion({ typ: "loese", raetsel: name, eingabe });
       });
     } else {
       zeigeText(objekt.name, objekt.text);
@@ -65,13 +69,18 @@ function starteSpiel(raum) {
 
   beimRaumBetreten(() => verbindung.sendeAktion({ typ: "start" }));
   beimNeustart(() => verbindung.sendeAktion({ typ: "neustart" }));
-  beimTippAnfordern(() => verbindung.sendeAktion({ typ: "tipp" }));
+  // Die Aktion nennt die Nummer des Tipps, den diese Person gerade anfordert. Fordern mehrere
+  // gleichzeitig denselben Tipp an, zählt die Spiellogik ihn nur einmal.
+  let letzterSpielstand = null;
+  beimTippAnfordern(() =>
+    verbindung.sendeAktion({ typ: "tipp", nummer: letzterSpielstand.freigegebeneTipps.length + 1 }));
 
   zeichneSzene(raum.szenen[aktuelleSzene], beiKlick);
 
   // Eine neue Startzeit bedeutet: Es hat ein neues Spiel begonnen (später auch, wenn jemand anderes neu startet).
   let startzeit = null;
   verbindung.beiAenderung((spielstand) => {
+    letzterSpielstand = spielstand;
     if (startzeit !== null && spielstand.startzeit !== startzeit) zurueckZumStart();
     startzeit = spielstand.startzeit;
     zeigeSpielstand(raum, spielstand);
