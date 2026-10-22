@@ -1,5 +1,6 @@
 // Raumdaten: Das Arbeitszimmer des Professors.
 // Hier steht nur, WAS es im Raum gibt – wie es angezeigt wird, entscheidet public/js/anzeige.js.
+// Diese Datei ist öffentlich: Lösungen und Tipp-Texte stehen in arbeitszimmer.geheim.js.
 //
 // Positionen (x, y, breite, hoehe) sind Prozentwerte der Bühne:
 // x/y = linke obere Ecke, 0/0 = oben links, 100/100 = unten rechts.
@@ -11,10 +12,12 @@
 // Objekte zeigen beim Klick ihren "text" – oder führen ihre "aktion" aus:
 //   { typ: "oeffneSzene", ziel: "<szene>" }  → in eine Detailansicht hineinzoomen
 //   { typ: "findeSpur", spur: "<spur>" }      → Text zeigen und die Spur ins Notizbuch eintragen
-//   { typ: "schloss", schloss: "<schloss>" }  → Zahlenschloss öffnen und einen Code probieren
+//   { typ: "raetsel", raetsel: "<rätsel>" }   → Rätsel öffnen (z. B. Zahlenschloss) und eine Lösung probieren
 
 export default {
   id: "arbeitszimmer",
+  // Raumversion: erhöhen, sobald sich Rätsel oder Lösungen ändern (gespeicherte Sitzungen erkennen das später)
+  version: 1,
   titel: "Das Arbeitszimmer des Professors",
   schwierigkeit: 1, // 1 = leicht, 2 = mittel, 3 = schwer (siehe shared/raeume/index.js)
   kurzbeschreibung:
@@ -104,7 +107,7 @@ export default {
           emoji: "🚪",
           bild: null,
           x: 79, y: 14, breite: 14, hoehe: 56,
-          aktion: { typ: "schloss", schloss: "tuer" },
+          aktion: { typ: "raetsel", raetsel: "tuer" },
         },
       ],
     },
@@ -212,22 +215,20 @@ export default {
     reihenfolge: { titel: "Rot – Grün – Blau", text: "Notiz des Professors an der Pinnwand. Eine Reihenfolge?" },
   },
 
-  // Zahlenschlösser (Schlüssel = Name des Schlosses, siehe "schloss" oben)
-  schloesser: {
+  // Rätsel (Schlüssel = Name des Rätsels, siehe "raetsel" oben). "typ" verweist auf shared/raetsel/.
+  // Die Lösungen stehen in arbeitszimmer.geheim.js.
+  raetsel: {
     tuer: {
+      typ: "zahlenschloss",
       name: "Zahlenschloss an der Tür",
       text: "Ein schweres Schloss aus Messing mit drei Rädchen. Die Tür ist der einzige Weg hinaus.",
-      code: "417",
+      stellen: 3,
     },
   },
 
-  // Wird dieses Schloss geöffnet, ist der Raum geschafft.
+  // Wird dieses Rätsel gelöst, ist der Raum geschafft.
   ausgang: "tuer",
 
-  // Gestufte Tipps für den Hilfe-Knopf: vom vagen Hinweis bis zur Lösung
-  tipps: [
-    "Drei Dinge im Raum lassen sich aus der Nähe ansehen: der Schreibtisch, die Pinnwand und das Gemälde. Schau dort genau hin.",
-    "Der Professor schreibt in seinem Brief: „Folgt den Farben.“ Achte auf eine rote, eine grüne und eine blaue Ziffer.",
-    "Die Notiz an der Pinnwand nennt die Reihenfolge: Rot – Grün – Blau. Der Code lautet also 4 – 1 – 7.",
-  ],
+  // So viele Tipps gibt es für den Hilfe-Knopf (die Texte stehen in arbeitszimmer.geheim.js)
+  anzahlTipps: 3,
 };

@@ -1,12 +1,15 @@
 // Tests für die Spiellogik. Ausführen mit: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import raum from "../shared/raeume/arbeitszimmer.js";
+import arbeitszimmer from "../shared/raeume/arbeitszimmer.js";
+import { mitGeheimnissen } from "../shared/raeume/geheim.js";
 import { erstelleSpielstand, verarbeiteAktion, restzeit, pruefeZeit } from "../shared/spiel-logik.js";
 
 // Feste Zeitpunkte statt der echten Uhr, damit die Tests immer gleich ablaufen
 const START = 1_000_000;
 const SPAETER = START + 5_000; // 5 Sekunden nach dem Start
+// Die Spiellogik bekommt den vollständigen Raum (öffentliche Daten plus Lösungen und Tipp-Texte)
+const raum = mitGeheimnissen(arbeitszimmer);
 const DAUER_MS = raum.dauerSekunden * 1000;
 
 const starte = (spielstand, jetzt = START) => verarbeiteAktion(raum, spielstand, { typ: "start" }, jetzt);
@@ -14,8 +17,8 @@ const starte = (spielstand, jetzt = START) => verarbeiteAktion(raum, spielstand,
 const neuesSpiel = () => starte(erstelleSpielstand(raum));
 const untersuche = (spielstand, objekt, jetzt = SPAETER) =>
   verarbeiteAktion(raum, spielstand, { typ: "untersuche", objekt }, jetzt);
-const probiere = (spielstand, code, schloss = "tuer", jetzt = SPAETER) =>
-  verarbeiteAktion(raum, spielstand, { typ: "probiereCode", schloss, code }, jetzt);
+const probiere = (spielstand, eingabe, raetsel = "tuer", jetzt = SPAETER) =>
+  verarbeiteAktion(raum, spielstand, { typ: "loese", raetsel, eingabe }, jetzt);
 
 // ---------- Spuren ----------
 
@@ -66,7 +69,7 @@ test("Jede Spur-Aktion im Raum verweist auf eine vorhandene Spur", () => {
   }
 });
 
-// ---------- Zahlenschloss ----------
+// ---------- Rätsel (Zahlenschloss an der Tür) ----------
 
 test("Neues Spiel läuft und hat keine Fehlversuche", () => {
   const start = neuesSpiel();
@@ -78,18 +81,24 @@ test("Falscher Code zählt einen Fehlversuch, das Spiel läuft weiter", () => {
   const spielstand = probiere(neuesSpiel(), "123");
   assert.equal(spielstand.fehlversuche, 1);
   assert.equal(spielstand.status, "laeuft");
-  assert.deepEqual(spielstand.geoeffneteSchloesser, []);
+  assert.deepEqual(spielstand.geloesteRaetsel, []);
 });
 
 test("Richtiger Code am Ausgang öffnet das Schloss und gewinnt das Spiel", () => {
   const spielstand = probiere(neuesSpiel(), "417");
-  assert.deepEqual(spielstand.geoeffneteSchloesser, ["tuer"]);
+  assert.deepEqual(spielstand.geloesteRaetsel, ["tuer"]);
   assert.equal(spielstand.status, "gewonnen");
 });
 
-test("Unbekanntes Schloss ändert nichts", () => {
+test("Unbekanntes Rätsel ändert nichts", () => {
   const start = neuesSpiel();
   assert.equal(probiere(start, "417", "tresor"), start);
+});
+
+test("Ein Rätsel mit unbekanntem Rätseltyp ändert nichts", () => {
+  const kaputt = { ...raum, raetsel: { tuer: { ...raum.raetsel.tuer, typ: "gibt-es-nicht" } } };
+  const start = verarbeiteAktion(kaputt, erstelleSpielstand(kaputt), { typ: "start" }, START);
+  assert.equal(verarbeiteAktion(kaputt, start, { typ: "loese", raetsel: "tuer", eingabe: "417" }, SPAETER), start);
 });
 
 test("Nach dem Gewinnen ändern Aktionen nichts mehr", () => {
@@ -167,7 +176,7 @@ test("Vor dem Start wirken andere Aktionen nicht", () => {
   const bereit = erstelleSpielstand(raum);
   assert.equal(untersuche(bereit, "kalender"), bereit);
   assert.equal(probiere(bereit, "417"), bereit);
-  assert.equal(verarbeiteAktion(raum, bereit, { typ: "tipp" }, START), bereit);
+  assert.equal(verarbeiteAktion(raum, bereit, { typ: "tipp", nummer: 1 }, START), bereit);
 });
 
 test("Start setzt Status und Startzeit, ein zweiter Start ändert nichts", () => {
@@ -179,18 +188,36 @@ test("Start setzt Status und Startzeit, ein zweiter Start ändert nichts", () =>
 
 // ---------- Tipps ----------
 const STRAFE_MS = raum.strafeProTippSekunden * 1000;
-const tipp = (spielstand, jetzt = SPAETER) => verarbeiteAktion(raum, spielstand, { typ: "tipp" }, jetzt);
+// Fordert den nächsten Tipp an – so, wie es die Anzeige tut (Nummer = bisher geholte Tipps + 1)
+const tipp = (spielstand, jetzt = SPAETER, nummer = spielstand.freigegebeneTipps.length + 1) =>
+  verarbeiteAktion(raum, spielstand, { typ: "tipp", nummer }, jetzt);
 
-test("Ein Tipp wird gezählt und kostet Zeit", () => {
+test("Ein Tipp wird mit seinem Text freigegeben und kostet Zeit", () => {
   const spielstand = tipp(neuesSpiel());
-  assert.equal(spielstand.genutzteTipps, 1);
+  assert.deepEqual(spielstand.freigegebeneTipps, [raum.geheim.tipps[0]]);
   assert.equal(restzeit(spielstand, START), DAUER_MS - STRAFE_MS);
+});
+
+test("Fordern zwei Personen gleichzeitig denselben Tipp an, zählt er nur einmal", () => {
+  const vorher = neuesSpiel();
+  const ersteAnfrage = tipp(vorher, SPAETER, 1);
+  const zweiteAnfrage = tipp(ersteAnfrage, SPAETER, 1); // dieselbe Nummer, kam etwas später an
+  assert.equal(zweiteAnfrage, ersteAnfrage);
+  assert.equal(zweiteAnfrage.freigegebeneTipps.length, 1);
+  assert.equal(restzeit(zweiteAnfrage, START), DAUER_MS - STRAFE_MS);
+});
+
+test("Ein Tipp mit falscher oder fehlender Nummer ändert nichts", () => {
+  const start = neuesSpiel();
+  assert.equal(tipp(start, SPAETER, 2), start);
+  assert.equal(tipp(start, SPAETER, 0), start);
+  assert.equal(verarbeiteAktion(raum, start, { typ: "tipp" }, SPAETER), start);
 });
 
 test("Es gibt nicht mehr Tipps, als der Raum hat", () => {
   let spielstand = neuesSpiel();
-  for (let i = 0; i < raum.tipps.length; i++) spielstand = tipp(spielstand);
-  assert.equal(spielstand.genutzteTipps, raum.tipps.length);
+  for (let i = 0; i < raum.geheim.tipps.length; i++) spielstand = tipp(spielstand);
+  assert.deepEqual(spielstand.freigegebeneTipps, raum.geheim.tipps);
   assert.equal(tipp(spielstand), spielstand);
 });
 

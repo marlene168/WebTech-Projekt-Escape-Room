@@ -6,9 +6,14 @@
 //
 // Im Mehrspieler-Modus ersetzt eine "verbindung-online.js" mit denselben zwei Funktionen
 // diese Datei. Sie schickt die Aktionen an den Server, der dieselbe Spiellogik ausführt.
+//
+// Vorübergehend (bis AP 4) holt sich diese Datei die geheimen Raumdaten, weil die Spiellogik
+// hier noch im Browser läuft. Danach entfällt sie, und der Browser bekommt keine Geheimnisse mehr.
 import { erstelleSpielstand, verarbeiteAktion, pruefeZeit } from "/shared/spiel-logik.js";
+import { mitGeheimnissen } from "/shared/raeume/geheim.js";
 
-export function erstelleLokaleVerbindung(raum) {
+export function erstelleLokaleVerbindung(oeffentlicherRaum) {
+  const raum = mitGeheimnissen(oeffentlicherRaum);
   let spielstand = erstelleSpielstand(raum);
   const zuhoerer = [];
 

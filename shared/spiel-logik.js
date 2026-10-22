@@ -7,6 +7,10 @@
 //
 // Zeiten: "jetzt" ist immer ein Zeitpunkt in Millisekunden (wie Date.now()). Die Logik fragt die Uhr
 // nie selbst ab, sondern bekommt die Zeit übergeben – im Mehrspieler-Modus gibt sie der Server vor.
+//
+// "raum" ist der vollständige Raum: öffentliche Raumdaten plus "geheim" (Lösungen, Tipp-Texte),
+// zusammengesetzt mit mitGeheimnissen() aus shared/raeume/geheim.js.
+import { RAETSELTYPEN } from "./raetsel/index.js";
 
 // Ein neues Spiel wartet zuerst im Status "bereit" (Intro wird gelesen), die Zeit läuft erst nach "start".
 export function erstelleSpielstand(raum) {
@@ -17,19 +21,19 @@ export function erstelleSpielstand(raum) {
     dauerSekunden: raum.dauerSekunden,
     strafSekunden: 0, // Zeitabzug durch Tipps
     endzeit: null, // Zeitpunkt des Spielendes – danach bleibt die Restzeit stehen
-    genutzteTipps: 0,
+    freigegebeneTipps: [], // Texte der bisher geholten Tipps (die Anzeige kennt sonst keine Tipps)
     gefundeneSpuren: [], // Namen der Spuren in der Reihenfolge, in der sie gefunden wurden
-    geoeffneteSchloesser: [],
-    fehlversuche: 0, // falsch eingegebene Codes (die Anzeige lässt dann das Schloss wackeln)
+    geloesteRaetsel: [],
+    fehlversuche: 0, // falsche Lösungsversuche (die Anzeige lässt dann z. B. das Schloss wackeln)
   };
 }
 
 // Aktionen:
-//   { typ: "start" }                                                → Raum betreten, die Zeit läuft
-//   { typ: "untersuche", objekt: "<objekt-id>" }                   → ein Objekt wurde angeklickt
-//   { typ: "probiereCode", schloss: "<schloss>", code: "<ziffern>" } → Code an einem Schloss eingeben
-//   { typ: "tipp" }                                                 → nächsten Tipp holen (kostet Zeit)
-//   { typ: "neustart" }                                             → neues Spiel, startet sofort (ohne Intro)
+//   { typ: "start" }                                                  → Raum betreten, die Zeit läuft
+//   { typ: "untersuche", objekt: "<objekt-id>" }                     → ein Objekt wurde angeklickt
+//   { typ: "loese", raetsel: "<rätsel>", eingabe: "<z. B. ziffern>" } → Lösung eines Rätsels probieren
+//   { typ: "tipp", nummer: <n> }                                      → Tipp Nummer n holen (kostet Zeit)
+//   { typ: "neustart" }                                               → neues Spiel, startet sofort (ohne Intro)
 export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
   if (aktion.typ === "neustart") return starte(erstelleSpielstand(raum), jetzt);
   if (aktion.typ === "start") return spielstand.status === "bereit" ? starte(spielstand, jetzt) : spielstand;
@@ -41,10 +45,10 @@ export function verarbeiteAktion(raum, spielstand, aktion, jetzt) {
   switch (aktion.typ) {
     case "untersuche":
       return untersuche(raum, spielstand, aktion.objekt);
-    case "probiereCode":
-      return probiereCode(raum, spielstand, aktion.schloss, aktion.code, jetzt);
+    case "loese":
+      return loese(raum, spielstand, aktion.raetsel, aktion.eingabe, jetzt);
     case "tipp":
-      return holeTipp(raum, spielstand, jetzt);
+      return holeTipp(raum, spielstand, aktion.nummer, jetzt);
     default:
       return spielstand;
   }
@@ -74,12 +78,15 @@ function spielende(spielstand) {
   return spielstand.startzeit + (spielstand.dauerSekunden - spielstand.strafSekunden) * 1000;
 }
 
-function holeTipp(raum, spielstand, jetzt) {
-  if (spielstand.genutzteTipps >= raum.tipps.length) return spielstand;
+// "nummer" ist der Tipp, den die Person angefordert hat (1 = erster Tipp). Es zählt nur der nächste
+// noch nicht geholte Tipp – fordern zwei Personen gleichzeitig denselben an, gibt es ihn nur einmal.
+function holeTipp(raum, spielstand, nummer, jetzt) {
+  const naechster = spielstand.freigegebeneTipps.length + 1;
+  if (nummer !== naechster || naechster > raum.geheim.tipps.length) return spielstand;
 
   const neu = {
     ...spielstand,
-    genutzteTipps: spielstand.genutzteTipps + 1,
+    freigegebeneTipps: [...spielstand.freigegebeneTipps, raum.geheim.tipps[naechster - 1]],
     strafSekunden: spielstand.strafSekunden + raum.strafeProTippSekunden,
   };
   // Frisst die Strafe die restliche Zeit auf, ist das Spiel sofort vorbei
@@ -96,19 +103,20 @@ function untersuche(raum, spielstand, objektId) {
   return { ...spielstand, gefundeneSpuren: [...spielstand.gefundeneSpuren, spur] };
 }
 
-function probiereCode(raum, spielstand, schlossName, code, jetzt) {
-  const schloss = raum.schloesser?.[schlossName];
-  if (!schloss || spielstand.geoeffneteSchloesser.includes(schlossName)) return spielstand;
+// Ob die Eingabe stimmt, entscheidet der Rätseltyp (siehe shared/raetsel/).
+function loese(raum, spielstand, raetselName, eingabe, jetzt) {
+  const typ = RAETSELTYPEN[raum.raetsel?.[raetselName]?.typ];
+  if (!typ || spielstand.geloesteRaetsel.includes(raetselName)) return spielstand;
 
-  if (code !== schloss.code) {
+  if (!typ.pruefe(eingabe, raum.geheim.loesungen[raetselName])) {
     return { ...spielstand, fehlversuche: spielstand.fehlversuche + 1 };
   }
 
   const neu = {
     ...spielstand,
-    geoeffneteSchloesser: [...spielstand.geoeffneteSchloesser, schlossName],
+    geloesteRaetsel: [...spielstand.geloesteRaetsel, raetselName],
   };
-  if (schlossName === raum.ausgang) {
+  if (raetselName === raum.ausgang) {
     neu.status = "gewonnen";
     neu.endzeit = jetzt;
   }

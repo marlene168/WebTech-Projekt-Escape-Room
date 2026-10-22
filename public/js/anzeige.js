@@ -73,12 +73,12 @@ export function zeigeSpielstand(raum, spielstand) {
   fehlversuche = spielstand.fehlversuche;
 
   zeichneHilfe(raum, spielstand);
-  if (spielstand.genutzteTipps > genutzteTipps) zeigeStrafe();
-  genutzteTipps = spielstand.genutzteTipps;
+  if (spielstand.freigegebeneTipps.length > genutzteTipps) zeigeStrafe();
+  genutzteTipps = spielstand.freigegebeneTipps.length;
 
   if (spielstand.status !== status) {
     const { geschichte } = raum;
-    const tippText = `Tipps genutzt: ${spielstand.genutzteTipps}`;
+    const tippText = `Tipps genutzt: ${spielstand.freigegebeneTipps.length}`;
     if (spielstand.status === "bereit") {
       zeigeIntro(geschichte.intro);
     } else if (spielstand.status === "gewonnen") {
@@ -180,14 +180,15 @@ function zeigeStrafe() {
 function zeichneHilfe(raum, spielstand) {
   const strafe = raum.strafeProTippSekunden;
   const strafeText = strafe % 60 === 0 ? `${strafe / 60} Min.` : `${strafe} Sek.`;
-  const anzahl = spielstand.genutzteTipps;
+  const anzahl = spielstand.freigegebeneTipps.length;
 
-  hilfe.querySelector(".hilfe-info").textContent = anzahl < raum.tipps.length
+  hilfe.querySelector(".hilfe-info").textContent = anzahl < raum.anzahlTipps
     ? `Jeder neue Tipp kostet ${strafeText} Spielzeit. Bereits erhaltene Tipps kannst du hier jederzeit kostenlos nachlesen.`
     : "Du hast alle Tipps erhalten.";
 
+  // Die Texte kommen aus dem Spielstand – die Raumdaten enthalten nur die Anzahl der Tipps
   hilfe.querySelector(".hilfe-liste").replaceChildren(
-    ...raum.tipps.slice(0, anzahl).map((text) => {
+    ...spielstand.freigegebeneTipps.map((text) => {
       const eintrag = document.createElement("li");
       eintrag.textContent = text;
       return eintrag;
@@ -195,8 +196,8 @@ function zeichneHilfe(raum, spielstand) {
   );
 
   const anfordern = hilfe.querySelector(".hilfe-anfordern");
-  anfordern.hidden = anzahl >= raum.tipps.length || spielstand.status !== "laeuft";
-  anfordern.textContent = `Tipp ${anzahl + 1} von ${raum.tipps.length} holen (−${strafeText})`;
+  anfordern.hidden = anzahl >= raum.anzahlTipps || spielstand.status !== "laeuft";
+  anfordern.textContent = `Tipp ${anzahl + 1} von ${raum.anzahlTipps} holen (−${strafeText})`;
 }
 
 hilfeKnopf.addEventListener("click", () => hilfe.showModal());
@@ -207,13 +208,14 @@ export function beimTippAnfordern(callback) {
 
 // ---------- Zahlenschloss ----------
 
-// Öffnet das Schloss-Fenster. "beiVersuch" wird mit dem eingestellten Code (Text) aufgerufen.
+// Anzeige für den Rätseltyp "zahlenschloss": öffnet das Schloss-Fenster mit "stellen" Rädchen.
+// "beiVersuch" wird mit dem eingestellten Code (Text) aufgerufen.
 export function zeigeSchloss(schloss, beiVersuch) {
   beiCodeVersuch = beiVersuch;
   schlossFenster.querySelector(".textfenster-titel").textContent = schloss.name;
   schlossFenster.querySelector(".textfenster-text").textContent = schloss.text;
   schlossFenster.querySelector(".schloss-meldung").textContent = "";
-  const raeder = Array.from({ length: schloss.code.length }, erstelleRad);
+  const raeder = Array.from({ length: schloss.stellen }, erstelleRad);
   schlossFenster.querySelector(".schloss-raeder").replaceChildren(...raeder);
   schlossFenster.showModal();
 }

@@ -56,7 +56,13 @@ npm test      # prüft Spiellogik und Raumdaten
 
 Jeder Raum ist **inhaltlich eigenständig**: eigene Geschichte, eigenes Thema, eigene Rätsel, ohne Bezug zu anderen Räumen.
 
-1. **Raumdatei anlegen:** `shared/raeume/arbeitszimmer.js` kopieren, z. B. nach `shared/raeume/labor.js`, und darin `id`, `titel`, `kurzbeschreibung`, `dauerSekunden`, Szenen, Objekte, Spuren, Schlösser, `ausgang` und Tipps anpassen.
+1. **Raumdateien anlegen:** Jeder Raum besteht aus zwei Dateien:
+   - **öffentlich**: `shared/raeume/arbeitszimmer.js` kopieren, z. B. nach `shared/raeume/labor.js`. Darin `id`, `version: 1`, `titel`, `kurzbeschreibung`, `dauerSekunden`, Szenen, Objekte, Spuren, Rätsel (`raetsel`, ohne Lösungen), `ausgang` und `anzahlTipps` anpassen.
+   - **geheim**: `shared/raeume/arbeitszimmer.geheim.js` kopieren, z. B. nach `shared/raeume/labor.geheim.js`. Darin stehen die Lösungen (`loesungen`, je Rätsel) und die Tipp-Texte (`tipps`). Die Datei in `shared/raeume/geheim.js` eintragen.
+
+   Jedes Rätsel hat einen `typ` aus `shared/raetsel/` (bisher: `zahlenschloss` mit `stellen` = Anzahl der Rädchen). Ein neuer Rätseltyp braucht ein eigenes Modul in `shared/raetsel/` und eine Anzeige in `public/js/main.js`.
+
+   **Raumversion:** Ändern sich später Rätsel oder Lösungen eines Raums, `version` um 1 erhöhen.
 2. **Schwierigkeit festlegen:** `schwierigkeit: 1` (leicht), `2` (mittel) oder `3` (schwer). Spätere Räume sind schwerer als frühere, also mindestens so schwer wie der letzte Raum in der Liste.
 3. **Eigene Geschichte schreiben:** Jeder Raum braucht
    - ein **Intro** (`geschichte.intro`: `titel` und `text`),
@@ -72,7 +78,7 @@ Jeder Raum ist **inhaltlich eigenständig**: eigene Geschichte, eigenes Thema, e
    Bei einem Schreckmoment erscheint auf der Raumkarte automatisch „⚠ Enthält einen Schreckmoment mit Ton“.
 5. **Eigene Ordner anlegen:** `public/bilder/<raum>/`, `public/videos/<raum>/`, `public/toene/<raum>/`.
 6. **Raum eintragen:** In `shared/raeume/index.js` importieren und **hinten** an die Liste `raeume` anhängen.
-7. **Prüfen:** `npm test` ausführen. Die Tests melden zum Beispiel eine fehlende Geschichte, ein fehlendes `schreck`-Feld, einen ungültigen Schwierigkeitsgrad oder einen Raum, der leichter ist als sein Vorgänger.
+7. **Prüfen:** `npm test` ausführen. Die Tests melden zum Beispiel eine fehlende Geschichte, ein fehlendes `schreck`-Feld, einen ungültigen Schwierigkeitsgrad, einen Raum, der leichter ist als sein Vorgänger, eine fehlende Lösung oder eine Lösung bzw. einen Tipp-Text in der öffentlichen Raumdatei.
 
 ---
 

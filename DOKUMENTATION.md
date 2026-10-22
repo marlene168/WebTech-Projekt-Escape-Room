@@ -27,7 +27,7 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
   - **Timer:** 10 Minuten, in der letzten Minute rot. Der Hilfe-Knopf gibt drei gestufte Tipps für je 1 Minute Strafe.
   - **Spielende:** Die Ende-Bildschirme zeigen eine Statistik und bieten „Nochmal spielen“ und „Zur Raumauswahl“.
   - **Handy:** Im Hochformat erscheint der Hinweis, das Gerät quer zu halten.
-  - **Starten:** Node.js 24 (siehe `.nvmrc`), `npm install` (einmalig), `npm start`, dann `http://localhost:3000`. Tests: `npm test` (36 Tests).
+  - **Starten:** Node.js 24 (siehe `.nvmrc`), `npm install` (einmalig), `npm start`, dann `http://localhost:3000`. Tests: `npm test` (47 Tests).
   - **CI:** GitHub Actions führt bei jedem Push und Pull Request `npm ci` und `npm test` aus (`.github/workflows/ci.yml`). Der Workflow veröffentlicht nichts.
 - **Ordnerstruktur:**
   - `server.js` – Webserver (liefert `public/` und `shared/` aus)
@@ -35,14 +35,15 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
   - `public/js/` – `start.js` (Raumkarten), `main.js` (Einstieg der Spielseite), `anzeige.js` (Szenen, Objekte, Fenster, Timer, Notizbuch, Hilfe), `geschichte.js` (Geschichtstexte, Videos, Spannung, Schreckmoment, Ton), `verbindung-lokal.js` (führt die Spiellogik im Browser aus; später durch eine Online-Verbindung ersetzbar)
   - `public/bilder/`, `public/videos/`, `public/toene/` – je Raum ein Unterordner (noch leer, siehe Anleitung)
   - `shared/spiel-logik.js` – Spielregeln als reine Funktionen (Spielstand + Aktion → neuer Spielstand)
-  - `shared/raeume/` – Raumdaten, ein Raum pro Datei, inklusive Geschichte; `index.js` listet alle Räume (nach Schwierigkeit aufsteigend)
+  - `shared/raeume/` – Raumdaten inklusive Geschichte, je Raum eine öffentliche Datei (z. B. `arbeitszimmer.js`, mit `version`) und eine geheime Datei mit Lösungen und Tipp-Texten (`arbeitszimmer.geheim.js`); `index.js` listet alle Räume (nach Schwierigkeit aufsteigend), `geheim.js` setzt öffentliche und geheime Daten für die Spiellogik zusammen (vorübergehend auch im Browser, ab AP 4 nur noch im Backend)
+  - `shared/raetsel/` – Rätseltyp-Register; jeder Typ ist ein Modul mit `pruefe(eingabe, loesung)` (bisher: `zahlenschloss`)
   - `test/` – Tests der Spiellogik und der Raumdaten (`node:test`)
   - `docs/plaene/` – freigegebene Pläne; `docs/anleitung.md` – Grafiken, Videos und Ton austauschen, neuen Raum anlegen, Liste aller benötigten Dateien; `docs/ideen.md` – Ideensammlung inklusive verworfener Ideen
 - **Wichtigste Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/spiel-logik.js`, `public/js/anzeige.js`, `public/js/geschichte.js`, `public/js/main.js`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
 - **Grenzen des Prototyps (Abgleich mit dem Code am 2026-10-22):**
   - Spielstand und Timer existieren nur im Browser (`public/js/verbindung-lokal.js`). Die Zeit kommt von der Uhr des Geräts (`Date.now()`). Nach dem Neuladen beginnt das Spiel von vorn.
-  - `server.js` liefert nur Dateien aus. Unter `/shared` sind die vollständigen Raumdaten öffentlich abrufbar, einschließlich Schlosscode und aller Tipps (`shared/raeume/arbeitszimmer.js`).
+  - `server.js` liefert nur Dateien aus. Unter `/shared` sind die vollständigen Raumdaten öffentlich abrufbar, einschließlich Schlosscode und aller Tipps. Seit AP 2 stehen sie in eigenen Dateien (`shared/raeume/arbeitszimmer.geheim.js`). Sie werden aber noch ausgeliefert, weil die Spiellogik bis AP 4 im Browser läuft.
   - Raumvorlagen und Spielsitzungen sind nicht getrennt. Es gibt keine Sitzungs-ID, keine Mitglieder, keine Anmeldung und keine Behandlung gleichzeitiger oder doppelt gesendeter Aktionen.
   - Wiederverwendbar sind die Spiellogik `shared/spiel-logik.js` (reine Funktionen, die Zeit wird übergeben), die Verbindungsschicht mit `sendeAktion` und `beiAenderung` sowie die Szene, die schon jetzt pro Gerät verwaltet wird.
 
@@ -598,3 +599,56 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** `ce59ecc`
+
+### 2026-10-22, 13:38 – AP 2: Raumdaten öffentlich/geheim und Rätseltyp-Register
+- **Auslöser:** Anweisung des Nutzers: „Freigabe für AP hiermit erteilt. OK.“ Claude hat das als Freigabe für den Merge von PR #1 (mit Merge-Commit) und für den Start von AP 2 verstanden. AP 2 laut Plan: Umbau ohne Verhaltensänderung, mit Trennung in öffentliche und geheime Raumdaten, Raumversion, Rätseltyp-Register, Aktion `loese` und Tipp-Nummer.
+- **Durchgeführte Schritte:**
+  - PR #1 (AP 1) mit Merge-Commit `d35c73f` nach `main` übernommen und den Branch `ap2-raumdaten` von `main` angelegt.
+  - **Raumdaten getrennt:**
+    - Lösungen (`loesungen.tuer: "417"`) und Tipp-Texte stehen jetzt in `shared/raeume/arbeitszimmer.geheim.js`.
+    - Die öffentliche Datei enthält stattdessen `anzahlTipps: 3` und beim Rätsel `stellen: 3`.
+    - Dabei fiel auf, dass die Anzeige die Zahl der Rädchen bisher aus der Länge des Lösungscodes gelesen hat. Das ist jetzt behoben.
+  - **Raumversion:** `version: 1` in der öffentlichen Raumdatei. Sie wird erhöht, wenn sich Rätsel oder Lösungen ändern.
+  - **Zusammensetzen:** `shared/raeume/geheim.js` mit `geheimnisseVon(raumId)` und `mitGeheimnissen(raum)`. Die Spiellogik bekommt den vollständigen Raum mit dem Feld `geheim`.
+  - **Rätseltyp-Register:**
+    - Neu: `shared/raetsel/index.js` und `shared/raetsel/zahlenschloss.js` mit `pruefe(eingabe, loesung)`.
+    - Aus `schloesser` werden `raetsel` mit `typ: "zahlenschloss"`, die Objektaktion heißt jetzt `{ typ: "raetsel", raetsel: "tuer" }`.
+    - Die Spiellogik prüft über das Register mit der neuen Aktion `{ typ: "loese", raetsel, eingabe }`.
+    - Im Spielstand heißt `geoeffneteSchloesser` jetzt `geloesteRaetsel`.
+  - **Tipps:**
+    - Die Aktion lautet jetzt `{ typ: "tipp", nummer }`. Es zählt nur der nächste noch nicht geholte Tipp, gleichzeitige Anfragen für denselben Tipp ergeben also nur eine Strafe.
+    - Der Spielstand enthält die freigegebenen Tipp-Texte (`freigegebeneTipps`) statt eines Zählers (`genutzteTipps`), und die Hilfe zeigt die Texte aus dem Spielstand.
+  - **Anzeige:**
+    - `main.js` ordnet Rätseltypen ihrer Anzeige zu (`zahlenschloss` → `zeigeSchloss`) und sendet die Tipp-Nummer.
+    - `verbindung-lokal.js` setzt den Raum vorübergehend mit den Geheimnissen zusammen.
+    - `neustart` bleibt bis AP 4 lokal erhalten.
+  - **Tests:** 36 → 47, alle bestanden. Neu bzw. angepasst:
+    - keine Lösungen und Tipp-Texte in öffentlichen Raumdateien
+    - gültige Raumversion
+    - bekannter Rätseltyp und vorhandene Lösung je Rätsel, Ausgang ist ein Rätsel
+    - Rätsel-Aktionen verweisen auf vorhandene Rätsel
+    - Rädchen-Anzahl passt zur Lösung
+    - `anzahlTipps` passt zu den Tipp-Texten
+    - Rätseltyp-Modul (`test/raetsel.test.js`)
+    - unbekannter Rätseltyp
+    - gleichzeitiger Tipp mit derselben Nummer, Tipp mit falscher Nummer
+    - Den Test für den doppelten Start gab es schon.
+  - **Sichtprüfung** mit Chrome headless (Skript nur im Scratchpad):
+    - Intro, Timer 10:00
+    - Tipp 1 erscheint mit Text, Timer 09:00, Knopf „Tipp 2 von 3“
+    - Schloss mit 3 Rädchen, falscher Code meldet „Das Schloss rührt sich nicht.“, 4-1-7 ergibt „Geschafft!“
+    - „Nochmal spielen“ setzt die Tipps zurück
+    - keine JS-Fehler
+  - `docs/anleitung.md` (Neuen Raum anlegen) und Abschnitt 2 aktualisiert.
+  - CI auf dem Branch: grün (Node 24.21.0, 47 von 47 Tests).
+- **Geänderte/neue Dateien:** `shared/raeume/arbeitszimmer.js`, `shared/raeume/arbeitszimmer.geheim.js`, `shared/raeume/geheim.js`, `shared/raetsel/index.js`, `shared/raetsel/zahlenschloss.js`, `shared/spiel-logik.js`, `public/js/main.js`, `public/js/anzeige.js`, `public/js/verbindung-lokal.js`, `test/spiel-logik.test.js`, `test/raeume.test.js`, `test/raetsel.test.js`, `docs/anleitung.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Google Chrome (headless, DevTools-Protokoll), Git, GitHub Actions, GitHub CLI (`gh`)
+- **Probleme & Lösungen:**
+  - Die Rädchen-Anzahl hing an der geheimen Lösung → neues öffentliches Feld `stellen`, ein Test prüft, dass es zur Lösung passt.
+  - Beim ersten Lauf des Prüfskripts war Chrome noch nicht bereit → Warteschleife im Skript.
+- **Ergebnis:** Das Spiel verhält sich wie vorher. Die geheimen Daten sind getrennt und durch Tests abgesichert, und neue Rätseltypen lassen sich ohne Änderung der Spiellogik ergänzen. Die geheimen Dateien gehen noch an den Browser, bis AP 4 die lokale Verbindung ersetzt.
+- **Bezug zur Planung:** 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase
+- **Abweichungen vom Plan:**
+  - Für das Zahlenschloss gibt es noch kein eigenes Anzeige-Modul. Die vorhandene Funktion `zeigeSchloss` in `anzeige.js` wird über eine Zuordnung in `main.js` angesprochen. Ein eigenes Modul lohnt sich erst mit einem zweiten Rätseltyp.
+  - Der Zähler `genutzteTipps` wurde durch die Liste `freigegebeneTipps` ersetzt, statt sie zusätzlich aufzunehmen. So können Zähler und Liste nicht auseinanderlaufen.
+- **Git-Commit:** `40ae04e`
