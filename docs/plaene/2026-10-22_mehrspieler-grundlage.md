@@ -1,5 +1,7 @@
 # Plan: Mehrspieler-Grundlage mit Supabase und drei Räume
 
+> **Aktualisiert am 2026-10-23:** AP 5 ist durch den Detailplan [`2026-10-23_ap5-testumgebung.md`](2026-10-23_ap5-testumgebung.md) konkretisiert (geschützte Testversion, Deployment per Knopf). Wo er abweicht, gilt der Detailplan. Überholte Angaben unten sind mit „(aktualisiert 2026-10-23: …)“ markiert.
+
 ## Kontext
 Der aktuelle Stand ist ein Einzelspieler-Prototyp:
 - Spielstand und Timer liegen nur im Browser (`public/js/verbindung-lokal.js`).
@@ -52,11 +54,11 @@ Legende: **[A]** Anforderung (von dir festgelegt) · **[V]** technischer Vorschl
   - `supabase start` startet den ganzen Stack in Docker (Datenbank, Auth, Realtime, Edge Functions).
   - `supabase db reset` baut die Datenbank frisch aus den Migrationen.
   - `supabase functions serve` startet die Edge Functions.
-- [V] **Cloud-Projekt**: nur für gemeinsame Gerätetests und den späteren Betrieb. Migrationen und Funktionen kommen erst in Arbeitspaket 5 dorthin, und nur nach deinem OK.
+- [V] **Cloud-Projekt**: nur für gemeinsame Gerätetests und den späteren Betrieb. Migrationen und Funktionen kommen erst in Arbeitspaket 5 dorthin, und nur nach deinem OK. *(aktualisiert 2026-10-23: zunächst nur ein **Test-Projekt** `escape-room-test`; das öffentliche Projekt wird erst nach ausdrücklicher Freigabe angelegt.)*
 - [V] `public/js/supabase-konfig.js` wählt anhand der Adresse: unter `localhost` das lokale Backend, sonst das Cloud-Projekt. Die lokalen Schlüssel sind Standardwerte für die Entwicklung, der Publishable Key der Cloud ist öffentlich. Den Secret Key gibst du nie weiter.
 - **Was du selbst tust, erkläre ich jeweils zu Beginn des passenden Arbeitspakets konkret:**
   - AP 3: eine Docker-kompatible Laufzeit installieren. Empfehlung: Docker Desktop (kostenlos für Studium und private Nutzung), Alternativen sind OrbStack oder Colima.
-  - AP 5: Supabase-Konto und -Projekt anlegen, Gastanmeldung einschalten, URL und Publishable Key weitergeben, Vercel-Konto anlegen und mit dem Repo verbinden.
+  - AP 5: Supabase-Konto und -Projekt anlegen, Gastanmeldung einschalten, URL und Publishable Key weitergeben, Vercel-Konto anlegen und mit dem Repo verbinden. *(aktualisiert 2026-10-23: zunächst nur das **Test-Projekt**; Vercel-Projekt **ohne Git-Verbindung**, Deployment nur per CLI aus dem Workflow; dazu Cloudflare Turnstile und Repository-Secrets – siehe Detailplan, Abschnitt 5.)*
 
 ## 2. Datenmodell (kritisch geprüft)
 Bisheriger Vorschlag: Sitzung mit ID, Beitrittscode, Mitgliedern und eigenem verbindlichem Spielstand sowie verarbeitete Aktionen.
@@ -165,7 +167,7 @@ Daraus folgt [V]:
 | 2 | `ap2-raumdaten` | Umbau ohne Verhaltensänderung: Raum öffentlich/geheim (vorerst beide unter `shared/`), `version`, Rätseltyp-Register, Aktion `loese`, Tipp-Nummer; `neustart` bleibt bis AP 4 lokal | `npm test` grün inkl. neuer Tests (keine Lösungen in öffentlichen Dateien, Version vorhanden, paralleler Tipp, doppelter Start); Spiel läuft lokal wie vorher (Screenshots); CI grün |
 | 3 | `ap3-backend` | **Vorher deine Schritte:** Docker-Laufzeit installieren. Dann: Supabase CLI als Abhängigkeit, `supabase/config.toml` (Gastanmeldung an), Migrationen (Tabellen, RLS, Datenbankfunktionen, Realtime-Freigabe), Edge Functions mit reinem, unit-getestetem Kern, Integrationstests, CI-Job `backend` | Import der geteilten Logik in den Funktionen bestätigt; alle Integrationstests aus Abschnitt 6 lokal und in der CI grün; das Cloud-Projekt wird nicht angefasst |
 | 4 | `ap4-online-spiel` | `verbindung-online.js` (gleiche Funktionen `sendeAktion`/`beiAenderung`), Gast-Anmeldung, Lobby (erstellen, Code teilen, beitreten, Mitspielende), Start nur für die erstellende Person, „Nochmal spielen“ = neue Sitzung; `shared/` → `public/shared/`, Geheimes → `supabase/functions/_shared/`; lokale Verbindung und `neustart` entfernen; `server.js` nur noch als lokaler Entwicklungsserver | **Meilenstein 1 lokal** (siehe unten) gegen das lokale Supabase; `/shared/raeume/arbeitszimmer.js` enthält weder Code noch Tipps; alle Tests und CI grün |
-| 5 | `ap5-cloud-vercel` | **Vorher deine Schritte** (erkläre ich dann konkret): Supabase-Projekt, Gastanmeldung, URL und Publishable Key, Vercel-Konto. Dann: Migrationen und Funktionen nach deinem OK in die Cloud, `vercel.json` (Ausgabe `public/`, kein Framework, Git-Deployments aus), Deployment bewusst ausgelöst | **Meilenstein 1 auf echten Geräten** über die öffentliche Adresse; ein Push erzeugt kein Deployment; CI unverändert ohne Cloud-Zugriff |
+| 5 | `ap5-cloud-vercel` | **Vorher deine Schritte** (erkläre ich dann konkret): Supabase-Projekt, Gastanmeldung, URL und Publishable Key, Vercel-Konto. Dann: Migrationen und Funktionen nach deinem OK in die Cloud, `vercel.json` (Ausgabe `public/`, kein Framework, Git-Deployments aus), Deployment bewusst ausgelöst | **Meilenstein 1 auf echten Geräten** über die öffentliche Adresse; ein Push erzeugt kein Deployment; CI unverändert ohne Cloud-Zugriff. *(aktualisiert 2026-10-23: konkretisiert im Detailplan `2026-10-23_ap5-testumgebung.md`. Meilenstein 1 über die **geschützte Test-Hauptadresse**; Vercel-Projekt **ohne Git-Verbindung**, Deployment nur per CLI aus dem Workflow, `git.deploymentEnabled: false` zusätzlich; die öffentliche Version erst nach ausdrücklicher Freigabe.)* |
 | 6 | `ap6-raum-2` | Erst eigene Planung im Plan-Modus (Thema, Geschichte, Rätsel, ggf. neuer Rätseltyp), dann Umsetzung | Tests grün; allein und zu zweit spielbar; Edge Functions und Migrationen unverändert |
 | 7 | `ap7-raum-3` | wie AP 6, Schwierigkeit „schwer“ | wie AP 6; drei Räume auf der Startseite |
 
@@ -181,7 +183,7 @@ Daraus folgt [V]:
 ## Umsetzungshinweise (ergänzt bei der Freigabe am 2026-10-22) [A]
 - Schreibende Datenbankfunktionen (`speichere_aktion`, `speichere_zustand`, `tritt_bei`) darf nur das Backend aufrufen. Ausführungsrechte für `anon`/`authenticated` werden entzogen, nur `service_role` darf sie nutzen. Ein Integrationstest prüft, dass direkte Aufrufe aus dem Browser scheitern.
 - Beim Wiederverbinden darf zwischen Laden und Realtime-Abonnement keine Änderung verloren gehen. Ablauf: zuerst abonnieren, nach „abonniert“ mit `sitzung-laden` erneut abgleichen. Es werden nur Stände mit höherer Version übernommen. Das gilt auch nach jedem automatischen Neuverbinden von Realtime.
-- Vor AP 5 wird ein manuell ausgelöster Deployment-Workflow konkretisiert. In dieser Phase wird noch keine Veröffentlichung eingerichtet.
+- Vor AP 5 wird ein manuell ausgelöster Deployment-Workflow konkretisiert. In dieser Phase wird noch keine Veröffentlichung eingerichtet. *(aktualisiert 2026-10-23: konkretisiert als Option C – manuell ausgelöster Workflow in GitHub Actions, zunächst nur für die geschützte Testversion.)*
 
 ## Offene Entscheidungen [O]
 - Die erstellende Person verlässt die Sitzung *vor* dem Start: Niemand sonst darf starten. Bis AP 4 klären.

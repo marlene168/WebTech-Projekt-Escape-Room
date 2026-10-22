@@ -72,14 +72,19 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
 - **Bekannte Grenzen (Stand AP 4):**
-  - Nur lokal spielbar, Cloud und Vercel folgen in AP 5.
+  - Nur lokal spielbar. Die geschützte Online-Testversion folgt in AP 5, die öffentliche Version erst nach ausdrücklicher Freigabe.
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
   - Beendete Sitzungen werden noch nicht aufgeräumt.
   - Nach Änderungen an Dateien in `public/shared/` muss das lokale Backend neu gestartet werden (siehe Anleitung).
 
 **Geplant (noch nicht umgesetzt):**
 
-- **AP 5 – Cloud und Vercel:** Supabase-Cloud-Projekt, Bereitstellung über Vercel mit bewusst ausgelöstem Deployment (der Workflow wird vorher konkretisiert), Meilenstein 1 auf echten Geräten.
+- **AP 5 – Geschützte Online-Testversion** (Detailplan [`docs/plaene/2026-10-23_ap5-testumgebung.md`](docs/plaene/2026-10-23_ap5-testumgebung.md), freigegeben am 2026-10-23):
+  - Supabase-Test-Projekt und Vercel-Testprojekt mit Vercel Authentication für alle Deployments.
+  - Deployment per Knopf in GitHub Actions.
+  - Turnstile bei der Gastanmeldung, Sitzungslimit.
+  - Meilenstein 1 auf echten Geräten mit zwei berechtigten Personen.
+- **Öffentliche Version:** eigenes Supabase-Projekt, ohne Vercel-Anmeldung, erst nach ausdrücklicher Freigabe der Nutzerin.
 - **AP 6 und 7 – Raum 2 und Raum 3:** jeweils mit eigener Planung.
 - **Später:** eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
 - **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md).
@@ -87,7 +92,9 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
-  - manuell ausgelöster Deployment-Workflow
+  - Freischaltung der externen Testperson bei wiederholten Deployments (wird in AP 5 geprüft)
+  - Aktionslimits vor der öffentlichen Freigabe
+  - Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist
   - Inhalte von Raum 2 und 3
 
   Details stehen in [`docs/ideen.md`](docs/ideen.md).
@@ -136,6 +143,14 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 | 2026-10-22 | `server.js` bleibt als lokaler Entwicklungsserver, der nur `public/` ausliefert; Spielregeln, Sitzungen und Geheimnisse liegen ausschließlich im Supabase-Backend | Beantwortet die offene Frage nach der Rolle von `server.js`; lokal genügt ein einfacher Dateiserver, Vercel liefert später `public/` direkt aus | `server.js` entfernen (lokales Ausprobieren würde umständlicher); Spiellogik weiter im Express-Server |
 | 2026-10-22 | Im Browser: supabase-js per CDN mit fester Version (kein Build-Werkzeug); die gespeicherte Gastanmeldung wird einmal pro Seitenaufruf beim Server geprüft und bei Bedarf erneuert; Aktionen tragen eine eigene `aktionId` und werden bei Netzfehlern mit derselben ID wiederholt | Passt zum Frontend ohne Framework; eine Anmeldung zu einem gelöschten Gast (gefunden nach einem lokalen Datenbank-Reset) führte sonst zu Fehlern; Wiederholungen bleiben dank `aktionId` unschädlich | npm-Paket mit Build-Schritt; gespeicherte Anmeldung ungeprüft übernehmen; Aktionen bei Netzfehlern nicht wiederholen |
 | 2026-10-22 | Bedienung der Sitzungen: „Spielen“ erstellt sofort eine Sitzung (auch zum Alleinspielen), Beitritt über ein Code-Feld auf der Startseite, ohne Mitgliedschaft geht es mit Hinweis zurück zur Startseite; „Nochmal spielen“ erstellt eine neue Sitzung (Mitspielende treten mit dem neuen Code bei); nur das Verlassen der erstellenden Person ist eine Backend-Aktion (mit Nachfrage), andere Mitglieder schließen einfach die Seite | Möglichst einfache Umsetzung der Entscheidungen; ein Weg für Einzel- und Mehrspieler | Getrennte Knöpfe „Allein spielen“ und „Gruppe erstellen“; Mitspielende automatisch in die neue Sitzung übernehmen; Austreten als eigene Backend-Aktion |
+| 2026-10-23 | Deployment-Ablauf „Continuous Delivery mit manuellem Auslöser“ (Option C): Die Pipeline besteht aus der automatischen CI und einem manuell gestarteten Workflow „Deploy“ in GitHub Actions, nur für `main`. Er nutzt die bestehenden Tests und deployt dann erst Supabase (Migrationen, Edge Functions), danach Vercel. Keine automatischen und keine Vorschau-Deployments | Entscheidung der Nutzerin nach einem Vergleich der Optionen: Kontrolle über den Zeitpunkt (z. B. vor Präsentationen), garantierte Reihenfolge Backend vor Frontend, nur getestete Commits, Nachweis pro Deployment; Supabase empfiehlt eine Pipeline statt Deploys vom Laptop | A: automatisch bei jedem Merge (kein Einfluss auf den Zeitpunkt); B: manuell vom Laptop (kein Nachweis, nicht committete Stände möglich); Vorschau-Deployments; Vercels Git-Automatik |
+| 2026-10-23 | Zwei getrennte Umgebungen: zuerst eine **geschützte Testversion** (Supabase-Projekt `escape-room-test`, Vercel-Projekt `escape-room-test`), die wiederholt aktualisiert werden darf; die **öffentliche Version** mit eigenem Supabase-Projekt und ohne Vercel-Anmeldung erst nach ausdrücklicher Freigabe der Nutzerin. Die Wahl des Deployment-Ablaufs ist keine Freigabe für eine Veröffentlichung | Von der Nutzerin festgelegt: das Zusammenspiel von Vercel und Supabase früh prüfen, bevor alle Räume fertig sind; Testdaten und öffentliche Daten trennen | Direkt öffentlich bereitstellen; eine gemeinsame Supabase-Datenbank für Test und Öffentlich |
+| 2026-10-23 | Zugriffsschutz der Testversion: Vercel Hobby mit **Vercel Authentication für „All Deployments“**, einschließlich der Hauptadresse; zwei Personen mit eigenen Vercel-Konten, die zweite wird nach ihrer Zugriffsanfrage ausdrücklich freigeschaltet; Schutz vor dem gemeinsamen Test und auch nach wiederholten Deployments geprüft; kein kostenpflichtiger Tarif ohne Zustimmung der Nutzerin | Entscheidung der Nutzerin; laut Vercel-Doku auf allen Tarifen kostenlos, und eine nur unbekannte URL reicht nicht. Hobby erlaubt genau eine externe Person, das passt zu zwei Testpersonen | Shareable Links (nur geheime URL); Passwortschutz (nicht im Hobby-Tarif); Pro-Tarif |
+| 2026-10-23 | Hostname-Zuordnung in `supabase-konfig.js` (lokal → lokales Supabase, Test-Hauptadresse → Test-Projekt, sonst kein Backend); gespielt wird nur über die stabile Test-Hauptadresse | Verhindert versehentliche Nutzung des falschen Backends. **Kein Zugriffsschutz**: Berechtigungen sichern RLS und Edge Functions. Wechselnde Deployment-Adressen sind dadurch bewusst nicht spielbar | Backend-Adresse per Build-Schritt einsetzen (zusätzliches Werkzeug) |
+| 2026-10-23 | Rauchtest nach jedem Deployment mit eindeutigen Erwartungen statt „irgendein Fehler“: Vercel-Sperre ohne Anmeldung (Hauptadresse und Deployment-URL); mit Automatisierungs-Bypass das erwartete HTML, öffentliche Dateien ohne Lösung, geheime Pfade nicht erreichbar, Upload nur `public/**` und `vercel.json`; Backend mit gültigem Publishable Key ohne Anmeldung wird wegen fehlender Authentifizierung abgelehnt; Supabase lehnt Gastanmeldung ohne bzw. mit ungültigem CAPTCHA-Token ab. Raumkarten, Anmeldung und Spielstart werden im Browser geprüft. Der Bypass bleibt nur als Secret im Workflow | Ein beliebiger Fehlerstatus beweist keinen Zugriffsschutz; die Raumkarten entstehen erst durch JavaScript; die tatsächlichen geheimen Pfade müssen geprüft werden (Präzisierungen der Nutzerin) | Nur Statuscodes prüfen; Annahmen über die Antwort bei ungültigem Projektschlüssel |
+| 2026-10-23 | Missbrauchsschutz ab der Testversion: **Cloudflare Turnstile** bei der Gastanmeldung, **Prüfung durch Supabase**; Turnstile wird nur geladen, wenn eine Gastanmeldung nötig ist, eine gültige Anmeldung wird weiterverwendet, kein CAPTCHA für Sitzungen und Spielaktionen; frisches Token für jeden Anmeldeversuch (einmaliger Entwicklungstest zum Ablauf, wiederholt bei Änderungen der Anmeldelogik); Cloud-Limit 30 Gastanmeldungen pro Stunde und IP (Standard); **höchstens 10 neue Sitzungen pro Gast und Stunde**, auch bei parallelen Anfragen (Sperre pro Gast in der Datenbank). Spielaktionen und Beitrittscodes werden in AP 5 nicht zusätzlich begrenzt | Abwägung: Das Backend ist für den Browser erreichbar und darf nicht auf zwei Personen beschränkt werden, sonst wäre ein späterer öffentlicher Gastbetrieb nicht möglich. Supabase empfiehlt ein CAPTCHA für Gastanmeldungen. Das Sitzungslimit begrenzt massenhaft erstellte Sitzungen. Verbleibendes Risiko: Viele Spielaktionen verbrauchen gemeinsame Supabase-Kontingente und können andere beeinträchtigen. Zusätzliche Aktionslimits sind ein Prüfpunkt vor der öffentlichen Freigabe | Backend auf zwei Personen beschränken; CAPTCHA nur im Browser prüfen; lokale Limits übernehmen bzw. `supabase config push`; zusätzliche Infrastruktur für Begrenzungen |
+| 2026-10-23 | Deployment-Regeln: alle Jobs nutzen denselben festgehaltenen Commit; nie zwei Deployments gleichzeitig, ein laufendes wird nie automatisch abgebrochen (GitHub hält höchstens einen wartenden Lauf, das genügt hier); bei Fehlern stoppt der Ablauf, erledigte Schritte werden protokolliert, kein automatisches Zurücksetzen der Datenbank; Backend-Änderungen bleiben mit der vorherigen Website verträglich; vor Tests und Präsentationen Supabase-Status prüfen und einen vollständigen Spielstart testen | Nachvollziehbarkeit und sichere Wiederholbarkeit; das Backend wird vor dem Frontend aktualisiert, die vorherige Website läuft also kurz gegen das neue Backend; kostenlose Supabase-Projekte pausieren nach Inaktivität (Präzisierungen der Nutzerin) | Laufende Deployments durch neue abbrechen; automatisches Zurücksetzen bei Fehlern; nur das Dashboard öffnen |
+| 2026-10-23 | Zugangsdaten bei GitHub Free als Repository-Secrets mit Präfix `TEST_`; der Workflow prüft selbst, dass er auf `main` läuft. Sobald GitHub Pro (Student Developer Pack) bestätigt aktiv ist, wird ein Umzug in getrennte Environments für Test und Veröffentlichung geprüft | Environment-Secrets und Branch-Regeln gibt es bei privaten Repos erst ab GitHub Pro; die Umsetzung soll nicht auf Pro warten (Entscheidung der Nutzerin) | Auf GitHub Pro warten; Secrets ohne Präfix |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -842,3 +857,83 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Die Gastanmeldung wird beim Server geprüft und erneuert. Das stand nicht im Plan, ist aber nötig (siehe Probleme).
   - Der Meilenstein-1-Test „Zeitablauf, während alle Fenster zu sind“ spult die Startzeit in der Datenbank vor, statt 10 Minuten zu warten.
 - **Git-Commit:** `e0ac7e8`
+
+### 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
+- **Auslöser:** Anweisungen und Ideen der Nutzerin, in mehreren Nachrichten:
+  - „Lass uns über den manuell ausgelösten Deployment-Ablauf mit Supabase und Vercel sprechen. Ich bin gerade nur nicht mehr sicher, was besser ist: manuell über delivery oder automatisiertes deployment. Hilf mir dabei mich für die best passende Option zu entscheiden für diesen Kontext“
+  - Ergänzung: „Das erste Deployment soll eine geschützte Online-Testversion auf Vercel mit einem Supabase-Cloud-Projekt für Tests bereitstellen. […] Eine lediglich unbekannte URL reicht nicht. […] Die öffentliche Version erhält ein separates Supabase-Projekt und wird erst nach meiner ausdrücklichen Freigabe veröffentlicht. […] Die Auswahl des Deployment-Ablaufs ist noch keine Freigabe für eine öffentliche Veröffentlichung.“
+  - Entscheidung: „Hobby + Vercel-Login […] Aktiviere Vercel Authentication ausdrücklich für ‚All Deployments‘, einschließlich der Hauptadresse. […] Prüfe den Zugriffsschutz vor dem gemeinsamen Test.“
+  - Zu GitHub: „Aktuell habe ich GitHub Free. Ich möchte GitHub Pro über das Student Developer Pack beantragen […]. Plane AP 5 deshalb zunächst mit GitHub Free und Repository-Secrets.“
+  - Danach drei Runden von Präzisierungen (siehe unten).
+  - Vorher wurde PR #4 (AP 4) mit Merge-Commit `f14e835` nach `main` übernommen.
+- **Ausgangsidee:** AP 5 aus dem Plan „Mehrspieler-Grundlage“ (Cloud und Vercel) als Detailplanung konkretisieren: vor AP 6 und 7 eine geschützte Online-Testversion mit dem Arbeitszimmer.
+- **Rückfragen & Antworten:**
+  - Frage: Welcher Deployment-Ablauf? Optionen: A automatisch bei Merge, B manuell vom Laptop, C manuell per Knopf in GitHub Actions → Antwort: C (Empfehlung übernommen)
+  - Frage: Zugriffsschutz im Hobby-Tarif mit Vercel-Login oder Pro-Tarif? → Antwort: Hobby + Vercel-Login (Empfehlung übernommen)
+  - Frage: GitHub-Tarif? → Antwort: Free bzw. unbekannt. Später ergänzt: Pro ist beantragt, bis zur Bestätigung gilt Free.
+  - **Erste Runde der Präzisierungen** (Nutzerin) und Gründe:
+    - als Konkretisierung von AP 5 kennzeichnen, im ursprünglichen Plan verweisen und überholte Angaben aktualisieren, damit die Planung nachvollziehbar bleibt
+    - Testversion und spätere Veröffentlichung klar trennen, Freischaltung auch bei wiederholten CLI-Deployments prüfen, kein kostenpflichtiger Tarif ohne Zustimmung
+    - die Hostname-Zuordnung korrekt als Schutz vor dem falschen Backend beschreiben, nicht als Zugriffsschutz. Wechselnde Deployment-Adressen sind nicht spielbar.
+    - eindeutige automatische Prüfungen statt „irgendein Fehlerstatus“, Bypass nur als Secret
+    - Missbrauchsschutz schon in AP 5: CAPTCHA bzw. Turnstile mit Prüfung durch Supabase, angemessene Cloud-Limits, keine Beschränkung des Backends auf zwei Personen (der spätere öffentliche Gastbetrieb soll möglich bleiben), kurze Prüfung zusätzlicher Begrenzungen ohne unnötige Infrastruktur
+    - Fehlerfälle und Nachvollziehbarkeit: festgehaltener Commit, keine parallelen Deployments, kein automatisches Zurücksetzen der Datenbank, Verträglichkeit mit der vorherigen Website, vollständiger Spielstart vor Tests und Präsentationen
+  - **Zweite Runde** und Gründe:
+    - Sitzungslimit auch bei parallelen Anfragen einhalten, denn ein parallel umgehbares Limit schützt nicht. Dazu Test und verständliche Meldung.
+    - Das verbleibende Risiko durch Spielaktionen klar benennen, weil gemeinsame Supabase-Kontingente andere beeinträchtigen können. Aktionslimits sind ein Prüfpunkt vor der Veröffentlichung.
+    - CAPTCHA ohne unnötige Unsicherheit beschreiben, weil Supabase Turnstile für Gastanmeldungen dokumentiert. Fehlende und ungültige Tokens werden geprüft.
+    - Website-Prüfung trennen: HTML-Abruf für HTML und öffentliche Dateien, Browser für Raumkarten, Anmeldung und Spielstart (die Raumkarten entstehen erst durch JavaScript). Dazu Upload-Auswahl und die tatsächlichen geheimen Pfade.
+    - Die Deployment-Warteschlange korrekt beschreiben: Laufende Deployments sind geschützt, nicht alle wartenden bleiben erhalten. Das reicht hier.
+    - Einordnung: Die Pipeline besteht aus der automatischen CI und dem manuellen Deployment-Workflow mit den bestehenden Tests, nur für die geschützte Testversion.
+  - **Dritte Runde** und Gründe:
+    - Der Backend-Test erwartet die Ablehnung wegen fehlender Authentifizierung bei gültigem Publishable Key. Die Antwort bei ungültigem Schlüssel wird nicht vorausgesetzt, weil sie nicht festgelegt ist.
+    - Turnstile nur bei tatsächlich nötiger Gastanmeldung laden und eine gültige Anmeldung weiterverwenden, damit neue Sitzungen und Spielaktionen ohne Hürde bleiben.
+    - Ein einmaliger CAPTCHA-Ablauftest als Entwicklungstest mit tatsächlich erzeugtem Token, wiederholt bei Änderungen der Anmeldelogik. Kein Schritt für Spielende und keine Pflicht bei jedem Deployment.
+    - Das Sitzungslimit mit der Begrenzung massenhaft erstellter Sitzungen begründen. Die frühere Aussage von Claude, nur dort könnten viele Zeilen entstehen, war falsch, denn auch die Aktionen-Tabelle wächst.
+- **Kurzfassung des Plans:**
+  - **Testumgebung:**
+    - Supabase-Projekt `escape-room-test` (Frankfurt) und Vercel-Projekt `escape-room-test` (Hobby, ohne Git-Verbindung).
+    - Vercel Authentication für „All Deployments“, zwei Personen mit eigenen Vercel-Konten.
+    - Cloudflare Turnstile, geprüft durch Supabase. Repository-Secrets `TEST_…`.
+  - **Workflow `deploy.yml`:**
+    - nur per Knopf und nur auf `main`, festgehaltener Commit
+    - keine parallelen Deployments
+    - Ablauf: Tests aus `ci.yml`, dann Supabase (`db push`, `functions deploy`), dann Vercel, dann ein präziser Rauchtest
+  - **Code:**
+    - `vercel.json` und `.vercelignore` (nur `public/`)
+    - Hostname-Zuordnung in `supabase-konfig.js`
+    - Turnstile in `verbindung-online.js`
+    - Sitzungslimit von 10 pro Gast und Stunde mit Sperre pro Gast, dazu Backend-Tests und Meldung
+    - Anleitung „Testversion aktualisieren“ und Checkliste vor Tests
+  - **Ablauf:**
+    1. Einrichtung durch die Nutzerin.
+    2. Umsetzung auf `ap5-testumgebung` mit Pull Request.
+    3. Deploy #1, dann Zugriffsschutz prüfen.
+    4. Freischaltung der zweiten Person, dann Deploy #2 und erneute Prüfung.
+    5. Gemeinsame Online-Prüfung von Meilenstein 1, Nachweis auf `ap5-nachweis`.
+  - **Öffentliche Version:** wird nicht angelegt, erst nach ausdrücklicher Freigabe.
+- **Abwägung zum Backend-Schutz:**
+  - Der Vercel-Schutz gilt nur für die Website, das Supabase-Backend bleibt für Browser erreichbar.
+  - Eine Beschränkung auf die zwei Testpersonen wurde bewusst verworfen, weil sie dem späteren öffentlichen Gastbetrieb widerspräche und Test und Produktion unterschiedlich machen würde.
+  - Stattdessen: Turnstile bei der Gastanmeldung mit Prüfung durch Supabase, Cloud-Limit 30 Gastanmeldungen pro Stunde und IP, Sitzungslimit, dazu wie bisher RLS und Edge Functions.
+  - **Verbleibende Risiken:**
+    - Viele Spielaktionen eines angemeldeten Gastes verbrauchen gemeinsame Kontingente, ein Prüfpunkt vor der Veröffentlichung.
+    - Zufälliges Erraten von Beitrittscodes ist unwahrscheinlich und akzeptiert.
+    - Das CAPTCHA schützt nur die Anmeldung.
+    - Beendete Sitzungen werden noch nicht aufgeräumt.
+- **Plandatei:** [`docs/plaene/2026-10-23_ap5-testumgebung.md`](docs/plaene/2026-10-23_ap5-testumgebung.md). Im ursprünglichen Plan [`2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md) stehen datierte Hinweise und Aktualisierungen, der ursprüngliche Text bleibt lesbar.
+- **Verworfene Ideen & Alternativen:**
+  - automatisches Deployment bei jedem Merge
+  - manuelles Deployment vom Laptop
+  - Vorschau-Deployments
+  - Vercels automatische Git-Deployments
+  - Shareable Links als Schutz
+  - Passwortschutz (nicht im Hobby-Tarif)
+  - Pro-Tarif
+  - Beschränkung des Backends auf zwei Personen
+  - CAPTCHA nur im Browser
+  - lokale Limits übernehmen bzw. `supabase config push`
+  - automatisches Zurücksetzen der Datenbank
+  - zusätzliche Infrastruktur für Begrenzungen
+  - auf GitHub Pro warten
+- **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu AP 5 Testversion und Deployment“)
