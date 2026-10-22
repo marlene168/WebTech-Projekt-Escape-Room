@@ -9,9 +9,16 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test"
+    "test": "node --test 'test/**/*.test.js'",
+    "backend:start": "supabase start && supabase db reset",
+    "backend:stop": "supabase stop --no-backup",
+    "test:backend": "node --test --test-concurrency=1 'test-backend/**/*.test.js'"
   },
   "dependencies": {
     "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@supabase/supabase-js": "2.117.3",
+    "supabase": "2.120.0"
   }
 }
