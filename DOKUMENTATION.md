@@ -56,7 +56,6 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 - **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md). Sieben Arbeitspakete auf eigenen Branches: CI, Trennung der Raumdaten, Supabase-Backend (lokal), Online-Spiel, Cloud und Vercel, Raum 2, Raum 3.
 - **Offen:**
   - Verlassen der Sitzung durch die erstellende Person vor dem Start
-  - Beitritt zu bereits laufenden Sitzungen
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
@@ -101,6 +100,7 @@ _Einordnung (2026-10-22): Der umgesetzte Stand ist ein **Einzelspieler-Prototyp*
 | 2026-10-22 | Supabase lokal (CLI als npm-Entwicklungsabhängigkeit mit fester Version, Docker-kompatible Laufzeit) für Entwicklung und CI; das Cloud-Projekt nur für Gerätetests und den späteren Betrieb | Auf Wunsch der Nutzerin: Die CI baut eine frische, temporäre Umgebung und verändert nie das gemeinsam genutzte Cloud-Projekt; lokal und in der CI dieselbe CLI-Version | Nur mit dem Cloud-Projekt arbeiten; CI gegen das Cloud-Projekt |
 | 2026-10-22 | CI mit GitHub Actions, eingerichtet von Claude: Node-Version aus `.nvmrc`, `npm ci`, `npm test`; ab dem Backend zusätzlich `npm run test:backend` gegen ein frisches lokales Supabase; lokal und in der CI dieselben Befehle; Tests entstehen mit den Funktionen; kein automatisches Deployment, ein manuell ausgelöster Deployment-Workflow wird vor AP 5 konkretisiert | Auf Wunsch der Nutzerin: Fehler früh erkennen, ohne dass etwas veröffentlicht wird; ein Test-Werkzeug (`node:test` mit supabase-js) | pgTAP als zweites Test-Werkzeug; automatische Deployments nach jedem Push |
 | 2026-10-22 | Arbeitspakete nacheinander auf eigenen Branches (Code, Tests und Doku auf demselben Branch); Pull Request nach erfolgreichen Prüfungen; Zusammenführen nach Freigabe der Nutzerin mit Merge-Commit; Planungsdoku direkt auf `main` | Auf Wunsch der Nutzerin; der Merge-Commit erhält die Commit-Kennungen, auf die `DOKUMENTATION.md` verweist (Vorschlag von Claude) | Arbeit direkt auf `main`; Squash- oder Rebase-Merge (Commit-Kennungen in der Doku wären auf `main` nicht mehr auffindbar); eigene Branches für kleine Änderungen |
+| 2026-10-22 | Neue Mitglieder treten nur bei, solange die Sitzung den Status „bereit“ hat (vor dem Spielstart). Bereits vorhandene Mitglieder steigen nach Neuladen oder Verbindungsabbruch jederzeit wieder ein, der Timer läuft dabei weiter. Beitritt und Spielstart werden in der Datenbank gegeneinander abgesichert und getestet | Von der Nutzerin festgelegt | Beitritt bis zum Spielende erlauben (Vorschlag von Claude) |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -652,3 +652,17 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Für das Zahlenschloss gibt es noch kein eigenes Anzeige-Modul. Die vorhandene Funktion `zeigeSchloss` in `anzeige.js` wird über eine Zuordnung in `main.js` angesprochen. Ein eigenes Modul lohnt sich erst mit einem zweiten Rätseltyp.
   - Der Zähler `genutzteTipps` wurde durch die Liste `freigegebeneTipps` ersetzt, statt sie zusätzlich aufzunehmen. So können Zähler und Liste nicht auseinanderlaufen.
 - **Git-Commit:** `40ae04e`
+
+### 2026-10-22, 14:09 – Entscheidung: Beitritt nur vor dem Spielstart
+- **Auslöser:** Anweisung des Nutzers: „Neue Spieler dürfen nur vor dem Spielstart beitreten, solange die Sitzung den Status ‚bereit‘ hat. Bereits vorhandene Mitglieder dürfen nach Neuladen oder Verbindungsabbruch wieder einsteigen; der Timer läuft weiter. Bitte dokumentiere diese Entscheidung und berücksichtige sie im Backend einschließlich eines Tests für gleichzeitigen Beitritt und Spielstart.“
+- **Durchgeführte Schritte:**
+  - Entscheidung in Abschnitt 3 eingetragen, die offene Frage in Abschnitt 2 entfernt.
+  - In `docs/ideen.md` als entschieden markiert. Der verworfene Vorschlag „ja, bis zum Spielende“ bleibt dort erkennbar.
+  - Die Umsetzung im Backend und der Test für gleichzeitigen Beitritt und Spielstart folgen in AP 3 auf demselben Branch.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/ideen.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Die letzte vor AP 3 offene Frage ist geklärt.
+- **Bezug zur Planung:** 2026-10-22, 13:13 – Planung: Mehrspieler-Grundlage mit Supabase (offene Entscheidung „Beitritt zu laufenden Sitzungen“)
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
