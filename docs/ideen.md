@@ -70,7 +70,7 @@ Siehe [Plan Mehrspieler-Grundlage](plaene/2026-10-22_mehrspieler-grundlage.md) u
   - Anzeigenamen der Mitspielenden.
   - E-Mail-Konten zusätzlich zum Gastzugang.
   - ~~Wie wird der manuell ausgelöste Deployment-Workflow aufgebaut?~~ Entschieden am 2026-10-23: manuell gestarteter Workflow „Deploy“ in GitHub Actions (Option C), zunächst nur für eine geschützte Testversion. Die öffentliche Version kommt erst nach ausdrücklicher Freigabe. Siehe [Detailplan AP 5](plaene/2026-10-23_ap5-testumgebung.md).
-  - Neu offen (2026-10-23): Bleibt die Freischaltung der externen Testperson bei wiederholten Deployments erhalten (Prüfung in AP 5)? Aktionslimits vor der öffentlichen Freigabe. Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist.
+  - Neu offen (2026-10-23): Bleibt die Freischaltung des externen Kontos bei wiederholten Deployments erhalten (Prüfung in AP 5)? Aktionslimits vor der öffentlichen Freigabe. Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist.
   - Inhalte von Raum 2 und 3 (eigene Planungen).
 
 ## Rangliste mit Anzeigenamen und Bestzeiten

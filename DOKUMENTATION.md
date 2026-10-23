@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert lokal** (Meilenstein 1 lokal erreicht). Ein Raum, alle Grafiken, Videos und Töne noch als Platzhalter. Noch nicht in der Cloud veröffentlicht._
+_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum, alle Grafiken, Videos und Töne noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
 
 **Umgesetzt:**
 
@@ -64,41 +64,40 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
     - `functions/`: die vier Edge Functions
     - `functions/_shared/`: Kern `kern.js`, Hilfsfunktionen, geheime Raumdaten in `raeume/`
   - `test/` – Unit-Tests (`npm test`); `test-backend/` – Backend-Tests gegen das lokale Supabase (`npm run test:backend`)
-  - `.github/workflows/ci.yml` – CI (Unit- und Backend-Tests)
+  - `.github/workflows/ci.yml` – CI (Unit- und Backend-Tests); `.github/workflows/deploy.yml` – Deployment per Knopf in die geschützte Testversion
+  - `test-online/rauchtest.mjs` – Rauchtest nach jedem Deployment
+  - `vercel.json`, `.vercelignore` – Vercel-Konfiguration (Ausgabe nur `public/`, keine Git-Deployments)
   - `docs/`:
     - `plaene/`: freigegebene Pläne
     - `anleitung.md`: Starten, Backend lokal, Grafiken, Videos und Ton, neuer Raum, Liste der benötigten Dateien
     - `ideen.md`: Ideensammlung inklusive verworfener Ideen
+    - `nachweise/`: Screenshots als Nachweise von Tests (z. B. CAPTCHA-Ablauftest in AP 5)
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
-- **Online-Testumgebung (eingerichtet am 2026-10-23; Deployment-Workflow vorbereitet, noch kein Deployment):**
+- **Online-Testumgebung (seit 2026-10-23 online; zwei Deployments, Rauchtest zuletzt 14 von 14):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
   - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region **West Europe (London), `eu-west-2`** (von der Nutzerin am 2026-10-23 im Dashboard bestätigt). Geplant war Frankfurt (`eu-central-1`); bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Das Projekt bleibt bestehen. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
   - Vercel-Projekt `escape-room-test` im Bereich „WebTech Escape Room“ (Hobby), stabile Testadresse `https://escape-room-test-mauve.vercel.app`. Vercel Authentication für **All Deployments**, ohne Git-Verbindung.
   - Öffentliche Schlüssel, die im Browser-Code stehen dürfen: Supabase Publishable Key `sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A`, Turnstile Site Key `0x4AAAAAAFhw9z0L0UM45dNf`. Geheime Werte liegen nur als GitHub-Secrets `TEST_…` bzw. in den Dashboards.
-- **Bekannte Grenzen (Stand AP 4):**
-  - Nur lokal spielbar. Die geschützte Online-Testversion folgt in AP 5, die öffentliche Version erst nach ausdrücklicher Freigabe.
+- **Bekannte Grenzen (Stand AP 5):**
+  - Online nur als geschützte Testversion (zwei Vercel-Konten). Die öffentliche Version gibt es erst nach ausdrücklicher Freigabe.
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
   - Beendete Sitzungen werden noch nicht aufgeräumt.
   - Nach Änderungen an Dateien in `public/shared/` muss das lokale Backend neu gestartet werden (siehe Anleitung).
 
 **Geplant (noch nicht umgesetzt):**
 
-- **AP 5 – Geschützte Online-Testversion** (Detailplan [`docs/plaene/2026-10-23_ap5-testumgebung.md`](docs/plaene/2026-10-23_ap5-testumgebung.md), freigegeben am 2026-10-23):
-  - Supabase-Test-Projekt und Vercel-Testprojekt mit Vercel Authentication für alle Deployments.
-  - Deployment per Knopf in GitHub Actions.
-  - Turnstile bei der Gastanmeldung, Sitzungslimit.
-  - Meilenstein 1 auf echten Geräten mit zwei berechtigten Personen.
 - **Öffentliche Version:** eigenes Supabase-Projekt, ohne Vercel-Anmeldung, erst nach ausdrücklicher Freigabe der Nutzerin.
 - **AP 6 und 7 – Raum 2 und Raum 3:** jeweils mit eigener Planung.
 - **Später:** eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
 - **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md).
 - **Offen:**
+  - Aufgabenstellung und Bewertungskriterien des Seminars im Projekt hinterlegen (bestimmen, was „fertig“ bedeutet)
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
-  - Freischaltung der externen Testperson bei wiederholten Deployments (wird in AP 5 geprüft)
+  - CAPTCHA-Ablauftest Teil B (verbrauchtes Token): nicht abschließend geprüft; ob er erforderlich ist, ist offen (Aufgabenstellung und Bewertungskriterien liegen im Projekt nicht vor)
   - Aktionslimits vor der öffentlichen Freigabe
   - Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist
   - Inhalte von Raum 2 und 3
@@ -160,6 +159,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 | 2026-10-23 | Supabase-Token `github-deploy-test` mit minimalen Rechten: nur Projekt `escape-room-test`; Project Settings, API Keys und API Key Secrets je Read, Edge Functions Read-write, alles andere None; der Tokenwert nur als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN`, nie in Dateien, Git oder Protokollen; Ablaufdatum 22.10.2027 (bestätigt am 2026-10-23) | Von der Nutzerin festgelegt (Prinzip der geringsten Rechte): Die Leserechte braucht `supabase link`, das Schreibrecht die Veröffentlichung der Edge Functions; Migrationen nutzen separat das Datenbank-Passwort | Token mit Zugriff auf alle Projekte bzw. vollen Rechten |
 | 2026-10-23 | Migrationen im Deploy-Workflow über den **Session Pooler** (IPv4): `supabase db push --db-url` mit `aws-0-eu-west-2.pooler.supabase.com:5432` und Nutzer `postgres.<Projekt-ID>`; Passwort nur aus dem Secret `TEST_SUPABASE_DB_PASSWORD`, URL-kodiert und vor jeder Ausgabe ausdrücklich maskiert; die Token-Rechte bleiben unverändert | Deploy #1 scheiterte an IPv6: Die direkte Datenbankadresse ist im kostenlosen Tarif nur über IPv6 erreichbar, GitHub-Runner können kein IPv6, und `supabase link` hat mit dem eng begrenzten Token keinen Pooler eingerichtet. Entscheidung der Nutzerin auf Empfehlung von Claude: eindeutiger Weg ohne zusätzliche Rechte | Token-Rechte erweitern, damit `supabase link` den Pooler selbst einrichtet (nötige Berechtigung nicht dokumentiert, mehr Rechte); kostenpflichtiges IPv4-Add-on |
 | 2026-10-23 | Das Supabase-Test-Projekt bleibt in der Region **West Europe (London), `eu-west-2`**, statt wie geplant in Frankfurt (`eu-central-1`) | Bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Für Funktion und Tests ist der Unterschied unerheblich (beides EU). Ein Neuanlegen hätte die gesamte Einrichtung (Token, Secrets, Turnstile, Pooler) erneut erfordert. Entscheidung der Nutzerin | Projekt in Frankfurt neu anlegen |
+| 2026-10-23 | Prüfkriterium der externen Freischaltung: **zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen auf unterschiedlichen Geräten** genügen; Zugriffsanfrage, Genehmigung und anschließende Anzeige der Website sind der Nachweis | Klarstellung der Nutzerin: Für die technische Prüfung ist das ausreichend, eine weitere Person ist dafür nicht erforderlich | – |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1256,3 +1256,184 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritte 4 und 5
 - **Abweichungen vom Plan:** keine (die Merkmale der Sperre wurden wie geplant beim ersten Lauf ermittelt und fest eingebaut)
 - **Git-Commit:** `850899a`
+
+### 2026-10-23, 13:03 – AP 5: Externe Freischaltung getestet (zwei getrennte Vercel-Konten, unterschiedliche Geräte)
+- **Auslöser:** Mitteilung der Nutzerin: „Ich habe das zweite Vercel-Konto mit meiner geschäftlichen E-Mail-Adresse eingerichtet, darüber Zugriff auf die Test-Hauptadresse beantragt und die Anfrage mit meinem Hauptkonto genehmigt. Im zweiten Konto ist die Escape-Room-Website jetzt sichtbar. Die externe Freischaltung funktioniert damit. Bitte dokumentiere das als Test mit zwei getrennten Konten auf unterschiedlichen Geräten. Ich gebe PR #7 für den Merge mit Merge-Commit frei, sofern noch offen. […] Dieser Nachweis und der gemeinsame Spieltest stehen noch aus.“
+- **Durchgeführte Schritte:**
+  - PR #7 (Rauchtest-Korrektur, Region) mit Merge-Commit `4aff586` nach `main` übernommen. Branch `ap5-nachweis` nachgezogen.
+  - **Test der externen Freischaltung** (von der Nutzerin durchgeführt und gemeldet):
+    - **Konto 1:** Hauptkonto der Nutzerin, Inhaberin des Vercel-Projekts.
+    - **Konto 2:** zweites, getrenntes Vercel-Konto mit der geschäftlichen E-Mail-Adresse der Nutzerin.
+    - Laut Nutzerin auf unterschiedlichen Geräten.
+    - Ablauf: Konto 2 öffnet die Test-Hauptadresse und beantragt Zugriff, Konto 1 genehmigt die Anfrage. Danach ist die Escape-Room-Website in Konto 2 sichtbar.
+- **Hinweise zur Einordnung:**
+  - Beide Konten gehören derselben Person. Getestet ist damit die **technische** Freischaltung eines externen Kontos. Ob der geplante Test mit einer **zweiten Person** (Prüfkriterium „zwei berechtigte Personen“) so als erfüllt gilt oder noch mit einer anderen Person stattfinden soll, entscheidet die Nutzerin.
+  - Der Hobby-Tarif erlaubt **ein** externes Konto. Dieser Platz ist jetzt mit Konto 2 belegt. Für eine andere Person müsste die Freigabe von Konto 2 widerrufen werden, oder es bräuchte einen anderen Tarif (nur mit Zustimmung der Nutzerin).
+  - Ob der Zugriffsschutz vor der Freischaltung im privaten Fenster geprüft wurde, ist von der Nutzerin noch nicht gemeldet. Automatisch bestätigt ist er durch den Rauchtest von Deploy #1 (302 auf `vercel.com/sso-api` für Hauptadresse und Deployment-URL).
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Vercel (Zugriffsanfrage und Freigabe, durch die Nutzerin), GitHub CLI (`gh pr merge`), Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestätigt:** Ein externes Vercel-Konto kann Zugriff anfragen, die Kontoinhaberin kann ihn freigeben, und danach ist die Website für dieses Konto sichtbar.
+  - **Offen:**
+    1. Deploy #2 durch die Nutzerin mit grünem Rauchtest
+    2. Prüfung, ob Konto 2 danach **ohne erneute Freischaltung** weiterhin Zugriff hat
+    3. Prüfung im privaten Fenster, falls noch nicht erfolgt
+    4. CAPTCHA-Ablauftest
+    5. gemeinsamer Spieltest auf zwei Geräten
+    6. Klärung, ob der Test mit einer zweiten Person nachgeholt wird
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 6
+- **Abweichungen vom Plan:** Das freigeschaltete externe Konto gehört der Nutzerin selbst (geschäftliche E-Mail-Adresse) statt einer zweiten Person, siehe Hinweise.
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 13:17 – AP 5: Nachtrag – Klarstellungen zur externen Freischaltung und Prüfung im privaten Fenster
+- **Auslöser:** Klarstellungen der Nutzerin:
+  - „Für die technische Prüfung genügt mein Test mit zwei getrennten Vercel-Konten auf unterschiedlichen Geräten. Beide Konten gehören mir und verwenden unterschiedliche E-Mail-Adressen. Die Zugriffsanfrage, Genehmigung und anschließende Anzeige der Website haben funktioniert. Damit ist das Prüfkriterium der externen Freischaltung erfüllt. Eine weitere Person ist dafür nicht erforderlich. Passe das aktuelle Prüfkriterium entsprechend an […].“
+  - „Dein zweiter Hinweis zum belegten externen Konto und einem möglichen späteren Wechsel der Testperson ist für meinen gewählten Ablauf nicht relevant. Entferne ihn aus der aktuellen Darstellung […].“
+  - „Die manuelle Prüfung im privaten Fenster wurde erfolgreich durchgeführt: Sowohl Hauptadresse als auch Deployment-Adresse waren ohne Vercel-Login gesperrt und führten zur Vercel-Anmeldung. Bitte als bestanden nachtragen.“
+- **Durchgeführte Schritte:**
+  - **Aktueller Prüfstand angepasst:**
+    - Detailplan AP 5 (Kontext, Abschnitt 2, Einrichtungsschritt 11, Browser-Prüfung, Ablauf, Prüfkriterien), jeweils mit „aktualisiert 2026-10-23“.
+    - Anleitung (Testversion, zweites Konto), `docs/ideen.md` und Abschnitt 2 (offene Punkte).
+    - Abschnitt 3: neue Entscheidung zum Prüfkriterium.
+    - Das Kriterium lautet jetzt: **zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen auf unterschiedlichen Geräten.**
+  - Dieser Nachtrag stellt den Eintrag „Externe Freischaltung getestet“ (2026-10-23, 13:03) klar, der nach den Projektregeln unverändert bleibt:
+    - **Prüfkriterium der externen Freischaltung: erfüllt** (siehe Klarstellung oben).
+    - Der dortige Hinweis zum belegten externen Konto entfällt für den gewählten Ablauf.
+    - **Prüfung im privaten Fenster: bestanden.** Hauptadresse und Deployment-Adresse waren ohne Vercel-Login gesperrt und führten zur Vercel-Anmeldung.
+- **Geänderte/neue Dateien:** `docs/plaene/2026-10-23_ap5-testumgebung.md`, `docs/anleitung.md`, `docs/ideen.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestanden:**
+    - Zugriffsschutz automatisch (Rauchtest Deploy #1) und manuell (privates Fenster) auf Hauptadresse und Deployment-Adresse
+    - externe Freischaltung mit zwei getrennten Vercel-Konten auf unterschiedlichen Geräten
+  - **Offen** (geplante nächste Schritte):
+    1. Deploy #2 durch die Nutzerin
+    2. fortbestehender Zugang des zweiten Kontos ohne erneute Freischaltung
+    3. gemeinsamer Spieltest auf zwei Geräten
+    4. CAPTCHA-Ablauftest
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritte 5 und 6; ergänzt den Eintrag 2026-10-23, 13:03
+- **Abweichungen vom Plan:** Das Prüfkriterium der externen Freischaltung bezieht sich auf zwei getrennte Konten (Klarstellung der Nutzerin).
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 13:27 – AP 5: Deploy #2 vollständig grün (Rauchtest 14 von 14)
+- **Auslöser:** Meldung der Nutzerin „Das Deployment läuft“ (Deploy #2, Lauf 39945290067, Commit `4aff586` mit der Korrektur des Rauchtests).
+- **Durchgeführte Schritte:**
+  - Lauf verfolgt: **alle Jobs erfolgreich** (`vorpruefung`, `pruefen` mit Unit- und Backend-Tests, `supabase`, `vercel`, `rauchtest`).
+  - **Supabase:** „Remote database is up to date“. Das erneute Ausführen hat keine Migration doppelt angewendet. Alle vier Edge Functions wurden neu veröffentlicht.
+  - **Vercel:** neues Deployment `escape-room-test-kgsxev650-web-tech-escape-room.vercel.app`, Hauptadresse unverändert `escape-room-test-mauve.vercel.app`.
+  - **Rauchtest 14 von 14:**
+    - Sperre ohne Anmeldung auf Hauptadresse und neuer Deployment-URL (302 auf `vercel.com/sso-api`)
+    - erwartetes HTML mit Bypass, öffentliche Raumdaten ohne Lösung
+    - sechs geheime bzw. Projektpfade liefern NOT_FOUND
+    - Upload nur `public/**` und `vercel.json` (18 Einträge)
+    - Backend lehnt Anfragen ohne Nutzeranmeldung ab
+    - CAPTCHA ohne und mit ungültigem Token abgelehnt
+  - **Protokoll des Laufs geprüft:** `VERCEL_BYPASS`, `VERCEL_TOKEN` und `SUPABASE_DB_PASSWORD` erscheinen nur als `***`, und keine Verbindungsadresse mit Passwort ist ausgegeben.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** GitHub Actions, GitHub CLI (`gh run`), Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestätigt:**
+    - Der Deployment-Ablauf funktioniert vollständig und ist wiederholbar.
+    - Der Zugriffsschutz greift auch beim zweiten Deployment, auf der Hauptadresse wie auf der neuen Deployment-URL.
+    - Keine Geheimnisse in den Protokollen.
+  - **Offen:**
+    1. fortbestehender Zugang des zweiten Kontos ohne erneute Freischaltung (Prüfung durch die Nutzerin)
+    2. gemeinsamer Spieltest auf zwei Geräten mit den Prüfungen aus Meilenstein 1
+    3. CAPTCHA-Ablauftest
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 7
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 13:59 – AP 5: Gemeinsamer Online-Spieltest auf zwei Geräten bestanden (Meilenstein 1 online)
+- **Auslöser:** Meldung der Nutzerin: „Schritt 1-9 wurden erfolgreich durchgeführt und getestet. Dokumentiere bitte entsprechend. Nun machen wir weiter mit dem CAPTCHA Test.“
+- **Durchgeführte Schritte** (von der Nutzerin auf der Testversion `https://escape-room-test-mauve.vercel.app` nach Deploy #2 durchgeführt; Gerät A mit Vercel-Konto 1, Gerät B mit Vercel-Konto 2):
+  - **Zugang des zweiten Kontos nach Deploy #2:** Gerät B mit Konto 2 hat die Hauptadresse nach dem erneuten Deployment genutzt, eine neue Freischaltung war dafür nicht gemeldet.
+  - **Spieltest, alle Schritte laut Nutzerin bestanden:**
+    1. A erstellt mit „Spielen“ eine Sitzung, nach der Sicherheitsprüfung (Turnstile) erscheint der Code.
+    2. B tritt per Code bei (mit Sicherheitsprüfung). B sieht den Wartehinweis und keinen Knopf „Raum betreten“.
+    3. A startet: Das Intro schließt sich auch bei B, beide Timer laufen gleich.
+    4. B findet eine Spur (Schreibtisch → Kalender), sie erscheint im Notizbuch bei A.
+    5. A und B fordern gleichzeitig Tipp 1 an: Beide sehen genau einen Tipp, die Zeit sinkt nur um 1 Minute.
+    6. B lädt neu: Stand und Restzeit bleiben erhalten, keine erneute Sicherheitsprüfung.
+    7. Eine unabhängige dritte Sitzung (privates Fenster auf A) bekommt nichts von der ersten mit. Die Adresse der ersten Sitzung zeigt dort „Du bist kein Mitglied dieser Sitzung“.
+    8. A verlässt die Sitzung mit Bestätigung, B sieht „Sitzung beendet“.
+    9. Zeitablauf: Sitzung gestartet, alle Fenster mehr als 10 Minuten geschlossen. Beim erneuten Öffnen meldet der Server „Zeit abgelaufen“, ohne Vorspulen in der Datenbank.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Testversion auf zwei Geräten mit zwei Vercel-Konten (durch die Nutzerin), Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** **Meilenstein 1 ist online erfüllt.**
+  - Erfüllt sind: zwei berechtigte, getrennte Vercel-Konten auf unterschiedlichen Geräten, Sitzung erstellen, per Code beitreten, gemeinsam spielen, Weiterspielen nach dem Neuladen.
+  - Ebenfalls erfüllt: alle weiteren Prüfungen aus Meilenstein 1 (Startrecht, gemeinsamer Fortschritt, unabhängige Sitzung ohne Zugriff, gleichzeitiger Tipp, Zeitablauf durch den Server, Verlassen beendet die Sitzung).
+  - Turnstile erschien nur bei neuen Gastanmeldungen.
+  - **Offen in AP 5:** der CAPTCHA-Ablauftest.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 8, Prüfkriterien
+- **Abweichungen vom Plan:** Den Zeitablauf hat die Nutzerin durch echtes Warten (über 10 Minuten) geprüft, statt die Startzeit im Test-Projekt vorzuspulen. Das ist näher am echten Spiel und brauchte keinen Datenbankzugriff.
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 18:47 – AP 5: CAPTCHA-Ablauftest – Teil A bestanden, Teil B nicht abschließend geprüft
+- **Auslöser:** Rückmeldung der Nutzerin zum CAPTCHA-Ablauftest mit drei Screenshots: „Bitte dokumentiere den aktuellen Stand des CAPTCHA-Ablauftests und begrenze die weitere Arbeit auf den angemessenen Umfang unserer Webtechnologie-Projektarbeit. […] Plane vorerst keine weiteren manuellen Sicherheits- oder Sonderfalltests und ändere wegen dieses CORS-Fehlers keine Sicherheits- oder Serverkonfiguration. Prüfe zunächst anhand unserer Aufgabenstellung und Bewertungskriterien, ob Teil B überhaupt erforderlich ist. Falls diese Informationen fehlen, kennzeichne das offen.“
+- **Durchgeführte Schritte** (Test durch die Nutzerin in Chrome, privates Fenster, Testversion `https://escape-room-test-mauve.vercel.app`):
+  - **Teil A: gescheiterter Anmeldeversuch, dann frisches Token. Bestanden.**
+    - Die Gastanmeldung (`*auth/v1/signup*`) wurde in den Chrome-Entwicklertools gezielt blockiert. Die erwartete Meldung „Die Anmeldung als Gast hat nicht geklappt. Bitte versuche es noch einmal.“ erschien.
+    - Nach Aufheben der Blockierung gelang der nächste Versuch: neue `signup`-Anfrage mit Status 200, die Spielseite öffnete sich.
+    - **Tokenwechsel bestätigt:** Präfix Token A (blockierter Versuch) `1.zLDIjL`, Präfix Token B (erfolgreicher Versuch) `1.E7jZKW`. Beide liegen vor und sind verschieden. Vollständige Tokens wurden nicht übermittelt und nicht gespeichert.
+  - **Teil B: verbrauchtes Token. Nicht abschließend geprüft.**
+    - Die erfolgreiche `signup`-Anfrage wurde über „Copy as fetch“ in der Console erneut gesendet. Der Versuch scheiterte im Browser an einem **CORS-Fehler**: Die kopierte Anfrage enthielt `credentials: "include"`, und dafür ist die Antwort mit `Access-Control-Allow-Origin: *` nicht zulässig.
+    - Die Anfrage erreichte also keine auswertbare Antwort von Supabase. **Weder bestanden noch als CAPTCHA-Fehler bewertet.**
+    - Eine Wiederholung mit `credentials: "omit"` wird vorerst nicht durchgeführt (Entscheidung der Nutzerin). Sicherheits- und Serverkonfiguration bleiben unverändert.
+  - **Nachweise:**
+    - `docs/nachweise/2026-10-23_ap5_captcha-teil-a_blockierte-anmeldung.png`
+    - `docs/nachweise/2026-10-23_ap5_captcha-teil-a_neuer-versuch-erfolgreich.png`
+    - `docs/nachweise/2026-10-23_ap5_captcha-teil-b_cors-fehler.png`
+
+    Die Screenshots enthalten keine Tokens oder geheimen Werte.
+  - **Erforderlichkeit von Teil B geprüft:**
+    - Eine Aufgabenstellung oder Bewertungskriterien des Seminars **liegen im Projekt nicht vor**. Festgehalten ist nur „keine technischen Vorgaben“ (Planung vom 2026-10-04).
+    - Teil B stammt aus dem eigenen Detailplan AP 5 (Prüfkriterium „CAPTCHA-Ablauftest“), nicht aus einer Vorgabe des Seminars.
+    - **Ob Teil B erforderlich ist, bleibt deshalb offen.**
+    - **Einordnung, ohne Teil B zu ersetzen:** Unabhängig davon belegt der Rauchtest bei jedem Deployment, dass Supabase Gastanmeldungen ohne Token und mit ungültigem Token ablehnt (`captcha_failed`). Teil A belegt, dass der Browser für jeden neuen Versuch ein frisches Token holt.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/nachweise/` (3 Screenshots)
+- **Genutzte Tools:** Chrome-Entwicklertools (Network, Request blocking, Console; durch die Nutzerin), Claude Code, Git
+- **Probleme & Lösungen:** Die Wiederholung über „Copy as fetch“ scheiterte an CORS (`credentials: "include"`). Das ist eine Grenze des Testwegs, keine Aussage über das CAPTCHA. Der Test wurde nicht weiter verfolgt, keine Konfiguration geändert.
+- **Ergebnis:**
+  - **Bestätigt:** Teil A, also ein neuer Versuch mit frischem Token nach einem gescheiterten Versuch, inklusive Tokenwechsel.
+  - **Nicht abschließend geprüft:** Teil B (Ablehnung eines verbrauchten Tokens).
+  - **Offen:** ob Teil B für die Projektarbeit erforderlich ist, weil Aufgabenstellung und Bewertungskriterien nicht vorliegen.
+  - Weitere manuelle Sicherheits- oder Sonderfalltests sind vorerst nicht geplant.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), CAPTCHA-Ablauftest und Prüfkriterien
+- **Abweichungen vom Plan:** Das Prüfkriterium „CAPTCHA-Ablauftest einmal bestanden“ ist nur für den Teil „gescheiterter Versuch, dann frisches Token“ erfüllt. Der Teil „verbrauchtes Token“ ist nicht abschließend geprüft (siehe oben).
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 18:54 – AP 5 abgeschlossen: geschützte Online-Testversion
+- **Auslöser:** Anweisung des Nutzers: „Ja bitte finalisiere nun AP 5 durch das Abschließen von Punkt 1 und im Anschluss planen wir das weitere Vorgehen.“ Punkt 1 der Restaufgaben: Pull Request mit Nachweisen und Doku-Einträgen von `ap5-nachweis` nach `main`, Abschnitt 2 auf „AP 5 abgeschlossen“.
+- **Durchgeführte Schritte:**
+  - **Abschnitt 2 auf den Endstand gebracht:**
+    - Stand „AP 5 abgeschlossen“, Online-Testumgebung als online markiert (zwei Deployments, Rauchtest zuletzt 14 von 14).
+    - Ordnerstruktur ergänzt: `deploy.yml`, `test-online/`, `vercel.json`/`.vercelignore`, `docs/nachweise/`.
+    - Grenzen auf den Stand von AP 5 gebracht. Den erledigten Punkt „AP 5“ aus „Geplant“ entfernt.
+    - Offener Punkt „Aufgabenstellung und Bewertungskriterien hinterlegen“ ergänzt.
+  - **Detailplan AP 5:** Statusblock „abgeschlossen“ mit erfüllten und nicht abschließend geprüften Kriterien.
+  - **Ursprünglicher Plan:** Hinweis „AP 5 ist am 2026-10-23 abgeschlossen“.
+  - Pull Request von `ap5-nachweis` nach `main` gestellt. Er enthält die Doku-Einträge seit dem Merge von PR #7, die Nachweise und diesen Abschluss.
+- **Zusammenfassung von AP 5** (Einzelheiten in den Einträgen dieses Tages):
+  - **Erfüllt:**
+    - Deployment per Knopf in die geschützte Testversion (zwei Läufe, zuletzt alle Jobs grün, Rauchtest 14 von 14)
+    - Zugriffsschutz „All Deployments“, geprüft automatisch und im privaten Fenster
+    - externe Freischaltung mit zwei getrennten Vercel-Konten auf unterschiedlichen Geräten
+    - Meilenstein 1 online (alle Prüfungen)
+    - CAPTCHA serverseitig von Supabase erzwungen, Sitzungslimit mit Gegenprobe
+    - keine Geheimnisse in den Protokollen
+    - CAPTCHA-Ablauftest Teil A
+  - **Nicht abschließend geprüft:** CAPTCHA-Ablauftest Teil B. Ob er erforderlich ist, ist offen.
+  - **Korrekturen unterwegs:** Migrationen über den Session Pooler (IPv6, PR #6), Rauchtest mit dem Wurzelordner `src/` und den festgehaltenen Sperr-Merkmalen (PR #7).
+  - **Bewusste Abweichungen:** Supabase-Region London statt Frankfurt; Prüfkriterium „zwei getrennte Vercel-Konten“.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/plaene/2026-10-23_ap5-testumgebung.md`, `docs/plaene/2026-10-22_mehrspieler-grundlage.md`
+- **Genutzte Tools:** Claude Code, Git, GitHub CLI (`gh`)
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** AP 5 ist abgeschlossen. **Nächster Schritt:** das weitere Vorgehen planen (Aufgabenstellung und Bewertungskriterien, AP 6 Raum 2, AP 7 Raum 3, Abschluss der Dokumentation).
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
+- **Abweichungen vom Plan:** CAPTCHA-Ablauftest Teil B nicht abschließend geprüft (siehe Eintrag 18:47). Sonst wie in den Einträgen dieses Tages beschrieben.
+- **Git-Commit:** keiner (keine Code-Änderung)
