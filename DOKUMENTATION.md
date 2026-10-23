@@ -1013,3 +1013,41 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Schritt 5 hat Claude auf Wunsch der Nutzerin ausgeführt, im Plan war er als ihr Schritt beschrieben.
   - Das Projekt wurde mit `vercel project add` angelegt und dann verknüpft, statt es interaktiv in `vercel link` zu erstellen. So ist sichergestellt, dass keine Git-Verbindung entsteht.
 - **Git-Commit:** `b15f390`
+
+### 2026-10-23, 03:22 – AP 5: Nachtrag zum Stand der Einrichtung (bestätigt und offen)
+- **Auslöser:** Anweisung des Nutzers: „Bitte prüfe, ob mein Auftrag zur Vercel-Einrichtung und dessen Ausführung bereits gemäß unseren Projektregeln dokumentiert sind. Falls nicht, ergänze einen Entwicklungsprotokoll-Eintrag mit Bezug zur AP-5-Planung. […] Unterscheide bestätigte Ergebnisse von noch offenen Schritten. […] Bestehende Protokolleinträge unverändert lassen und keinen doppelten Eintrag anlegen.“
+- **Durchgeführte Schritte:**
+  - Den Eintrag „AP 5, Einrichtungsschritt 5: Vercel-Projekt angelegt und lokal verknüpft“ (2026-10-23, 03:18) gegen die Vorgaben geprüft. **Bereits enthalten:**
+    - Auftrag im Wortlaut
+    - Erstellen und Verknüpfen ohne Git-Verbindung und ohne Deployment
+    - Abweichung: erst separat erstellt, dann verknüpft
+    - `.gitignore` einschließlich der Korrektur für `.env.example`
+    - Ausschluss der lokalen Konfigurationsdateien
+    - Hinweis auf „All Deployments“ vor dem ersten Deployment
+    - Bezug zur Planung
+    - keine geheimen Werte
+  - **Fehlend und hier ergänzt:** die vollständige Liste der offenen Einrichtungsschritte und eine klare Trennung von bestätigten Ergebnissen und offenen Schritten. Der bestehende Eintrag bleibt unverändert.
+- **Bestätigte Ergebnisse** (am 2026-10-23 geprüft):
+  - Vercel-Anmeldung als `marlene168`, Bereich „WebTech Escape Room“ (`web-tech-escape-room`, Tarif Hobby).
+  - Das Projekt `escape-room-test` existiert und ist lokal verknüpft. Laut Vercel-API ist keine Git-Verbindung vorhanden und es gab 0 Deployments.
+  - `.vercel/` und `.env.local` sind von Git ausgeschlossen (`git check-ignore`), `.env.example` bleibt erlaubt. Im Repo liegt keine dieser Dateien (`git ls-files`).
+  - In Dateien, Git und Protokollen stehen keine Tokenwerte und keine Inhalte geheimer Dateien.
+- **Noch offen** (Einrichtungsschritte laut Detailplan AP 5, Abschnitt 5):
+  - **Vor dem ersten Deployment Pflicht – Schritt 7:**
+    - Vercel Authentication auf **„All Deployments“** umstellen. Zurzeit steht sie auf dem Standard `all_except_custom_domains`, der Produktions-Adressen nicht schützt.
+    - „Protection Bypass for Automation“: Geheimnis erzeugen.
+    - Claude prüft die Umstellung anschließend lesend über die Vercel-API.
+  - **Schritt 6:** Die stabile Hauptadresse der Testversion an Claude melden (für `supabase-konfig.js` und Turnstile).
+  - **Schritt 8:** Vercel-Token „github-deploy-test“ erstellen.
+  - **Schritte 1 bis 4 (Supabase):** Projekt `escape-room-test`, Gastanmeldung, Prüfung des Limits, Access Token `github-deploy-test` mit den dokumentierten Rechten (Ablauf 22.10.2027). Project URL und Publishable Key an Claude. Der Abschluss ist noch nicht gemeldet.
+  - **Schritt 9:** Cloudflare-Turnstile-Widget für die Hauptadresse, Site Key an Claude, Secret Key ins Supabase-Dashboard.
+  - **Schritt 10:** sieben GitHub-Repository-Secrets `TEST_…`.
+  - **Schritt 11:** Freischaltung der zweiten Person, **erst nach** geprüftem Zugriffsschutz.
+  - Danach setzt Claude AP 5 auf diesem Branch um (Abschnitt 6 des Detailplans).
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Auftrag und Ausführung der Vercel-Einrichtung sind vollständig dokumentiert, bestätigte und offene Schritte sind getrennt aufgeführt.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung); ergänzt den Eintrag 2026-10-23, 03:18
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
