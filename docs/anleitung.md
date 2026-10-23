@@ -49,6 +49,38 @@ Die vollständigen Einrichtungsschritte stehen im [Detailplan AP 5](plaene/2026-
 
 Die drei Leserechte braucht `supabase link`, das Schreibrecht braucht die Veröffentlichung der Edge Functions. Datenbankmigrationen nutzen separat das Datenbank-Passwort. Der Tokenwert wird **nur** als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN` hinterlegt, nie in Dateien, Git oder Protokollen.
 
+
+### Online-Testversion aktualisieren (Deployment per Knopf)
+
+Die Testversion liegt unter **https://escape-room-test-mauve.vercel.app**. Sie ist geschützt: Öffnen können sie nur die Kontoinhaberin und eine freigeschaltete Person, jeweils mit eigenem Vercel-Konto. Die öffentliche Version gibt es erst nach ausdrücklicher Freigabe.
+
+**Auslösen:** GitHub → **Actions** → **Deploy** → **Run workflow** → Branch `main`, Ziel `test`. Ein Push löst nie ein Deployment aus.
+
+**Ablauf** (jeder Schritt nur nach Erfolg des vorigen, alle mit demselben Commit):
+1. Prüfung: nur von `main`.
+2. Dieselben Tests wie die CI.
+3. Supabase: Migrationen, dann Edge Functions.
+4. Vercel: Website, nur `public/`.
+5. Rauchtest: Zugriffsschutz, Website, Upload, Backend, CAPTCHA.
+
+Das Ergebnis steht in der Zusammenfassung des Laufs. Es läuft nie mehr als ein Deployment gleichzeitig, und ein laufendes wird nie abgebrochen.
+
+**Wenn ein Schritt fehlschlägt:**
+- Der Ablauf stoppt, die Zusammenfassung zeigt, was schon erledigt ist.
+- Nichts wird automatisch zurückgesetzt, auch nicht die Datenbank.
+- Ursache gezielt beheben (auf einem Branch, mit Pull Request) und den Workflow erneut auslösen. Migrationen und Edge Functions lassen sich gefahrlos erneut ausführen.
+
+**Verträglichkeitsregel:** Das Backend wird vor der Website aktualisiert, die vorherige Website läuft also kurz gegen das neue Backend. Backend-Änderungen müssen deshalb mit der vorherigen Website funktionieren: nur ergänzen, nichts entfernen oder umbenennen. Nötige Umbauten werden auf zwei Deployments verteilt.
+
+**Nur über die Hauptadresse spielen:** Die Adressen einzelner Deployments (`escape-room-test-…-web-tech-escape-room.vercel.app`) sind bewusst nicht mit dem Backend verbunden und daher nicht spielbar.
+
+**Zweite Testperson:** Sie öffnet die Hauptadresse mit ihrem eigenen Vercel-Konto und fragt Zugriff an. Freigeben geht im Vercel-Projekt unter **Settings → Deployment Protection → Requests**. Der Hobby-Tarif erlaubt eine externe Person.
+
+**Checkliste vor Tests und Präsentationen:**
+1. Im Supabase-Dashboard den Status des Projekts `escape-room-test` prüfen. Ist es pausiert (kostenlose Projekte pausieren nach etwa einer Woche ohne Nutzung), wiederherstellen und einige Minuten warten.
+2. Die Testversion öffnen, „Spielen“ klicken, eine Sitzung erstellen und **den Raum betreten**. Erst ein vollständiger Spielstart zeigt, dass alles läuft, nur das Dashboard zu öffnen genügt nicht.
+3. Bei Bedarf den Deploy-Workflow erneut auslösen und den Rauchtest abwarten.
+
 ---
 
 ## 2. Grafik austauschen

@@ -42,3 +42,7 @@ coverage/
 # Logs & temporäre Dateien
 *.log
 *.tmp
+
+# Vercel CLI: lokale Projektverknüpfung (.vercel/) – nie einchecken
+# (.env.local mit Vercel-Token ist bereits durch .env.* oben ausgeschlossen)
+.vercel/

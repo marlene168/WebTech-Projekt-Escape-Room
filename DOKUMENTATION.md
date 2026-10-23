@@ -8,8 +8,8 @@
 - **Ziel der App:** Entwicklung einer browserbasierten WebApp, die das Erlebnis eines Escape Rooms digital simuliert. Spielende wählen einen Raum aus und versuchen, durch das Untersuchen anklickbarer Objekte und das Kombinieren von Hinweisen ein Rätsel unter Zeitdruck zu lösen. Als Erweiterung sind mehrere Räume mit unterschiedlichen Themen und Schwierigkeitsgraden vorgesehen.
 - **Rahmen:** Seminar-/Projektarbeit, Web Technologie 
 - **Zeitraum:** Start 03.10.2026 – laufend
-- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); supabase-js im Browser (per CDN, feste Version); Supabase als Backend (Gastanmeldung, PostgreSQL mit RLS, Edge Functions in Deno, Realtime), bisher lokal in Docker; Node.js mit Express nur als lokaler Entwicklungsserver; Tests mit `node:test`; CI mit GitHub Actions. Geplant, noch nicht umgesetzt: Supabase-Cloud-Projekt und Vercel für die Bereitstellung der Website (siehe Abschnitt 3 und `docs/ideen.md`)
-- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), ChatGPT (Planungsgespräche der Nutzerin), Git, GitHub, GitHub Actions (CI), GitHub CLI (`gh`), Node.js/npm, Docker Desktop, Supabase CLI (als npm-Abhängigkeit), Google Chrome (Headless-Screenshots zur Sichtprüfung)
+- **Tech-Stack:** HTML, CSS, JavaScript (ES-Module, ohne Framework); supabase-js im Browser (per CDN, feste Version); Supabase als Backend (Gastanmeldung, PostgreSQL mit RLS, Edge Functions in Deno, Realtime), bisher lokal in Docker; Node.js mit Express nur als lokaler Entwicklungsserver; Tests mit `node:test`; CI mit GitHub Actions. Seit AP 5 vorbereitet: geschützte Online-Testversion (Supabase-Test-Projekt, Vercel mit Vercel Authentication, Deployment per Knopf in GitHub Actions, Cloudflare Turnstile); die öffentliche Version erst nach ausdrücklicher Freigabe (siehe Abschnitt 3 und `docs/ideen.md`)
+- **Werkzeuge:** VS Code, Claude Code, Codex (im Wechsel mit Claude Code), ChatGPT (Planungsgespräche der Nutzerin), Git, GitHub, GitHub Actions (CI), GitHub CLI (`gh`), Node.js/npm, Docker Desktop, Supabase CLI und Vercel CLI (als npm-Abhängigkeiten), Vercel (Hobby), Cloudflare Turnstile, Google Chrome (Headless-Screenshots zur Sichtprüfung)
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
@@ -40,7 +40,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 - **Starten:**
   - Node.js 24 (siehe `.nvmrc`), `npm install` (einmalig).
   - `npm run backend:start` (Docker Desktop muss laufen), dann `npm start` und http://localhost:3000 öffnen.
-  - Tests: `npm test` (64 Unit-Tests) und `npm run test:backend` (24 Backend-Tests).
+  - Tests: `npm test` (68 Unit-Tests) und `npm run test:backend` (26 Backend-Tests).
   - Siehe `docs/anleitung.md`.
 - **CI:** GitHub Actions führt bei jedem Push und Pull Request `npm ci` und `npm test` aus, dazu im Job `backend` die Backend-Tests gegen ein frisches, temporäres Supabase (`.github/workflows/ci.yml`). Der Workflow veröffentlicht nichts und hat keinen Zugang zum Cloud-Projekt.
 - **Ordnerstruktur:**
@@ -71,6 +71,12 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
     - `ideen.md`: Ideensammlung inklusive verworfener Ideen
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
+- **Online-Testumgebung (eingerichtet am 2026-10-23; Deployment-Workflow vorbereitet, noch kein Deployment):**
+  - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
+  - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
+  - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`, Region Frankfurt. Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
+  - Vercel-Projekt `escape-room-test` im Bereich „WebTech Escape Room“ (Hobby), stabile Testadresse `https://escape-room-test-mauve.vercel.app`. Vercel Authentication für **All Deployments**, ohne Git-Verbindung.
+  - Öffentliche Schlüssel, die im Browser-Code stehen dürfen: Supabase Publishable Key `sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A`, Turnstile Site Key `0x4AAAAAAFhw9z0L0UM45dNf`. Geheime Werte liegen nur als GitHub-Secrets `TEST_…` bzw. in den Dashboards.
 - **Bekannte Grenzen (Stand AP 4):**
   - Nur lokal spielbar. Die geschützte Online-Testversion folgt in AP 5, die öffentliche Version erst nach ausdrücklicher Freigabe.
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
@@ -989,3 +995,148 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 03:18 – AP 5, Einrichtungsschritt 5: Vercel-Projekt angelegt und lokal verknüpft
+- **Auslöser:** Anweisung des Nutzers: „Mein Vercel-Hobby-Konto und der Verwaltungsbereich ‚WebTech Escape Room‘ sind angelegt. Bitte führe jetzt im tatsächlichen Projektordner Schritt 5 aus: mit `npx vercel login` anmelden und mit `npx vercel link` ein neues Projekt namens `escape-room-test` erstellen und lokal verknüpfen. Keine Git-Repository-Verbindung und noch kein Deployment ausführen. Stelle sicher, dass `.vercel/` nicht eingecheckt wird. Bei der persönlichen Anmeldung übernehme ich den erforderlichen Browser-Schritt.“
+- **Durchgeführte Schritte:**
+  - Vercel CLI in fester Version **63.1.0** verwendet (über zwei Wochen alt, per `npx`).
+  - `vercel login` mit Gerätecode, den Browser-Schritt hat die Nutzerin übernommen. Angemeldet als `marlene168`, Bereich „WebTech Escape Room“ (Kennung `web-tech-escape-room`, Tarif Hobby).
+  - Branch `ap5-testumgebung` von `main` angelegt.
+  - Projekt **bewusst getrennt** angelegt mit `vercel project add escape-room-test --scope web-tech-escape-room`, ohne Git-Verbindung. Danach verknüpft mit `vercel link --project escape-room-test --team web-tech-escape-room --non-interactive`, ohne `--yes`, damit keine Standardantworten (z. B. Git verbinden) übernommen werden.
+  - **Über die Vercel-API geprüft:**
+    - Git-Verbindung: keine (`link: null`).
+    - Deployments: 0, es wurde nichts deployt.
+    - Deployment-Schutz steht noch auf dem Standard `all_except_custom_domains`. Die Umstellung auf „All Deployments“ ist der Einrichtungsschritt 7 der Nutzerin und **vor dem ersten Deployment Pflicht**.
+  - **`.gitignore`:** Die CLI hatte `.vercel` und `.env*` angehängt. Ersetzt durch einen kommentierten Eintrag `.vercel/`. `.env*` entfernt, weil es die Ausnahme `!.env.example` aufheben würde. Geprüft mit `git check-ignore`: `.vercel/project.json` und `.env.local` sind ausgeschlossen, `.env.example` bleibt erlaubt.
+- **Geänderte/neue Dateien:** `.gitignore`, `DOKUMENTATION.md`; lokal und nicht eingecheckt: `.vercel/project.json`, `.vercel/README.txt`, `.env.local`
+- **Genutzte Tools:** Claude Code, Vercel CLI 63.1.0, Vercel-API (lesend), Git
+- **Probleme & Lösungen:**
+  - `vercel link` hat zusätzlich `.env.local` mit einem kurzlebigen `VERCEL_OIDC_TOKEN` angelegt. Die Datei bleibt lokal und ist durch `.env.*` ausgeschlossen. Ihr Inhalt wurde nirgends ausgegeben oder gespeichert.
+  - Die von der CLI angehängte Regel `.env*` hätte `!.env.example` aufgehoben → entfernt (siehe oben).
+- **Ergebnis:** Das Projekt `escape-room-test` existiert im Bereich „WebTech Escape Room“, ist lokal verknüpft, hat keine Git-Verbindung und noch kein Deployment. Die Verknüpfungsdateien werden nicht eingecheckt.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Einrichtungsschritt 5
+- **Abweichungen vom Plan:**
+  - Schritt 5 hat Claude auf Wunsch der Nutzerin ausgeführt, im Plan war er als ihr Schritt beschrieben.
+  - Das Projekt wurde mit `vercel project add` angelegt und dann verknüpft, statt es interaktiv in `vercel link` zu erstellen. So ist sichergestellt, dass keine Git-Verbindung entsteht.
+- **Git-Commit:** `b15f390`
+
+### 2026-10-23, 03:22 – AP 5: Nachtrag zum Stand der Einrichtung (bestätigt und offen)
+- **Auslöser:** Anweisung des Nutzers: „Bitte prüfe, ob mein Auftrag zur Vercel-Einrichtung und dessen Ausführung bereits gemäß unseren Projektregeln dokumentiert sind. Falls nicht, ergänze einen Entwicklungsprotokoll-Eintrag mit Bezug zur AP-5-Planung. […] Unterscheide bestätigte Ergebnisse von noch offenen Schritten. […] Bestehende Protokolleinträge unverändert lassen und keinen doppelten Eintrag anlegen.“
+- **Durchgeführte Schritte:**
+  - Den Eintrag „AP 5, Einrichtungsschritt 5: Vercel-Projekt angelegt und lokal verknüpft“ (2026-10-23, 03:18) gegen die Vorgaben geprüft. **Bereits enthalten:**
+    - Auftrag im Wortlaut
+    - Erstellen und Verknüpfen ohne Git-Verbindung und ohne Deployment
+    - Abweichung: erst separat erstellt, dann verknüpft
+    - `.gitignore` einschließlich der Korrektur für `.env.example`
+    - Ausschluss der lokalen Konfigurationsdateien
+    - Hinweis auf „All Deployments“ vor dem ersten Deployment
+    - Bezug zur Planung
+    - keine geheimen Werte
+  - **Fehlend und hier ergänzt:** die vollständige Liste der offenen Einrichtungsschritte und eine klare Trennung von bestätigten Ergebnissen und offenen Schritten. Der bestehende Eintrag bleibt unverändert.
+- **Bestätigte Ergebnisse** (am 2026-10-23 geprüft):
+  - Vercel-Anmeldung als `marlene168`, Bereich „WebTech Escape Room“ (`web-tech-escape-room`, Tarif Hobby).
+  - Das Projekt `escape-room-test` existiert und ist lokal verknüpft. Laut Vercel-API ist keine Git-Verbindung vorhanden und es gab 0 Deployments.
+  - `.vercel/` und `.env.local` sind von Git ausgeschlossen (`git check-ignore`), `.env.example` bleibt erlaubt. Im Repo liegt keine dieser Dateien (`git ls-files`).
+  - In Dateien, Git und Protokollen stehen keine Tokenwerte und keine Inhalte geheimer Dateien.
+- **Noch offen** (Einrichtungsschritte laut Detailplan AP 5, Abschnitt 5):
+  - **Vor dem ersten Deployment Pflicht – Schritt 7:**
+    - Vercel Authentication auf **„All Deployments“** umstellen. Zurzeit steht sie auf dem Standard `all_except_custom_domains`, der Produktions-Adressen nicht schützt.
+    - „Protection Bypass for Automation“: Geheimnis erzeugen.
+    - Claude prüft die Umstellung anschließend lesend über die Vercel-API.
+  - **Schritt 6:** Die stabile Hauptadresse der Testversion an Claude melden (für `supabase-konfig.js` und Turnstile).
+  - **Schritt 8:** Vercel-Token „github-deploy-test“ erstellen.
+  - **Schritte 1 bis 4 (Supabase):** Projekt `escape-room-test`, Gastanmeldung, Prüfung des Limits, Access Token `github-deploy-test` mit den dokumentierten Rechten (Ablauf 22.10.2027). Project URL und Publishable Key an Claude. Der Abschluss ist noch nicht gemeldet.
+  - **Schritt 9:** Cloudflare-Turnstile-Widget für die Hauptadresse, Site Key an Claude, Secret Key ins Supabase-Dashboard.
+  - **Schritt 10:** sieben GitHub-Repository-Secrets `TEST_…`.
+  - **Schritt 11:** Freischaltung der zweiten Person, **erst nach** geprüftem Zugriffsschutz.
+  - Danach setzt Claude AP 5 auf diesem Branch um (Abschnitt 6 des Detailplans).
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Auftrag und Ausführung der Vercel-Einrichtung sind vollständig dokumentiert, bestätigte und offene Schritte sind getrennt aufgeführt.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung); ergänzt den Eintrag 2026-10-23, 03:18
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 10:15 – AP 5: Einrichtung abgeschlossen, öffentliche Werte übernommen
+- **Auslöser:** Mitteilung der Nutzerin: „Ich habe alle deine Schritte umgesetzt und hier sind die Infos, die du noch brauchst: Supabase Projekt URL: https://lfqcvevtzddxaywshxwg.supabase.co, Publishable Key: sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A, Projekt ID: lfqcvevtzddxaywshxwg, stabile Vercel Testadresse: https://escape-room-test-mauve.vercel.app, Turnstile Site Key: 0x4AAAAAAFhw9z0L0UM45dNf. Übernehme diesen Input auch entsprechend in die Dokumentation“
+- **Durchgeführte Schritte:**
+  - Die übergebenen Werte in Abschnitt 2 eingetragen. Alle sind öffentlich gedacht: Publishable Key und Turnstile Site Key stehen ohnehin im Browser-Code, Projekt-ID und Adressen sind keine Geheimnisse.
+  - Die Einrichtung **nur lesend** geprüft, ohne geheime Werte auszugeben:
+    - **Vercel (API):** Schutz `deploymentType: all` (All Deployments), ein Bypass-Geheimnis vorhanden, keine Git-Verbindung, 0 Deployments.
+    - **GitHub:** alle sieben Secrets `TEST_…` angelegt (nur die Namen geprüft).
+    - **Supabase:** Die öffentlichen Auth-Einstellungen zeigen, dass Gastanmeldungen erlaubt sind.
+  - **CAPTCHA-Probe** gegen das Test-Projekt: Gastanmeldung ohne Token → HTTP 400 `captcha_failed` („no captcha_token found“), mit ungültigem Token → HTTP 400 `captcha_failed` („invalid-input-response“). Supabase erzwingt das CAPTCHA also serverseitig. Dabei wurde kein Gastkonto angelegt.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Vercel-API (lesend), GitHub CLI (`gh secret list`, nur Namen), curl (Supabase Auth), Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestätigt:** Die Einrichtungsschritte 1 bis 10 sind abgeschlossen, Zugriffsschutz „All Deployments“ ist aktiv, das CAPTCHA wird von Supabase erzwungen.
+  - **Offen:**
+    - Umsetzung von AP 5 (Workflow, Konfiguration, Turnstile im Browser, Sitzungslimit, Rauchtest)
+    - Deploy #1 mit Prüfung des Zugriffsschutzes
+    - Freischaltung der zweiten Person (Schritt 11), Deploy #2
+    - gemeinsame Online-Prüfung
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Einrichtungsschritte 1 bis 10
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 10:31 – AP 5: Deployment-Workflow, Rauchtest, Turnstile und Sitzungslimit umgesetzt
+- **Auslöser:** Anweisung des Nutzers: Übergabe der öffentlichen Werte nach abgeschlossener Einrichtung („Ich habe alle deine Schritte umgesetzt […]“) und damit der Start der Umsetzung nach dem freigegebenen Detailplan AP 5, Abschnitt 6.
+- **Durchgeführte Schritte:**
+  - **`.github/workflows/deploy.yml`:**
+    - Nur `workflow_dispatch`, Ziel `test`. Erster Job bricht ab, wenn der Lauf nicht von `main` kommt.
+    - Alle Jobs checken `github.sha` aus. `concurrency` mit `cancel-in-progress: false`.
+    - Ablauf: `pruefen` (ruft `ci.yml` auf), dann `supabase` (`link`, `db push`, `functions deploy --use-api`), dann `vercel` (`vercel deploy --prod`), dann `rauchtest`.
+    - Jeder Schritt schreibt in die Zusammenfassung. Öffentliche Werte stehen im Workflow, geheime nur als `TEST_`-Secrets.
+  - **`ci.yml`:** zusätzlich `workflow_call`, Checkout ausdrücklich mit `ref: github.sha`.
+  - **`test-online/rauchtest.mjs`:**
+    1. Ohne Anmeldung muss auf Hauptadresse und Deployment-URL die Vercel-Sperre kommen (Weiterleitung zu vercel.com oder Vercel-Anmeldeseite), ohne Spielinhalte.
+    2. Mit Bypass: das erwartete HTML, die öffentlichen Raumdaten ohne Lösung. Sechs Pfade müssen mit Vercel-„NOT_FOUND“ antworten, darunter die tatsächlichen geheimen Pfade unter `/supabase/functions/_shared/raeume/`.
+    3. Dateiliste des Deployments über die Vercel-API: nur `public/**` und `vercel.json`.
+    4. Backend mit gültigem Publishable Key ohne Nutzeranmeldung: HTTP 401 von `@supabase/server` mit `authorization: absent` und `apikey: publishable`. Das Format wurde lokal ermittelt.
+    5. Gastanmeldung ohne bzw. mit ungültigem Token: HTTP 400 `captcha_failed`.
+    - Der Bypass wird nie ausgegeben, auch nicht in Fehlermeldungen.
+  - **`vercel.json`** (`framework: null`, `outputDirectory: public`, `git.deploymentEnabled: false`) und **`.vercelignore`** (nur `public/` und `vercel.json`). Vercel CLI **63.1.0** als feste Entwicklungsabhängigkeit.
+  - **`public/js/supabase-konfig.js`:** Zuordnung nach Hostname (lokal → lokales Supabase ohne CAPTCHA, `escape-room-test-mauve.vercel.app` → Test-Projekt mit Turnstile, sonst kein Backend), ausdrücklich als „kein Zugriffsschutz“ kommentiert. Dazu `test/supabase-konfig.test.js` (4 Tests).
+  - **`public/js/verbindung-online.js`:**
+    - Eine gespeicherte Anmeldung wird geprüft und weiterverwendet. Nur bei einer neuen Gastanmeldung wird das Turnstile-Skript geladen und für jeden Versuch das Widget zurückgesetzt (frisches Token).
+    - Die Spielseite meldet nie neu an: Ohne Anmeldung gilt „kein Zugriff“.
+    - Fehlerfälle `captcha` und `anmeldung_fehlgeschlagen`.
+  - Startseite mit Fläche für das Widget und neuen Meldungen (Sitzungslimit, CAPTCHA, Anmeldung). Die Meldung zum Limit erscheint auch bei „Nochmal spielen“.
+  - **Migration `20261023101615_sitzungslimit.sql`:**
+    - `erstelle_sitzung` mit `pg_advisory_xact_lock` pro Gast und höchstens 10 Sitzungen pro Stunde, sonst `{ fehler: "zu_viele_sitzungen" }`. Die Rechte nur für `service_role` sind erneut gesetzt.
+    - Verträglich mit der vorherigen Website.
+    - `sitzung-erstellen` antwortet dann mit 429.
+  - **Backend-Tests:** Limit nacheinander (die 11. Sitzung wird abgelehnt, andere Gäste nicht betroffen) und 15 parallel (genau 10).
+  - `docs/anleitung.md`: Abschnitt „Online-Testversion aktualisieren“ (Auslösen, Ablauf, Fehlerfälle, Verträglichkeitsregel, nur über die Hauptadresse spielen, zweite Person, Checkliste vor Tests und Präsentationen). Abschnitte 1 und 2 aktualisiert.
+- **Prüfungen:**
+  - `npm test`: 68 von 68.
+  - `npm run test:backend`: 26 von 26, lokal und in der CI.
+  - **Gegenprobe Sitzungslimit:** Ohne die Sperre (nur lokal kurz entfernt) entstanden bei 15 gleichzeitigen Anfragen 13 bzw. 14 Sitzungen, und der Test schlug in 3 von 3 Läufen fehl. Mit Sperre sind es genau 10. Danach zurückgesetzt.
+  - **Browser lokal:**
+    - Meilenstein-1-Test weiterhin 23 von 23.
+    - Nach 10 Sitzungen zeigt „Spielen“ die Limit-Meldung, ohne die Spielseite zu öffnen.
+    - Lokal wird Turnstile weder angezeigt noch geladen. Keine JS-Fehler.
+  - Beide Workflow-Dateien als YAML geprüft.
+- **Geänderte/neue Dateien:** `.github/workflows/deploy.yml`, `.github/workflows/ci.yml`, `test-online/rauchtest.mjs`, `vercel.json`, `.vercelignore`, `package.json`, `package-lock.json`, `public/js/supabase-konfig.js`, `public/js/verbindung-online.js`, `public/js/start.js`, `public/js/main.js`, `public/index.html`, `public/css/style.css`, `supabase/migrations/20261023101615_sitzungslimit.sql`, `supabase/functions/sitzung-erstellen/index.js`, `test/supabase-konfig.test.js`, `test-backend/gleichzeitigkeit.test.js`, `docs/anleitung.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Supabase CLI, Docker Desktop, Vercel CLI, Google Chrome (headless), curl, Git, GitHub Actions, GitHub CLI (`gh`)
+- **Probleme & Lösungen:**
+  - **Nach dem ersten lokalen Backend-Start fanden die Edge Functions die geteilten Dateien unter `public/shared/` nicht** („Module not found“). Nach einem vollständigen Stopp und Neustart lief alles. Zwei weitere Stopp-und-Start-Zyklen waren unauffällig, der Fehler ließ sich nicht nachstellen. Vermutlich war vom vorherigen Lauf noch ein alter Container-Zustand übrig. Die Anleitung empfiehlt bereits einen Neustart.
+  - **npm meldete ein nicht freigegebenes Installationsskript von `esbuild`** (Abhängigkeit der Vercel CLI). Für das Deployment statischer Dateien wird `esbuild` nicht gebraucht, deshalb bewusst nicht freigegeben. Die Supabase CLI ist nicht betroffen.
+- **Ergebnis:**
+  - Der Deployment-Ablauf für die geschützte Testversion ist fertig und getestet, soweit das ohne Deployment möglich ist.
+  - **Noch offen (nach dem Merge):**
+    - Deploy #1 durch die Nutzerin
+    - die Merkmale der Vercel-Sperre im Rauchtest festhalten
+    - Zugriffsschutz prüfen (privates Fenster)
+    - Freischaltung der zweiten Person, Deploy #2
+    - Prüfung, dass der Workflow von einem anderen Branch aus abbricht
+    - CAPTCHA-Ablauftest
+    - gemeinsame Online-Prüfung
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
+- **Abweichungen vom Plan:**
+  - Die Spielseite meldet nie neu an. Ohne gültige Anmeldung gilt „kein Zugriff“. Damit braucht nur die Startseite das CAPTCHA, ein neuer Gast könnte ohnehin kein Mitglied sein.
+  - Das Format der Backend-Ablehnung wurde vor dem ersten Lauf lokal ermittelt (401 von `@supabase/server`, `authorization: absent`) und gleich fest geprüft. Das Format der Vercel-Sperre wird wie geplant beim ersten Lauf festgehalten.
+  - Die Vercel-Projekt-ID und die Team-ID kommen aus den Secrets. Die Hauptadresse steht als öffentlicher Wert im Workflow.
+- **Git-Commit:** `4ba53e7`

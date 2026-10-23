@@ -1,0 +1,6 @@
+# Nur die Website (public/) und vercel.json zu Vercel hochladen.
+# Alles andere bleibt lokal: server.js (Vercel würde Express sonst als Backend erkennen),
+# supabase/ (Backend mit geheimen Raumdaten), Tests, Doku, package.json (kein Build nötig).
+/*
+!/public
+!/vercel.json

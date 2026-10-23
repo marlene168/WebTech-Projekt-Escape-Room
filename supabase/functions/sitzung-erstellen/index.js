@@ -1,6 +1,7 @@
 // Edge Function "sitzung-erstellen": neue Sitzung für einen Raum.
 // Eingabe: { raumId }   Antwort: { sitzung, serverzeit }
 // Die erstellende Person wird Mitglied und darf als einzige starten.
+// Pro Gast höchstens 10 neue Sitzungen pro Stunde (Antwort 429 "zu_viele_sitzungen").
 import { withSupabase } from "@supabase/server";
 import { vollstaendigerRaum, neuerSpielstand } from "../_shared/kern.js";
 import { antworteMitSitzung, lehneAb, leseEingabe, nutzerId } from "../_shared/sitzungen.js";
@@ -19,6 +20,8 @@ export default {
         p_zustand: neuerSpielstand(raum),
       });
       if (error) throw error;
+      // Höchstens 10 neue Sitzungen pro Gast und Stunde (siehe Migration 20261023101615_sitzungslimit.sql)
+      if (data.fehler) return lehneAb(429, data.fehler);
       return antworteMitSitzung(data, Date.now(), 201);
     } catch (fehler) {
       console.error(fehler);

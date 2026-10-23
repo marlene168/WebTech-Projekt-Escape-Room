@@ -19,6 +19,11 @@
       <button class="knopf knopf-haupt">Beitreten</button>
     </form>
     <p class="start-meldung" role="alert" hidden></p>
+    <!-- Sicherheitsprüfung (Cloudflare Turnstile) – erscheint nur online bei einer neuen Gastanmeldung -->
+    <div class="captcha" hidden>
+      <p>Kurze Sicherheitsprüfung, bevor es losgeht …</p>
+      <div class="captcha-widget"></div>
+    </div>
   </header>
 
   <!-- Die Raumkarten werden von js/start.js aus shared/raeume/index.js erzeugt.

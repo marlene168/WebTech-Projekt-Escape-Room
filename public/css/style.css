@@ -1042,3 +1042,19 @@ body.startseite {
     display: none;
   }
 }
+
+/* Sicherheitsprüfung (Turnstile) auf der Startseite */
+.captcha {
+  margin: 1rem auto 0;
+  text-align: center;
+}
+
+.captcha p {
+  margin: 0 0 0.5rem;
+  font-style: italic;
+}
+
+.captcha-widget {
+  display: inline-block;
+  min-height: 65px; /* Platz für das Widget, damit nichts springt */
+}
