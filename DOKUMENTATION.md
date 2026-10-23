@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum, alle Grafiken, Videos und Töne noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
+_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Hauptszene des Arbeitszimmers und Vorschaubild mit eigenen Grafiken (vorläufig), Detailansichten, Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
 
 **Umgesetzt:**
 
@@ -85,6 +85,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
   - Beendete Sitzungen werden noch nicht aufgeräumt.
   - Nach Änderungen an Dateien in `public/shared/` muss das lokale Backend neu gestartet werden (siehe Anleitung).
+  - Der Schreck-Ton spielt erst nach dem ersten Klick oder Tastendruck auf der Spielseite (Autoplay-Sperre der Browser). Fehlt eine Hintergrund- oder Vorschaubild-Datei, bleibt die Fläche leer statt den Platzhalter zu zeigen.
 
 **Geplant (noch nicht umgesetzt):**
 
@@ -161,6 +162,8 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 | 2026-10-23 | Prüfkriterium der externen Freischaltung: **zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen auf unterschiedlichen Geräten** genügen; Zugriffsanfrage, Genehmigung und anschließende Anzeige der Website sind der Nachweis | Klarstellung der Nutzerin: Für die technische Prüfung ist das ausreichend, eine weitere Person ist dafür nicht erforderlich | – |
 | 2026-10-23 | Es gibt keine konkrete Aufgabenstellung und keine zusätzlichen Bewertungskriterien des Dozenten. Ihre Beschaffung ist keine Restaufgabe und keine Voraussetzung für die Weiterarbeit. Der vereinbarte Projektumfang bleibt bei **drei Räumen** | Klarstellung der Nutzerin; ersetzt den offenen Punkt „Aufgabenstellung und Bewertungskriterien hinterlegen“ aus dem AP-5-Abschluss | Weiterarbeit erst nach Beschaffung von Vorgaben |
 | 2026-10-23 | CAPTCHA-Ablauftest Teil B (verbrauchtes Token) wird **depriorisiert** und vorerst nicht erneut getestet; Wiederaufnahme nur bei konkreten Problemen mit erkennbarem Zusammenhang. Teil A bleibt bestanden, Teil B nicht abschließend geprüft | Entscheidung der Nutzerin aus Zeit- und Umfanggründen. Der Rauchtest belegt bei jedem Deployment weiterhin, dass Supabase Anmeldungen ohne bzw. mit ungültigem Token ablehnt | Wiederholung mit `credentials: "omit"`; Änderung der Sicherheits- oder Serverkonfiguration wegen des CORS-Fehlers |
+| 2026-10-23 | Der Schreck-Ton wird beim **ersten Klick oder Tastendruck auf der Spielseite** freigeschaltet statt nur bei „Raum betreten“ | Befund im Medientest: Den Knopf sieht nur die erstellende Person, Mitglieder blieben bei Zeitablauf stumm. Ein Klick irgendwo erfüllt die Autoplay-Regel der Browser | Eigener Knopf „Ton an“ für alle (zusätzliche Bedienung); Freischaltung beim Laden der Seite (von Browsern ohne Nutzeraktion blockiert) |
+| 2026-10-23 | **Vorläufig:** Hauptszene des Arbeitszimmers mit einer Gesamtansicht (alle Gegenstände gemalt) als Hintergrund; die Gegenstände liegen als eigene, freigestellte Bilder deckungsgleich darüber. Gegenstände als WebP (lange Seite 1200 px), Hintergründe als JPG. Die endgültige Gestaltung wird später abgestimmt | Die Nutzerin hat eine Gesamtansicht statt eines leeren Raums geliefert; die Überlagerung wirkt nahtlos, die Gegenstände bleiben einzeln austauschbar und reagieren auf Hover. Weicht von der Entscheidung vom 2026-10-04 ab (Hintergrund ohne Gegenstände): Ändert sich später ein Gegenstand sichtbar (z. B. offene Tür), muss die Gesamtansicht angepasst oder ein leerer Raum erzeugt werden. WebP spart rund 90 % Ladevolumen gegenüber den Original-PNGs | Gegenstände in den bisherigen Kästen auf der Platzhalter-Tapete (wirkt wie Kulisse, Nachweis `docs/nachweise/2026-10-23_medien_raum-variante-einzeln.jpg`); Gesamtansicht mit unsichtbaren Klickflächen (am 2026-10-04 verworfen); Original-PNGs mit 2–3 MB je Datei |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1454,3 +1457,46 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 19:31 – Medieneinbindung geprüft: Grafiken und Ton (lokal), zwei Korrekturen
+- **Auslöser:** Anweisung der Nutzerin: „Ich möchte eigene Grafiken und Audiodateien einbinden und prüfen, ob die Einbindung funktioniert. Die endgültige Gestaltung folgt später.“ Mit den Schritten: Medienstruktur prüfen, Ablageort und Formate nennen, bereitgestellte Dateien einbinden, Darstellung und Audiowiedergabe über die vorgesehene Bedienung prüfen (Autoplay-Beschränkungen), Online-Testumgebung nur ohne neuen öffentlichen Release, knapp dokumentieren.
+- **Durchgeführte Schritte:**
+  - **Bestand:** Die Einbindung ist seit Schritt 9 vorbereitet (Felder `hintergrund`, `bild`, `vorschaubild`, `video`, `schreck.sound` in der Raumdatei, Ordner `public/bilder|videos|toene/arbeitszimmer/`). Eigene Dateien der Nutzerin liegen noch nicht vor, die Ordner enthalten nur `.gitkeep`.
+  - **Test mit eigenen Testdateien von Claude** (nicht eingecheckt): Hintergrund-JPG 1920×1080, Objekt-PNG 800×380 mit transparentem Bereich, Vorschau-JPG 1200×675, Ton als WAV (1,5 s). MP3 ließ sich lokal nicht erzeugen (kein Encoder installiert). Die Raumdatei zeigte nur während des Tests auf diese Dateien.
+  - **Testaufbau:** lokales Supabase, Chrome headless mit der Autoplay-Regel des Desktop-Chrome (`--autoplay-policy=document-user-activation-required`), echte Mausklicks über das DevTools-Protokoll, Tonausgabe stumm. Drei Gäste in einer Sitzung: A erstellt und klickt „Raum betreten“, B tritt per Code bei und klickt im Spiel ein Objekt an, C tritt bei und klickt auf der Spielseite nichts. Zeitablauf in der lokalen Datenbank vorgespult (Startzeit 10 Minuten zurück).
+  - **Ergebnisse vor der Korrektur:**
+    - Vorschaubild, Hintergrund und Objektbild laden in voller Größe; die Transparenz des PNG stimmt, das Objekt sitzt in seinem Kasten (Sichtprüfung per Screenshot).
+    - **Befund 1:** Das Vorschaubild auf der Startseite ragte über den Text der Raumkarte (Breite aus der Kartenhöhe statt aus der Spalte). Mit dem dunklen Platzhalter fiel das nicht auf.
+    - Ton bei A: Datei wird bei „Raum betreten“ stumm freigeschaltet und spielt bei Zeitablauf vollständig (1,50 s, nicht stumm).
+    - **Befund 2:** B und C hörten nichts. Die Freischaltung hing nur an „Raum betreten“ und „Nochmal spielen“; beide Knöpfe sieht nur die erstellende Person bzw. nur das Spielende.
+    - **Befund 3 (Gegentest mit falschen Pfaden):** Objekte zeigen den Platzhalter, Hintergrund und Vorschaubild bleiben leer. Die Anleitung versprach überall den Platzhalter.
+  - **Korrekturen:** Ton-Freischaltung beim ersten Klick oder Tastendruck auf der Spielseite (`anzeige.js`); Vorschaubild mit der Breite seiner Spalte (`style.css`). Befund 3 nur in der Anleitung richtiggestellt, ohne Codeänderung. Dazu Hinweise auf Groß-/Kleinschreibung bei Vercel, Tonformate und Autoplay-Regel.
+  - **Ergebnisse nach der Korrektur:** A und B spielen den Ton vollständig ab. C (kein Klick) bleibt stumm, das ist die Browser-Regel; Licht und Text erscheinen. Vorschaubild sitzt in der Spalte. Startseite mit Platzhalter (Desktop und 400 px) unverändert, bei 400 px pixelgleich mit dem alten Stand.
+  - `npm test` 68 von 68, `npm run test:backend` 26 von 26. Ein erster Backend-Lauf scheiterte mit `BOOT_ERROR`, weil die Raumdatei während des Tests geändert worden war. Nach dem dokumentierten Neustart des Backends liefen alle Tests durch.
+- **Geänderte/neue Dateien:** `public/js/anzeige.js`, `public/css/style.css`, `docs/anleitung.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Google Chrome (headless, DevTools-Protokoll), Supabase CLI und Docker (lokales Backend), Python und `sips`/`afconvert` (Testdateien), Git
+- **Probleme & Lösungen:** `BOOT_ERROR` der lokalen Edge Functions nach Änderung an `public/shared/`, gelöst durch Neustart des Backends (siehe Anleitung).
+- **Ergebnis:** Die Einbindung von Grafiken und Ton funktioniert lokal, auch unter der Autoplay-Regel. **Offen:**
+  - eigene Dateien der Nutzerin einbinden und damit erneut prüfen (Sichtprüfung der echten Motive, MP3)
+  - Prüfung in der Online-Testumgebung: Dafür muss der Stand auf `main` und per Deploy-Workflow in die geschützte Testversion. Das ist kein öffentlicher Release, wird aber nur nach Freigabe der Nutzerin ausgelöst.
+  - Safari und Mobilgeräte nicht getestet; Videos nicht Teil dieses Tests.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `c224f22`
+
+### 2026-10-23, 20:41 – Grafiken der Nutzerin eingebunden (Arbeitszimmer, vorläufig)
+- **Auslöser:** Nachricht der Nutzerin: „Ich habe das Hintergrundbild und die Gegenstände im Ordner gespeichert. Sind sie brauchbar? Kannst du sie schon einbinden und mir eine Vorstellung geben wie sie aussehen können? Ich habe noch kein Vorschaubild und Schreck-Ton“
+- **Durchgeführte Schritte:**
+  - **Geprüft:** sechs Dateien in `public/bilder/arbeitszimmer/` (nicht eingecheckt): `gesamtansicht-1920x1080.jpg` (1920×1080) und fünf PNGs mit Transparenz (`buecherregal-.png`, `gemaelde.png`, `pinnwand.png`, `schreibtisch.png`, `tuer.png`, je 1,9–2,8 MB). Ränder vollständig transparent, kaum halbtransparente Pixel. Stil, Licht und Perspektive passen zusammen.
+  - **Befund:** Die Gesamtansicht enthält alle fünf Gegenstände. Die Anleitung sah einen Hintergrund ohne Gegenstände vor.
+  - **Zwei Varianten verglichen** (Screenshots): Gegenstände einzeln auf der Platzhalter-Tapete in den bisherigen Kästen, oder Gesamtansicht mit deckungsgleich darübergelegten Gegenständen. Für die zweite Variante wurden die Kästen aus den Inhaltsgrenzen der PNGs und den Positionen in der Gesamtansicht berechnet. Sie wirkt nahtlos und wurde eingebunden.
+  - **Optimiert:** Gegenstände per Headless-Chrome in WebP umgewandelt (lange Seite 1200 px, Qualität 0,85, Transparenz bleibt): zusammen etwa 1 MB statt 12 MB. Gesamtansicht als `hintergrund-raum.jpg` (Qualität 80), Vorschaubild `vorschau.jpg` (1200×675) daraus abgeleitet, weil noch keines vorlag. Originaldateien der Nutzerin unverändert.
+  - **Getestet:** echter Spielablauf lokal (drei Gäste, Zeitablauf vorgespult): Vorschaubild 1200×675, Hintergrund 1920×1080 und alle fünf Gegenstände geladen. Hover-Rand folgt dem Umriss. Ohne Ton-Datei spielt bei A und B der eingebaute Ersatzton (Audio-Kontext läuft), C ohne Klick bleibt stumm (Browser-Regel). `npm test` 68 von 68, `npm run test:backend` 26 von 26 (nach Neustart des Backends).
+  - **Nachweise:** `docs/nachweise/2026-10-23_medien_raum-gesamtansicht.jpg`, `…_startseite-vorschau.jpg`, `…_raum-variante-einzeln.jpg`.
+- **Geänderte/neue Dateien:** `public/shared/raeume/arbeitszimmer.js`, `public/bilder/arbeitszimmer/` (`hintergrund-raum.jpg`, `vorschau.jpg`, fünf `.webp`), `docs/anleitung.md`, `docs/nachweise/` (3 Screenshots), `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Google Chrome (headless, DevTools-Protokoll; WebP-Umwandlung und Tests), `sips`, Python, Supabase CLI und Docker, Git
+- **Probleme & Lösungen:** `sips` kann kein WebP schreiben und verkleinert PNGs kaum, deshalb Umwandlung über die Canvas-Funktion von Chrome. Für die Vorschau der Varianten eine temporäre Seite ohne Backend genutzt (nicht eingecheckt), damit `public/shared/` dabei unverändert blieb.
+- **Ergebnis:** Die Hauptszene und das Vorschaubild zeigen die Grafiken der Nutzerin. Die Klickflächen enthalten den transparenten Rand der Bilder und sind daher teils größer als das Motiv: Am rechten Rand des Schreibtischs gewinnt die Tür den Klick. **Offen:** Detailansichten (Hintergründe und Gegenstände), Schreck-Ton, Entscheidung über die endgültige Gestaltung, Prüfung in der geschützten Testversion (Deploy nur nach Freigabe).
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `241c157`

@@ -23,7 +23,7 @@ export default {
   schwierigkeit: 1, // 1 = leicht, 2 = mittel, 3 = schwer (siehe shared/raeume/index.js)
   kurzbeschreibung:
     "Professor Albers ist seit drei Tagen verschwunden. In seinem Arbeitszimmer fällt die Tür hinter dir ins Schloss – finde den Code, bevor der Hausmeister kommt.",
-  vorschaubild: null, // Bild für die Raumkarte auf der Startseite, z. B. "bilder/arbeitszimmer/vorschau.jpg"
+  vorschaubild: "bilder/arbeitszimmer/vorschau.jpg", // Bild für die Raumkarte auf der Startseite
   dauerSekunden: 600, // 10 Minuten
 
   // Die Geschichte dieses Raums. Jeder Raum braucht Intro, Outro ("gewonnen") und "verloren".
@@ -67,47 +67,49 @@ export default {
   szenen: {
     // ---------- Hauptraum ----------
     raum: {
-      hintergrund: null,
+      // Gesamtansicht mit allen Gegenständen; die Gegenstände liegen als eigene Bilder deckungsgleich darüber
+      // (Kästen inklusive transparentem Rand der Bilder, deshalb teils größer als das sichtbare Motiv)
+      hintergrund: "bilder/arbeitszimmer/hintergrund-raum.jpg",
       platzhalter: "zimmer",
       objekte: [
         {
           id: "regal",
           name: "Bücherregal",
           emoji: "📚",
-          bild: null,
-          x: 4, y: 10, breite: 16, hoehe: 60,
+          bild: "bilder/arbeitszimmer/regal.webp",
+          x: -3.5, y: 0.6, breite: 30.5, hoehe: 81.3,
           text: "Staubige Bücher über Physik, Astronomie und Geschichte. Nichts davon wirkt, als hätte es in letzter Zeit jemand angefasst.",
         },
         {
           id: "bild",
           name: "Gemälde",
           emoji: "🖼️",
-          bild: null,
-          x: 29, y: 12, breite: 14, hoehe: 22,
+          bild: "bilder/arbeitszimmer/gemaelde.webp",
+          x: 24.9, y: 8.6, breite: 23.4, hoehe: 32,
           aktion: { typ: "oeffneSzene", ziel: "bild" },
         },
         {
           id: "pinnwand",
           name: "Pinnwand",
           emoji: "📌",
-          bild: null,
-          x: 52, y: 10, breite: 19, hoehe: 26,
+          bild: "bilder/arbeitszimmer/pinnwand.webp",
+          x: 49.8, y: 10, breite: 23.2, hoehe: 32.8,
           aktion: { typ: "oeffneSzene", ziel: "pinnwand" },
         },
         {
           id: "schreibtisch",
           name: "Schreibtisch",
           emoji: "🪑",
-          bild: null,
-          x: 28, y: 46, breite: 36, hoehe: 30,
+          bild: "bilder/arbeitszimmer/schreibtisch.webp",
+          x: 22.6, y: 39.1, breite: 54.3, hoehe: 52.2,
           aktion: { typ: "oeffneSzene", ziel: "schreibtisch" },
         },
         {
           id: "tuer",
           name: "Tür",
           emoji: "🚪",
-          bild: null,
-          x: 79, y: 14, breite: 14, hoehe: 56,
+          bild: "bilder/arbeitszimmer/tuer.webp",
+          x: 74.5, y: 7.3, breite: 26.4, hoehe: 70.5,
           aktion: { typ: "raetsel", raetsel: "tuer" },
         },
       ],
