@@ -90,7 +90,7 @@ Legende: **[A]** Anforderung bzw. Entscheidung der Nutzerin · **[V]** technisch
 Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Chat. Öffentliche Werte gibst du mir (📋).
 
 **Supabase (Test)**
-1. supabase.com → **New project** `escape-room-test`, Region **Frankfurt (eu-central-1)**, kostenloser Tarif. Datenbank-Passwort im Passwortmanager speichern.
+1. supabase.com → **New project** `escape-room-test`, Region **Frankfurt (eu-central-1)** *(aktualisiert 2026-10-23: Bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat **West Europe (London), `eu-west-2`** zugeordnet. Das Projekt bleibt so bestehen.)*, kostenloser Tarif. Datenbank-Passwort im Passwortmanager speichern.
 2. **Authentication → Sign In / Providers:** „Allow anonymous sign-ins“ einschalten.
 3. **Authentication → Rate Limits:** Gastanmeldungen beim Standard von 30 pro Stunde lassen (nur prüfen).
 4. 📋 **Project URL** und **Publishable Key** an mich, **Projekt-ID** notieren. **Account → Access Tokens:** Token „github-deploy-test“ mit diesen Einstellungen *(ergänzt 2026-10-23)*:
