@@ -1347,3 +1347,29 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 7
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 13:59 – AP 5: Gemeinsamer Online-Spieltest auf zwei Geräten bestanden (Meilenstein 1 online)
+- **Auslöser:** Meldung der Nutzerin: „Schritt 1-9 wurden erfolgreich durchgeführt und getestet. Dokumentiere bitte entsprechend. Nun machen wir weiter mit dem CAPTCHA Test.“
+- **Durchgeführte Schritte** (von der Nutzerin auf der Testversion `https://escape-room-test-mauve.vercel.app` nach Deploy #2 durchgeführt; Gerät A mit Vercel-Konto 1, Gerät B mit Vercel-Konto 2):
+  - **Zugang des zweiten Kontos nach Deploy #2:** Gerät B mit Konto 2 hat die Hauptadresse nach dem erneuten Deployment genutzt, eine neue Freischaltung war dafür nicht gemeldet.
+  - **Spieltest, alle Schritte laut Nutzerin bestanden:**
+    1. A erstellt mit „Spielen“ eine Sitzung, nach der Sicherheitsprüfung (Turnstile) erscheint der Code.
+    2. B tritt per Code bei (mit Sicherheitsprüfung). B sieht den Wartehinweis und keinen Knopf „Raum betreten“.
+    3. A startet: Das Intro schließt sich auch bei B, beide Timer laufen gleich.
+    4. B findet eine Spur (Schreibtisch → Kalender), sie erscheint im Notizbuch bei A.
+    5. A und B fordern gleichzeitig Tipp 1 an: Beide sehen genau einen Tipp, die Zeit sinkt nur um 1 Minute.
+    6. B lädt neu: Stand und Restzeit bleiben erhalten, keine erneute Sicherheitsprüfung.
+    7. Eine unabhängige dritte Sitzung (privates Fenster auf A) bekommt nichts von der ersten mit. Die Adresse der ersten Sitzung zeigt dort „Du bist kein Mitglied dieser Sitzung“.
+    8. A verlässt die Sitzung mit Bestätigung, B sieht „Sitzung beendet“.
+    9. Zeitablauf: Sitzung gestartet, alle Fenster mehr als 10 Minuten geschlossen. Beim erneuten Öffnen meldet der Server „Zeit abgelaufen“, ohne Vorspulen in der Datenbank.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Testversion auf zwei Geräten mit zwei Vercel-Konten (durch die Nutzerin), Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** **Meilenstein 1 ist online erfüllt.**
+  - Erfüllt sind: zwei berechtigte, getrennte Vercel-Konten auf unterschiedlichen Geräten, Sitzung erstellen, per Code beitreten, gemeinsam spielen, Weiterspielen nach dem Neuladen.
+  - Ebenfalls erfüllt: alle weiteren Prüfungen aus Meilenstein 1 (Startrecht, gemeinsamer Fortschritt, unabhängige Sitzung ohne Zugriff, gleichzeitiger Tipp, Zeitablauf durch den Server, Verlassen beendet die Sitzung).
+  - Turnstile erschien nur bei neuen Gastanmeldungen.
+  - **Offen in AP 5:** der CAPTCHA-Ablauftest.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 8, Prüfkriterien
+- **Abweichungen vom Plan:** Den Zeitablauf hat die Nutzerin durch echtes Warten (über 10 Minuten) geprüft, statt die Startzeit im Test-Projekt vorzuspulen. Das ist näher am echten Spiel und brauchte keinen Datenbankzugriff.
+- **Git-Commit:** keiner (keine Code-Änderung)
