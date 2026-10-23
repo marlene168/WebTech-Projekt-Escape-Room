@@ -52,7 +52,7 @@ Die drei Leserechte braucht `supabase link`, das Schreibrecht braucht die Veröf
 
 ### Online-Testversion aktualisieren (Deployment per Knopf)
 
-Die Testversion liegt unter **https://escape-room-test-mauve.vercel.app**. Sie ist geschützt: Öffnen können sie nur die Kontoinhaberin und eine freigeschaltete Person, jeweils mit eigenem Vercel-Konto. Die öffentliche Version gibt es erst nach ausdrücklicher Freigabe.
+Die Testversion liegt unter **https://escape-room-test-mauve.vercel.app**. Sie ist geschützt: Öffnen können sie nur das Konto der Inhaberin und ein ausdrücklich freigeschaltetes zweites Vercel-Konto. Die öffentliche Version gibt es erst nach ausdrücklicher Freigabe.
 
 **Auslösen:** GitHub → **Actions** → **Deploy** → **Run workflow** → Branch `main`, Ziel `test`. Ein Push löst nie ein Deployment aus.
 
@@ -74,7 +74,7 @@ Das Ergebnis steht in der Zusammenfassung des Laufs. Es läuft nie mehr als ein 
 
 **Nur über die Hauptadresse spielen:** Die Adressen einzelner Deployments (`escape-room-test-…-web-tech-escape-room.vercel.app`) sind bewusst nicht mit dem Backend verbunden und daher nicht spielbar.
 
-**Zweite Testperson:** Sie öffnet die Hauptadresse mit ihrem eigenen Vercel-Konto und fragt Zugriff an. Freigeben geht im Vercel-Projekt unter **Settings → Deployment Protection → Requests**. Der Hobby-Tarif erlaubt eine externe Person.
+**Zweites Konto (externe Freischaltung):** Mit dem zweiten Vercel-Konto die Hauptadresse öffnen und Zugriff anfragen, dann im Vercel-Projekt unter **Settings → Deployment Protection → Requests** freigeben.
 
 **Checkliste vor Tests und Präsentationen:**
 1. Im Supabase-Dashboard den Status des Projekts `escape-room-test` prüfen. Ist es pausiert (kostenlose Projekte pausieren nach etwa einer Woche ohne Nutzung), wiederherstellen und einige Minuten warten.

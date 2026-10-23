@@ -98,7 +98,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
-  - Freischaltung der externen Testperson bei wiederholten Deployments (wird in AP 5 geprüft)
+  - Fortbestehende Freischaltung des externen Kontos nach einem weiteren Deployment (wird in AP 5 geprüft)
   - Aktionslimits vor der öffentlichen Freigabe
   - Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist
   - Inhalte von Raum 2 und 3
@@ -160,6 +160,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 | 2026-10-23 | Supabase-Token `github-deploy-test` mit minimalen Rechten: nur Projekt `escape-room-test`; Project Settings, API Keys und API Key Secrets je Read, Edge Functions Read-write, alles andere None; der Tokenwert nur als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN`, nie in Dateien, Git oder Protokollen; Ablaufdatum 22.10.2027 (bestätigt am 2026-10-23) | Von der Nutzerin festgelegt (Prinzip der geringsten Rechte): Die Leserechte braucht `supabase link`, das Schreibrecht die Veröffentlichung der Edge Functions; Migrationen nutzen separat das Datenbank-Passwort | Token mit Zugriff auf alle Projekte bzw. vollen Rechten |
 | 2026-10-23 | Migrationen im Deploy-Workflow über den **Session Pooler** (IPv4): `supabase db push --db-url` mit `aws-0-eu-west-2.pooler.supabase.com:5432` und Nutzer `postgres.<Projekt-ID>`; Passwort nur aus dem Secret `TEST_SUPABASE_DB_PASSWORD`, URL-kodiert und vor jeder Ausgabe ausdrücklich maskiert; die Token-Rechte bleiben unverändert | Deploy #1 scheiterte an IPv6: Die direkte Datenbankadresse ist im kostenlosen Tarif nur über IPv6 erreichbar, GitHub-Runner können kein IPv6, und `supabase link` hat mit dem eng begrenzten Token keinen Pooler eingerichtet. Entscheidung der Nutzerin auf Empfehlung von Claude: eindeutiger Weg ohne zusätzliche Rechte | Token-Rechte erweitern, damit `supabase link` den Pooler selbst einrichtet (nötige Berechtigung nicht dokumentiert, mehr Rechte); kostenpflichtiges IPv4-Add-on |
 | 2026-10-23 | Das Supabase-Test-Projekt bleibt in der Region **West Europe (London), `eu-west-2`**, statt wie geplant in Frankfurt (`eu-central-1`) | Bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Für Funktion und Tests ist der Unterschied unerheblich (beides EU). Ein Neuanlegen hätte die gesamte Einrichtung (Token, Secrets, Turnstile, Pooler) erneut erfordert. Entscheidung der Nutzerin | Projekt in Frankfurt neu anlegen |
+| 2026-10-23 | Prüfkriterium der externen Freischaltung: **zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen auf unterschiedlichen Geräten** genügen; Zugriffsanfrage, Genehmigung und anschließende Anzeige der Website sind der Nachweis | Klarstellung der Nutzerin: Für die technische Prüfung ist das ausreichend, eine weitere Person ist dafür nicht erforderlich | – |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1284,4 +1285,35 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
     6. Klärung, ob der Test mit einer zweiten Person nachgeholt wird
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 6
 - **Abweichungen vom Plan:** Das freigeschaltete externe Konto gehört der Nutzerin selbst (geschäftliche E-Mail-Adresse) statt einer zweiten Person, siehe Hinweise.
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 13:17 – AP 5: Nachtrag – Klarstellungen zur externen Freischaltung und Prüfung im privaten Fenster
+- **Auslöser:** Klarstellungen der Nutzerin:
+  - „Für die technische Prüfung genügt mein Test mit zwei getrennten Vercel-Konten auf unterschiedlichen Geräten. Beide Konten gehören mir und verwenden unterschiedliche E-Mail-Adressen. Die Zugriffsanfrage, Genehmigung und anschließende Anzeige der Website haben funktioniert. Damit ist das Prüfkriterium der externen Freischaltung erfüllt. Eine weitere Person ist dafür nicht erforderlich. Passe das aktuelle Prüfkriterium entsprechend an […].“
+  - „Dein zweiter Hinweis zum belegten externen Konto und einem möglichen späteren Wechsel der Testperson ist für meinen gewählten Ablauf nicht relevant. Entferne ihn aus der aktuellen Darstellung […].“
+  - „Die manuelle Prüfung im privaten Fenster wurde erfolgreich durchgeführt: Sowohl Hauptadresse als auch Deployment-Adresse waren ohne Vercel-Login gesperrt und führten zur Vercel-Anmeldung. Bitte als bestanden nachtragen.“
+- **Durchgeführte Schritte:**
+  - **Aktueller Prüfstand angepasst:**
+    - Detailplan AP 5 (Kontext, Abschnitt 2, Einrichtungsschritt 11, Browser-Prüfung, Ablauf, Prüfkriterien), jeweils mit „aktualisiert 2026-10-23“.
+    - Anleitung (Testversion, zweites Konto), `docs/ideen.md` und Abschnitt 2 (offene Punkte).
+    - Abschnitt 3: neue Entscheidung zum Prüfkriterium.
+    - Das Kriterium lautet jetzt: **zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen auf unterschiedlichen Geräten.**
+  - Dieser Nachtrag stellt den Eintrag „Externe Freischaltung getestet“ (2026-10-23, 13:03) klar, der nach den Projektregeln unverändert bleibt:
+    - **Prüfkriterium der externen Freischaltung: erfüllt** (siehe Klarstellung oben).
+    - Der dortige Hinweis zum belegten externen Konto entfällt für den gewählten Ablauf.
+    - **Prüfung im privaten Fenster: bestanden.** Hauptadresse und Deployment-Adresse waren ohne Vercel-Login gesperrt und führten zur Vercel-Anmeldung.
+- **Geänderte/neue Dateien:** `docs/plaene/2026-10-23_ap5-testumgebung.md`, `docs/anleitung.md`, `docs/ideen.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestanden:**
+    - Zugriffsschutz automatisch (Rauchtest Deploy #1) und manuell (privates Fenster) auf Hauptadresse und Deployment-Adresse
+    - externe Freischaltung mit zwei getrennten Vercel-Konten auf unterschiedlichen Geräten
+  - **Offen** (geplante nächste Schritte):
+    1. Deploy #2 durch die Nutzerin
+    2. fortbestehender Zugang des zweiten Kontos ohne erneute Freischaltung
+    3. gemeinsamer Spieltest auf zwei Geräten
+    4. CAPTCHA-Ablauftest
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritte 5 und 6; ergänzt den Eintrag 2026-10-23, 13:03
+- **Abweichungen vom Plan:** Das Prüfkriterium der externen Freischaltung bezieht sich auf zwei getrennte Konten (Klarstellung der Nutzerin).
 - **Git-Commit:** keiner (keine Code-Änderung)

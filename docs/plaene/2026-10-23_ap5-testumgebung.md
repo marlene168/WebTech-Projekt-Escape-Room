@@ -12,10 +12,10 @@ Entscheidungen der Nutzerin vom 2026-10-23:
 - **AP 5 stellt ausschließlich die Testversion bereit.**
 - **Zugriffsschutz der Testversion:**
   - Vercel Hobby mit Vercel Authentication für **„All Deployments“**, einschließlich der Hauptadresse.
-  - Zwei Personen mit eigenen Vercel-Konten, die zweite wird ausdrücklich freigeschaltet.
+  - Zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen, das zweite wird ausdrücklich freigeschaltet (externe Freischaltung). *(aktualisiert 2026-10-23)*
   - **Kein kostenpflichtiger Tarif ohne Zustimmung der Nutzerin.**
 - **Die Testversion darf wiederholt aktualisiert werden.** Die **öffentliche Version** mit eigenem Supabase-Projekt und ohne Vercel-Anmeldung folgt erst nach ausdrücklicher Freigabe.
-- **Missbrauchsschutz schon in AP 5:** CAPTCHA (Turnstile) für die Gastanmeldung, geprüft durch Supabase, mit angemessenen Cloud-Limits. Das Backend wird **nicht** auf die zwei Testpersonen beschränkt, damit ein späterer öffentlicher Gastbetrieb möglich bleibt.
+- **Missbrauchsschutz schon in AP 5:** CAPTCHA (Turnstile) für die Gastanmeldung, geprüft durch Supabase, mit angemessenen Cloud-Limits. Das Backend wird **nicht** auf die Testkonten beschränkt, damit ein späterer öffentlicher Gastbetrieb möglich bleibt.
 - **GitHub Free:** Repository-Secrets. GitHub Pro ist beantragt. Erst wenn Pro bestätigt aktiv ist, wird ein Umzug in Environments geprüft. Die Umsetzung wartet nicht darauf.
 
 Legende: **[A]** Anforderung bzw. Entscheidung der Nutzerin · **[V]** technischer Vorschlag von Claude · **[O]** offen
@@ -40,7 +40,7 @@ Legende: **[A]** Anforderung bzw. Entscheidung der Nutzerin · **[V]** technisch
 - **Methode:** Vercel Authentication, Umfang **„All Deployments“**. Das schützt die Hauptadresse und alle generierten Deployment-URLs und ist laut Vercel auf allen Tarifen kostenlos. Einen Passwortschutz gibt es im Hobby-Tarif nicht.
 - **Berechtigt:**
   - die Nutzerin (Kontoinhaberin)
-  - **eine** weitere Person mit eigenem kostenlosen Vercel-Konto. Sie stellt eine Zugriffsanfrage, die Nutzerin gibt sie ausdrücklich frei. Mehr externe Personen erlaubt der Hobby-Tarif nicht.
+  - **ein** weiteres, getrenntes Vercel-Konto (externes Konto) mit eigener E-Mail-Adresse. Es stellt eine Zugriffsanfrage, die Nutzerin gibt sie ausdrücklich frei. *(aktualisiert 2026-10-23)*
 - **Nicht verwendet:** „Shareable Links“. Das sind geheime Links, also nur eine unbekannte URL.
 - **Bei wiederholten Deployments mitprüfen** [O]: Laut Vercel sieht eine freigegebene externe Person „die neueste Bereitstellung eines Branches“. Ob Schutz und Freischaltung nach einem **weiteren** CLI-Deployment bestehen bleiben, wird ausdrücklich getestet (siehe Prüfkriterien). Falls nicht, legt Claude der Nutzerin Ausweichmöglichkeiten vor, z. B. Deployments mit Git-Verknüpfung, aber weiterhin nur per Knopf. Ein kostenpflichtiger Tarif kommt nur mit ihrer Zustimmung.
 
@@ -52,7 +52,7 @@ Legende: **[A]** Anforderung bzw. Entscheidung der Nutzerin · **[V]** technisch
 ## 4. Missbrauchsschutz und Abwägung zum Backend-Schutz
 **Ausgangslage:** Der Vercel-Schutz gilt nur für die Website. Das Supabase-Backend ist technisch aus dem Internet erreichbar, weil der Browser es direkt anspricht. Adresse und öffentlicher Schlüssel sind kein Geheimnis. Wer sie kennt, könnte Gastkonten anlegen und Edge Functions aufrufen.
 
-**Bewusst nicht gemacht** [A]: Das Backend wird nicht auf die zwei Testpersonen beschränkt, z. B. über eine Liste erlaubter Nutzer. Das passt nicht zum späteren öffentlichen Gastbetrieb und würde Test und Produktion unterschiedlich machen.
+**Bewusst nicht gemacht** [A]: Das Backend wird nicht auf die Testkonten beschränkt, z. B. über eine Liste erlaubter Nutzer. Das passt nicht zum späteren öffentlichen Gastbetrieb und würde Test und Produktion unterschiedlich machen.
 
 **Maßnahmen in AP 5:**
 1. **CAPTCHA mit Cloudflare Turnstile bei der Gastanmeldung** [A] (von Supabase für Gastanmeldungen dokumentiert und empfohlen):
@@ -124,7 +124,7 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
     - `TEST_SUPABASE_ACCESS_TOKEN`, `TEST_SUPABASE_DB_PASSWORD`, `TEST_SUPABASE_PROJECT_ID`
     - `TEST_VERCEL_TOKEN`, `TEST_VERCEL_ORG_ID`, `TEST_VERCEL_PROJECT_ID`, `TEST_VERCEL_BYPASS`
 
-**Zweite Person** (erst nach erfolgreicher Prüfung des Zugriffsschutzes)
+**Zweites Konto** (erst nach erfolgreicher Prüfung des Zugriffsschutzes) *(aktualisiert 2026-10-23)*
 
 11. Eigenes kostenloses Vercel-Konto, Testadresse öffnen, Zugriff anfragen. Du gibst die Anfrage unter **Deployment Protection → Requests** frei.
 
@@ -152,7 +152,7 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
   3. **Upload-Auswahl:** Über die Vercel-API (Dateiliste des Deployments, mit Token) wird geprüft, dass **nur `public/**` und `vercel.json`** hochgeladen wurden.
   4. **Backend ohne Nutzeranmeldung:** Aufruf von `sitzung-erstellen` mit dem **gültigen** Publishable Key, aber **ohne** Anmelde-Token. Erwartet wird eine Ablehnung **wegen fehlender Authentifizierung**. Geprüft werden Status und Fehlerangabe der Antwort, deren genaue Form beim ersten Lauf festgehalten wird. Wie ein ungültiger Projektschlüssel beantwortet wird, ist dafür nicht maßgeblich und wird nicht vorausgesetzt.
   5. **CAPTCHA wird von Supabase geprüft:** Gastanmeldung beim Auth-Endpunkt **ohne** Token und mit einem **ungültigen** Token. Beide werden mit CAPTCHA-Fehler abgelehnt.
-- **Browser-Prüfung** (durch die Nutzerin bzw. beide Testpersonen, mit Screenshots für den Nachweis):
+- **Browser-Prüfung** (durch die Nutzerin mit beiden Testkonten, mit Screenshots für den Nachweis):
   - Raumkarten sind sichtbar.
   - Die Gastanmeldung mit Turnstile gelingt.
   - Sitzung erstellen und Raum betreten (Spielstart).
@@ -175,7 +175,7 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
   - Für jeden Anmeldeversuch ein frisches Token (Widget nach Versuch bzw. Ablauf zurücksetzen).
   - Bei Fehlern verständliche Meldung, ein neuer Versuch ist möglich.
 - **`docs/anleitung.md`:**
-  - Abschnitt „Testversion aktualisieren“: Auslösen, Ablauf, Fehlerfälle, Verträglichkeitsregel, Zugriff für die zweite Person, nur über die Hauptadresse spielen.
+  - Abschnitt „Testversion aktualisieren“: Auslösen, Ablauf, Fehlerfälle, Verträglichkeitsregel, Zugriff für das zweite Konson, nur über die Hauptadresse spielen.
   - **Checkliste vor Tests und Präsentationen:**
     1. Supabase-Projektstatus prüfen und ein pausiertes Projekt wiederherstellen.
     2. Testversion aufrufen, eine Sitzung erstellen und **den Raum betreten** (vollständiger Spielstart). Nur das Dashboard zu öffnen genügt nicht.
@@ -183,11 +183,11 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
 
 ## 7. Ablauf
 1. Planungsdoku auf `main` (Abschnitt 10).
-2. Deine Einrichtungsschritte 1 bis 10 (ohne die zweite Person), 📋-Werte an mich.
+2. Deine Einrichtungsschritte 1 bis 10 (ohne das zweite Konto), 📋-Werte an mich.
 3. Umsetzung auf `ap5-testumgebung`. CI grün, Pull Request, Merge nach deiner Freigabe (Merge-Commit).
 4. **Du startest Deploy #1** (Ziel `test`). Ich werte den Lauf aus und halte die Merkmale der Vercel-Sperre fest.
 5. **Zugriffsschutz prüfen, vor dem gemeinsamen Test:** Rauchtest und deine Prüfung in einem privaten Fenster (Hauptadresse und Deployment-URL).
-6. Die zweite Person fragt Zugriff an, du schaltest sie frei.
+6. Das zweite Konto fragt Zugriff an, du schaltest es frei. *(aktualisiert 2026-10-23)*
 7. **Deploy #2** (unverändert erneut auslösen). Danach prüfen, ob Schutz **und** Freischaltung noch gelten.
 8. Gemeinsame Online-Prüfung (Prüfkriterien).
 9. Nachweise und Korrekturen auf `ap5-nachweis`, mit Doku-Eintrag und Pull Request.
@@ -196,7 +196,7 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
 - **Zugriffsschutz** (vor dem gemeinsamen Test, nach Deploy #1 **und** #2):
   - Ohne Vercel-Login erscheint die Vercel-Sperre auf Hauptadresse und Deployment-URL.
   - Ein fremdes Vercel-Konto ohne Freigabe sieht nur die Zugriffsanfrage.
-  - Die freigeschaltete Person hat nach Deploy #2 weiterhin Zugriff.
+  - Das freigeschaltete zweite Konto hat nach Deploy #2 ohne erneute Freischaltung weiterhin Zugriff. *(aktualisiert 2026-10-23)*
 - **Missbrauchsschutz:**
   - Gastanmeldung ohne Token und mit ungültigem Token wird von Supabase abgelehnt (Rauchtest).
   - Mit Turnstile klappt die Anmeldung im Browser.
@@ -208,7 +208,7 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
   - Raumkarten, Anmeldung und Spielstart im Browser geprüft.
   - Nur `public/**` und `vercel.json` hochgeladen.
   - Die geheimen Pfade unter `supabase/functions/_shared/raeume/` sind nicht erreichbar.
-- **Zwei berechtigte Personen auf unterschiedlichen Geräten:** Sitzung erstellen, per Code beitreten, gemeinsam spielen, nach dem Neuladen weiterspielen.
+- **Zwei berechtigte, getrennte Vercel-Konten (unterschiedliche E-Mail-Adressen) auf unterschiedlichen Geräten:** *(aktualisiert 2026-10-23)* Sitzung erstellen, per Code beitreten, gemeinsam spielen, nach dem Neuladen weiterspielen.
 - **Weitere Prüfungen aus Meilenstein 1, online:**
   - Die beigetretene Person kann nicht starten.
   - Gemeinsamer Fortschritt.
@@ -249,7 +249,7 @@ Nur ergänzende, datierte Hinweise. Der ursprüngliche Text bleibt lesbar, die P
      - klare Trennung von Test und Veröffentlichung
      - Hostname-Zuordnung ist kein Zugriffsschutz
      - eindeutige Rauchtests statt „irgendein Fehler“
-     - Missbrauchsschutz ohne Sonderregeln für zwei Personen
+     - Missbrauchsschutz ohne Sonderregeln für die Testkonten
      - Fehlerfälle und Wiederholbarkeit
    - **Änderungswünsche der zweiten Runde und ihre Gründe:**
      - Sitzungslimit auch bei parallelen Anfragen: Ein Limit, das parallel umgangen werden kann, schützt nicht. Dazu Test und verständliche Meldung.
@@ -269,7 +269,7 @@ Nur ergänzende, datierte Hinweise. Der ursprüngliche Text bleibt lesbar, die P
      - automatisches Deployment, Deployment vom Laptop
      - Vorschau-Deployments, Vercels Git-Automatik
      - Shareable Links, Passwortschutz (nicht im Hobby-Tarif), Pro-Tarif
-     - Beschränkung des Backends auf zwei Personen
+     - Beschränkung des Backends auf die Testkonten
      - CAPTCHA nur im Browser
      - Übernahme der lokalen Limits, `supabase config push`
      - automatisches Zurücksetzen der Datenbank
