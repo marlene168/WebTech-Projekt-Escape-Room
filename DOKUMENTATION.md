@@ -151,6 +151,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 | 2026-10-23 | Missbrauchsschutz ab der Testversion: **Cloudflare Turnstile** bei der Gastanmeldung, **Prüfung durch Supabase**; Turnstile wird nur geladen, wenn eine Gastanmeldung nötig ist, eine gültige Anmeldung wird weiterverwendet, kein CAPTCHA für Sitzungen und Spielaktionen; frisches Token für jeden Anmeldeversuch (einmaliger Entwicklungstest zum Ablauf, wiederholt bei Änderungen der Anmeldelogik); Cloud-Limit 30 Gastanmeldungen pro Stunde und IP (Standard); **höchstens 10 neue Sitzungen pro Gast und Stunde**, auch bei parallelen Anfragen (Sperre pro Gast in der Datenbank). Spielaktionen und Beitrittscodes werden in AP 5 nicht zusätzlich begrenzt | Abwägung: Das Backend ist für den Browser erreichbar und darf nicht auf zwei Personen beschränkt werden, sonst wäre ein späterer öffentlicher Gastbetrieb nicht möglich. Supabase empfiehlt ein CAPTCHA für Gastanmeldungen. Das Sitzungslimit begrenzt massenhaft erstellte Sitzungen. Verbleibendes Risiko: Viele Spielaktionen verbrauchen gemeinsame Supabase-Kontingente und können andere beeinträchtigen. Zusätzliche Aktionslimits sind ein Prüfpunkt vor der öffentlichen Freigabe | Backend auf zwei Personen beschränken; CAPTCHA nur im Browser prüfen; lokale Limits übernehmen bzw. `supabase config push`; zusätzliche Infrastruktur für Begrenzungen |
 | 2026-10-23 | Deployment-Regeln: alle Jobs nutzen denselben festgehaltenen Commit; nie zwei Deployments gleichzeitig, ein laufendes wird nie automatisch abgebrochen (GitHub hält höchstens einen wartenden Lauf, das genügt hier); bei Fehlern stoppt der Ablauf, erledigte Schritte werden protokolliert, kein automatisches Zurücksetzen der Datenbank; Backend-Änderungen bleiben mit der vorherigen Website verträglich; vor Tests und Präsentationen Supabase-Status prüfen und einen vollständigen Spielstart testen | Nachvollziehbarkeit und sichere Wiederholbarkeit; das Backend wird vor dem Frontend aktualisiert, die vorherige Website läuft also kurz gegen das neue Backend; kostenlose Supabase-Projekte pausieren nach Inaktivität (Präzisierungen der Nutzerin) | Laufende Deployments durch neue abbrechen; automatisches Zurücksetzen bei Fehlern; nur das Dashboard öffnen |
 | 2026-10-23 | Zugangsdaten bei GitHub Free als Repository-Secrets mit Präfix `TEST_`; der Workflow prüft selbst, dass er auf `main` läuft. Sobald GitHub Pro (Student Developer Pack) bestätigt aktiv ist, wird ein Umzug in getrennte Environments für Test und Veröffentlichung geprüft | Environment-Secrets und Branch-Regeln gibt es bei privaten Repos erst ab GitHub Pro; die Umsetzung soll nicht auf Pro warten (Entscheidung der Nutzerin) | Auf GitHub Pro warten; Secrets ohne Präfix |
+| 2026-10-23 | Supabase-Token `github-deploy-test` mit minimalen Rechten: nur Projekt `escape-room-test`; Project Settings, API Keys und API Key Secrets je Read, Edge Functions Read-write, alles andere None; der Tokenwert nur als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN`, nie in Dateien, Git oder Protokollen; Ablaufdatum wird nach Bestätigung ergänzt | Von der Nutzerin festgelegt (Prinzip der geringsten Rechte): Die Leserechte braucht `supabase link`, das Schreibrecht die Veröffentlichung der Edge Functions; Migrationen nutzen separat das Datenbank-Passwort | Token mit Zugriff auf alle Projekte bzw. vollen Rechten |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -937,3 +938,29 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - zusätzliche Infrastruktur für Begrenzungen
   - auf GitHub Pro warten
 - **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu AP 5 Testversion und Deployment“)
+
+### 2026-10-23, 03:02 – Ergänzung: Rechte des Supabase-Tokens für das Deployment
+- **Auslöser:** Anweisung des Nutzers: „Bitte ergänze die AP-5-Planungsdatei und die Einrichtungsanleitung um die konkreten Einstellungen des Supabase-Tokens `github-deploy-test`:
+  - Zugriff ausschließlich auf `escape-room-test`
+  - Project Settings: Read
+  - API Keys: Read
+  - API Key Secrets: Read
+  - Edge Functions: Read-write
+  - Alle übrigen Berechtigungen: None
+
+  Dokumentiere kurz den Zweck […]. Das tatsächlich gewählte Ablaufdatum ergänzen wir, sobald ich es bestätige. Den geheimen Tokenwert niemals in Dateien, Git oder Protokollen speichern.“
+- **Durchgeführte Schritte:**
+  - Im Detailplan AP 5, Abschnitt 5, Schritt 4, die Token-Einstellungen als Tabelle mit dem Zweck ergänzt, markiert mit „ergänzt 2026-10-23“.
+    - Die drei Leserechte braucht `supabase link`.
+    - Das Schreibrecht für Edge Functions braucht `supabase functions deploy`.
+    - Migrationen (`supabase db push`) nutzen separat das Datenbank-Passwort.
+  - In `docs/anleitung.md` den kurzen Abschnitt „Online-Testversion einrichten (einmalig)“ mit denselben Einstellungen und einem Verweis auf den Detailplan angelegt.
+  - Die Entscheidung in Abschnitt 3 eingetragen.
+  - Geprüft, dass in der Doku kein geheimer Wert steht. Der Tokenwert wird nur als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN` hinterlegt.
+- **Geänderte/neue Dateien:** `docs/plaene/2026-10-23_ap5-testumgebung.md`, `docs/anleitung.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Das Token für das Deployment hat nur die nötigen Rechte für genau das Test-Projekt, und Zweck und Umgang sind dokumentiert. **Offen:** das tatsächlich gewählte Ablaufdatum, wird nach Bestätigung durch die Nutzerin ergänzt.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
+- **Abweichungen vom Plan:** keine (Ergänzung der Einrichtungsschritte)
+- **Git-Commit:** keiner (keine Code-Änderung)

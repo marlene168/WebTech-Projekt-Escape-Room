@@ -31,6 +31,24 @@ Beim ersten Start lädt Docker einige Images herunter, das dauert ein paar Minut
 
 **Wichtig nach Änderungen an geteilten Dateien:** Die Edge Functions nutzen Dateien aus `public/shared/` (Spiellogik, Raumdaten). Nach Änderungen dort oder nach dem Verschieben von Dateien das Backend neu starten (`npm run backend:stop`, dann `npm run backend:start`). Sonst arbeiten die Edge Functions mit dem alten Stand oder finden Dateien nicht.
 
+### Online-Testversion einrichten (einmalig)
+
+Die vollständigen Einrichtungsschritte stehen im [Detailplan AP 5](plaene/2026-10-23_ap5-testumgebung.md), Abschnitt 5. Für das Supabase-Token gelten feste Einstellungen.
+
+**Supabase-Token `github-deploy-test`** (Supabase → Account → Access Tokens):
+
+| Einstellung | Wert |
+|---|---|
+| Zugriff auf Projekte | ausschließlich `escape-room-test` |
+| Project Settings | Read |
+| API Keys | Read |
+| API Key Secrets | Read |
+| Edge Functions | Read-write |
+| alle übrigen Berechtigungen | None |
+| Ablaufdatum | wird ergänzt, sobald bestätigt |
+
+Die drei Leserechte braucht `supabase link`, das Schreibrecht braucht die Veröffentlichung der Edge Functions. Datenbankmigrationen nutzen separat das Datenbank-Passwort. Der Tokenwert wird **nur** als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN` hinterlegt, nie in Dateien, Git oder Protokollen.
+
 ---
 
 ## 2. Grafik austauschen

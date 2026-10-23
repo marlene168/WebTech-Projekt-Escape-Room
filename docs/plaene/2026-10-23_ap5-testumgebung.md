@@ -93,7 +93,19 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
 1. supabase.com → **New project** `escape-room-test`, Region **Frankfurt (eu-central-1)**, kostenloser Tarif. Datenbank-Passwort im Passwortmanager speichern.
 2. **Authentication → Sign In / Providers:** „Allow anonymous sign-ins“ einschalten.
 3. **Authentication → Rate Limits:** Gastanmeldungen beim Standard von 30 pro Stunde lassen (nur prüfen).
-4. 📋 **Project URL** und **Publishable Key** an mich, **Projekt-ID** notieren. **Account → Access Tokens:** Token „github-deploy-test“.
+4. 📋 **Project URL** und **Publishable Key** an mich, **Projekt-ID** notieren. **Account → Access Tokens:** Token „github-deploy-test“ mit diesen Einstellungen *(ergänzt 2026-10-23)*:
+
+   | Einstellung | Wert |
+   |---|---|
+   | Zugriff auf Projekte | **ausschließlich `escape-room-test`** |
+   | Project Settings | Read |
+   | API Keys | Read |
+   | API Key Secrets | Read |
+   | Edge Functions | **Read-write** |
+   | alle übrigen Berechtigungen | None |
+   | Ablaufdatum | *wird ergänzt, sobald die Nutzerin es bestätigt* |
+
+   **Zweck:** Die drei Leserechte braucht `supabase link`, das Schreibrecht für Edge Functions braucht `supabase functions deploy`. Datenbankmigrationen (`supabase db push`) nutzen separat das Datenbank-Passwort (`TEST_SUPABASE_DB_PASSWORD`). Der Tokenwert kommt nur als Secret `TEST_SUPABASE_ACCESS_TOKEN` in GitHub, **nie** in Dateien, Git oder Protokolle.
 
 **Vercel (Test)**
 
