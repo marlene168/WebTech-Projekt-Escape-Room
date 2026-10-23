@@ -95,6 +95,8 @@ Das Ergebnis steht in der Zusammenfassung des Laufs. Es läuft nie mehr als ein 
 
 **Groß- und Kleinschreibung beachten:** Lokal auf dem Mac ist `Schreibtisch.PNG` dasselbe wie `schreibtisch.png`, online bei Vercel nicht. Dateinamen deshalb klein schreiben und genau so in die Raumdatei eintragen. Keine Leerzeichen und Umlaute in Dateinamen.
 
+**Dateigröße:** Große Bilder vor dem Einbinden verkleinern. Gegenstände am besten als **WebP mit Transparenz** (lange Seite höchstens 1200 px, Qualität etwa 85), Hintergründe als JPG (1920×1080, Qualität etwa 80). Die Originale aus dem Bildgenerator (oft 2–3 MB pro PNG) gehören nicht in `public/`, sonst lädt die Seite unnötig lange.
+
 **Größe und Position:** Jedes Objekt hat einen Kasten (`x`, `y`, `breite`, `hoehe` in Prozent der Bühne). Das Bild wird in diesen Kasten eingepasst, ohne verzerrt zu werden. Hat das Bild ein anderes Seitenverhältnis als der Kasten, bleibt an zwei Seiten etwas Rand frei. Dann entweder das Bild passend zuschneiden oder `breite`/`hoehe` in der Raumdatei anpassen. Die empfohlenen Seitenverhältnisse stehen in der Tabelle in Abschnitt 5.
 
 ---
@@ -156,6 +158,8 @@ Jeder Raum ist **inhaltlich eigenständig**: eigene Geschichte, eigenes Thema, e
 ## 5. Benötigte Dateien für „Das Arbeitszimmer des Professors“
 
 ### Grafiken
+**Stand 2026-10-23 (vorläufige Einbindung):** Der Raum nutzt eine Gesamtansicht mit allen fünf Gegenständen als Hintergrund (`hintergrund-raum.jpg`). Die Gegenstände liegen als eigene WebP-Dateien (`regal.webp`, `gemaelde.webp`, `pinnwand.webp`, `schreibtisch.webp`, `tuer.webp`) deckungsgleich darüber, ihre Kästen in der Raumdatei sind darauf abgestimmt. Das Vorschaubild `vorschau.jpg` ist die verkleinerte Gesamtansicht. Detailansichten, deren Gegenstände und der Schreck-Ton fehlen noch.
+
 Ablage: `public/bilder/arbeitszimmer/`. Alle Grafiken sollten im **gleichen Stil**, aus der **gleichen Perspektive** und mit dem **gleichen Licht** entstehen.
 
 **Hintergründe** (1920×1080 px, JPG oder PNG, **ohne** die anklickbaren Gegenstände):
