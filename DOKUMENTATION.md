@@ -1256,3 +1256,32 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritte 4 und 5
 - **Abweichungen vom Plan:** keine (die Merkmale der Sperre wurden wie geplant beim ersten Lauf ermittelt und fest eingebaut)
 - **Git-Commit:** `850899a`
+
+### 2026-10-23, 13:03 – AP 5: Externe Freischaltung getestet (zwei getrennte Vercel-Konten, unterschiedliche Geräte)
+- **Auslöser:** Mitteilung der Nutzerin: „Ich habe das zweite Vercel-Konto mit meiner geschäftlichen E-Mail-Adresse eingerichtet, darüber Zugriff auf die Test-Hauptadresse beantragt und die Anfrage mit meinem Hauptkonto genehmigt. Im zweiten Konto ist die Escape-Room-Website jetzt sichtbar. Die externe Freischaltung funktioniert damit. Bitte dokumentiere das als Test mit zwei getrennten Konten auf unterschiedlichen Geräten. Ich gebe PR #7 für den Merge mit Merge-Commit frei, sofern noch offen. […] Dieser Nachweis und der gemeinsame Spieltest stehen noch aus.“
+- **Durchgeführte Schritte:**
+  - PR #7 (Rauchtest-Korrektur, Region) mit Merge-Commit `4aff586` nach `main` übernommen. Branch `ap5-nachweis` nachgezogen.
+  - **Test der externen Freischaltung** (von der Nutzerin durchgeführt und gemeldet):
+    - **Konto 1:** Hauptkonto der Nutzerin, Inhaberin des Vercel-Projekts.
+    - **Konto 2:** zweites, getrenntes Vercel-Konto mit der geschäftlichen E-Mail-Adresse der Nutzerin.
+    - Laut Nutzerin auf unterschiedlichen Geräten.
+    - Ablauf: Konto 2 öffnet die Test-Hauptadresse und beantragt Zugriff, Konto 1 genehmigt die Anfrage. Danach ist die Escape-Room-Website in Konto 2 sichtbar.
+- **Hinweise zur Einordnung:**
+  - Beide Konten gehören derselben Person. Getestet ist damit die **technische** Freischaltung eines externen Kontos. Ob der geplante Test mit einer **zweiten Person** (Prüfkriterium „zwei berechtigte Personen“) so als erfüllt gilt oder noch mit einer anderen Person stattfinden soll, entscheidet die Nutzerin.
+  - Der Hobby-Tarif erlaubt **ein** externes Konto. Dieser Platz ist jetzt mit Konto 2 belegt. Für eine andere Person müsste die Freigabe von Konto 2 widerrufen werden, oder es bräuchte einen anderen Tarif (nur mit Zustimmung der Nutzerin).
+  - Ob der Zugriffsschutz vor der Freischaltung im privaten Fenster geprüft wurde, ist von der Nutzerin noch nicht gemeldet. Automatisch bestätigt ist er durch den Rauchtest von Deploy #1 (302 auf `vercel.com/sso-api` für Hauptadresse und Deployment-URL).
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Vercel (Zugriffsanfrage und Freigabe, durch die Nutzerin), GitHub CLI (`gh pr merge`), Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestätigt:** Ein externes Vercel-Konto kann Zugriff anfragen, die Kontoinhaberin kann ihn freigeben, und danach ist die Website für dieses Konto sichtbar.
+  - **Offen:**
+    1. Deploy #2 durch die Nutzerin mit grünem Rauchtest
+    2. Prüfung, ob Konto 2 danach **ohne erneute Freischaltung** weiterhin Zugriff hat
+    3. Prüfung im privaten Fenster, falls noch nicht erfolgt
+    4. CAPTCHA-Ablauftest
+    5. gemeinsamer Spieltest auf zwei Geräten
+    6. Klärung, ob der Test mit einer zweiten Person nachgeholt wird
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 6
+- **Abweichungen vom Plan:** Das freigeschaltete externe Konto gehört der Nutzerin selbst (geschäftliche E-Mail-Adresse) statt einer zweiten Person, siehe Hinweise.
+- **Git-Commit:** keiner (keine Code-Änderung)
