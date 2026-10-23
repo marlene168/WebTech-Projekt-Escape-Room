@@ -1140,3 +1140,26 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Das Format der Backend-Ablehnung wurde vor dem ersten Lauf lokal ermittelt (401 von `@supabase/server`, `authorization: absent`) und gleich fest geprüft. Das Format der Vercel-Sperre wird wie geplant beim ersten Lauf festgehalten.
   - Die Vercel-Projekt-ID und die Team-ID kommen aus den Secrets. Die Hauptadresse steht als öffentlicher Wert im Workflow.
 - **Git-Commit:** `4ba53e7`
+
+### 2026-10-23, 12:00 – AP 5: Deploy #1 bei den Migrationen abgebrochen (IPv6), Entscheidung Session Pooler
+- **Auslöser:** Freigabe der Nutzerin für PR #5 („Hiermit gebe ich frei“), danach ihre Meldung „Der Lauf ist gestartet“ (Deploy #1, Ziel `test`, Lauf 39934249617).
+- **Durchgeführte Schritte:**
+  - PR #5 (AP 5) mit Merge-Commit `50cb254` nach `main` übernommen. GitHub zeigt den Workflow „Deploy“ als aktiv.
+  - Lauf verfolgt: `vorpruefung` grün. `pruefen` grün (Unit- und Backend-Tests). `supabase`: `link` erfolgreich, **`db push` fehlgeschlagen** mit „IPv6 is not supported on your current network. Run supabase link … to setup IPv4 connection.“ `vercel` und `rauchtest` wurden wie vorgesehen nicht ausgeführt.
+  - Geprüft, dass nichts teilweise ausgeführt wurde:
+    - Vercel-Projekt: 0 Deployments.
+    - Im Test-Projekt antwortet die Edge Function mit 404 (nicht veröffentlicht) und die Tabelle `sitzungen` mit 404 (Migration nicht angewendet).
+  - **Ursache:**
+    - Die direkte Datenbankadresse ist im kostenlosen Supabase-Tarif nur über IPv6 erreichbar, GitHub-Runner können kein IPv6.
+    - Vorgesehen ist, dass `supabase link` den IPv4-fähigen Pooler (Supavisor) einrichtet. Das ist hier nicht passiert.
+    - Vermutung: Das bewusst eng begrenzte Token darf die Pooler-Einstellungen nicht lesen. Das ist nicht nachprüfbar, ohne den Tokenwert zu verwenden.
+  - **Rückfrage an die Nutzerin:** Session-Pooler-Adresse oder Token-Rechte erweitern? → **Antwort: Session-Pooler-Adresse (Empfehlung übernommen).** Die Token-Rechte bleiben unverändert.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, GitHub CLI (`gh run`), Vercel-API (lesend), curl, Git
+- **Probleme & Lösungen:** `db push` aus GitHub Actions scheiterte an IPv6 → Migrationen künftig über die IPv4-fähige Session-Pooler-Adresse. Umsetzung folgt auf diesem Branch, sobald die Nutzerin den Pooler-Host nennt.
+- **Ergebnis:**
+  - **Bestätigt:** Die Tests im Deployment laufen. Der Ablauf stoppt beim ersten Fehler, ohne Teilergebnisse.
+  - **Offen:** Korrektur von `deploy.yml`, dann Deploy #1 erneut, danach alle weiteren Prüfschritte.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 4
+- **Abweichungen vom Plan:** Migrationen nutzen künftig die Session-Pooler-Adresse statt der Verbindung über `supabase link`.
+- **Git-Commit:** keiner (keine Code-Änderung)
