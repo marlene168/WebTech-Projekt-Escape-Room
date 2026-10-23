@@ -74,7 +74,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
     - `nachweise/`: Screenshots als Nachweise von Tests (z. B. CAPTCHA-Ablauftest in AP 5)
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
-- **Online-Testumgebung (seit 2026-10-23 online; zwei Deployments, Rauchtest zuletzt 14 von 14):**
+- **Online-Testumgebung (seit 2026-10-23 online; drei Deployments, Rauchtest zuletzt 14 von 14):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
   - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region **West Europe (London), `eu-west-2`** (von der Nutzerin am 2026-10-23 im Dashboard bestätigt). Geplant war Frankfurt (`eu-central-1`); bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Das Projekt bleibt bestehen. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
@@ -1500,3 +1500,17 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** `241c157`
+
+### 2026-10-23, 21:24 – Merge von PR #9 und Deploy #3 (Grafiken in der Testversion)
+- **Auslöser:** Anweisung der Nutzerin: „Merge und Deploy freigegeben“ (nach der Empfehlung von Claude, erst zu mergen und die Grafiken in der Testumgebung anzusehen, bevor die Detailansichten ergänzt werden).
+- **Durchgeführte Schritte:**
+  - PR #9 geprüft (ohne Konflikte, Head `faf927c`, alle CI-Prüfungen grün) und mit Merge-Commit nach `main` zusammengeführt (`f83023c`).
+  - Deploy-Workflow für das Ziel `test` ausgelöst (Lauf 40007001892, Commit `f83023c`). Alle Jobs grün: Vorprüfung, Tests, Backend-Tests, Supabase, Vercel, Rauchtest.
+  - Rauchtest **14 von 14**. Hochgeladen wurden 25 Dateien aus `public/` und `vercel.json`, darunter die sieben neuen Bilder.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, GitHub CLI (`gh`), GitHub Actions
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Die Grafiken sind in der geschützten Testversion bereitgestellt. **Offen:** die Sichtprüfung durch die Nutzerin im Browser: Startseite mit Vorschaubild, Raum, Hover, Ersatzton bei Zeitablauf, zweites Gerät. Der Rauchtest prüft die Bilder selbst nicht. Ein öffentlicher Release fand nicht statt.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
