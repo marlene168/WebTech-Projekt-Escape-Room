@@ -989,3 +989,27 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 03:18 – AP 5, Einrichtungsschritt 5: Vercel-Projekt angelegt und lokal verknüpft
+- **Auslöser:** Anweisung des Nutzers: „Mein Vercel-Hobby-Konto und der Verwaltungsbereich ‚WebTech Escape Room‘ sind angelegt. Bitte führe jetzt im tatsächlichen Projektordner Schritt 5 aus: mit `npx vercel login` anmelden und mit `npx vercel link` ein neues Projekt namens `escape-room-test` erstellen und lokal verknüpfen. Keine Git-Repository-Verbindung und noch kein Deployment ausführen. Stelle sicher, dass `.vercel/` nicht eingecheckt wird. Bei der persönlichen Anmeldung übernehme ich den erforderlichen Browser-Schritt.“
+- **Durchgeführte Schritte:**
+  - Vercel CLI in fester Version **63.1.0** verwendet (über zwei Wochen alt, per `npx`).
+  - `vercel login` mit Gerätecode, den Browser-Schritt hat die Nutzerin übernommen. Angemeldet als `marlene168`, Bereich „WebTech Escape Room“ (Kennung `web-tech-escape-room`, Tarif Hobby).
+  - Branch `ap5-testumgebung` von `main` angelegt.
+  - Projekt **bewusst getrennt** angelegt mit `vercel project add escape-room-test --scope web-tech-escape-room`, ohne Git-Verbindung. Danach verknüpft mit `vercel link --project escape-room-test --team web-tech-escape-room --non-interactive`, ohne `--yes`, damit keine Standardantworten (z. B. Git verbinden) übernommen werden.
+  - **Über die Vercel-API geprüft:**
+    - Git-Verbindung: keine (`link: null`).
+    - Deployments: 0, es wurde nichts deployt.
+    - Deployment-Schutz steht noch auf dem Standard `all_except_custom_domains`. Die Umstellung auf „All Deployments“ ist der Einrichtungsschritt 7 der Nutzerin und **vor dem ersten Deployment Pflicht**.
+  - **`.gitignore`:** Die CLI hatte `.vercel` und `.env*` angehängt. Ersetzt durch einen kommentierten Eintrag `.vercel/`. `.env*` entfernt, weil es die Ausnahme `!.env.example` aufheben würde. Geprüft mit `git check-ignore`: `.vercel/project.json` und `.env.local` sind ausgeschlossen, `.env.example` bleibt erlaubt.
+- **Geänderte/neue Dateien:** `.gitignore`, `DOKUMENTATION.md`; lokal und nicht eingecheckt: `.vercel/project.json`, `.vercel/README.txt`, `.env.local`
+- **Genutzte Tools:** Claude Code, Vercel CLI 63.1.0, Vercel-API (lesend), Git
+- **Probleme & Lösungen:**
+  - `vercel link` hat zusätzlich `.env.local` mit einem kurzlebigen `VERCEL_OIDC_TOKEN` angelegt. Die Datei bleibt lokal und ist durch `.env.*` ausgeschlossen. Ihr Inhalt wurde nirgends ausgegeben oder gespeichert.
+  - Die von der CLI angehängte Regel `.env*` hätte `!.env.example` aufgehoben → entfernt (siehe oben).
+- **Ergebnis:** Das Projekt `escape-room-test` existiert im Bereich „WebTech Escape Room“, ist lokal verknüpft, hat keine Git-Verbindung und noch kein Deployment. Die Verknüpfungsdateien werden nicht eingecheckt.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Einrichtungsschritt 5
+- **Abweichungen vom Plan:**
+  - Schritt 5 hat Claude auf Wunsch der Nutzerin ausgeführt, im Plan war er als ihr Schritt beschrieben.
+  - Das Projekt wurde mit `vercel project add` angelegt und dann verknüpft, statt es interaktiv in `vercel link` zu erstellen. So ist sichergestellt, dass keine Git-Verbindung entsteht.
+- **Git-Commit:** `b15f390`
