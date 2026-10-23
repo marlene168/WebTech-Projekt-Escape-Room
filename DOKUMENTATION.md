@@ -1317,3 +1317,33 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritte 5 und 6; ergänzt den Eintrag 2026-10-23, 13:03
 - **Abweichungen vom Plan:** Das Prüfkriterium der externen Freischaltung bezieht sich auf zwei getrennte Konten (Klarstellung der Nutzerin).
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 13:27 – AP 5: Deploy #2 vollständig grün (Rauchtest 14 von 14)
+- **Auslöser:** Meldung der Nutzerin „Das Deployment läuft“ (Deploy #2, Lauf 39945290067, Commit `4aff586` mit der Korrektur des Rauchtests).
+- **Durchgeführte Schritte:**
+  - Lauf verfolgt: **alle Jobs erfolgreich** (`vorpruefung`, `pruefen` mit Unit- und Backend-Tests, `supabase`, `vercel`, `rauchtest`).
+  - **Supabase:** „Remote database is up to date“. Das erneute Ausführen hat keine Migration doppelt angewendet. Alle vier Edge Functions wurden neu veröffentlicht.
+  - **Vercel:** neues Deployment `escape-room-test-kgsxev650-web-tech-escape-room.vercel.app`, Hauptadresse unverändert `escape-room-test-mauve.vercel.app`.
+  - **Rauchtest 14 von 14:**
+    - Sperre ohne Anmeldung auf Hauptadresse und neuer Deployment-URL (302 auf `vercel.com/sso-api`)
+    - erwartetes HTML mit Bypass, öffentliche Raumdaten ohne Lösung
+    - sechs geheime bzw. Projektpfade liefern NOT_FOUND
+    - Upload nur `public/**` und `vercel.json` (18 Einträge)
+    - Backend lehnt Anfragen ohne Nutzeranmeldung ab
+    - CAPTCHA ohne und mit ungültigem Token abgelehnt
+  - **Protokoll des Laufs geprüft:** `VERCEL_BYPASS`, `VERCEL_TOKEN` und `SUPABASE_DB_PASSWORD` erscheinen nur als `***`, und keine Verbindungsadresse mit Passwort ist ausgegeben.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** GitHub Actions, GitHub CLI (`gh run`), Claude Code, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestätigt:**
+    - Der Deployment-Ablauf funktioniert vollständig und ist wiederholbar.
+    - Der Zugriffsschutz greift auch beim zweiten Deployment, auf der Hauptadresse wie auf der neuen Deployment-URL.
+    - Keine Geheimnisse in den Protokollen.
+  - **Offen:**
+    1. fortbestehender Zugang des zweiten Kontos ohne erneute Freischaltung (Prüfung durch die Nutzerin)
+    2. gemeinsamer Spieltest auf zwei Geräten mit den Prüfungen aus Meilenstein 1
+    3. CAPTCHA-Ablauftest
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 7
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
