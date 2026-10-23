@@ -1,0 +1,131 @@
+# Deployment per Knopf (Continuous Delivery mit manuellem Auslöser).
+# Startet NUR von Hand: GitHub → Actions → „Deploy“ → „Run workflow“ (Branch main).
+#
+# Ablauf (jeder Schritt nur nach Erfolg des vorigen, alle mit demselben Commit):
+#   1. vorpruefung – nur von main; Commit und Ziel festhalten
+#   2. pruefen     – dieselben Tests wie die CI (ci.yml)
+#   3. supabase    – Migrationen und Edge Functions ins Test-Projekt
+#   4. vercel      – Website (nur public/) als Produktion des Vercel-Testprojekts
+#   5. rauchtest   – Zugriffsschutz, Website, Upload, Backend und CAPTCHA prüfen
+#
+# Ziel ist ausschließlich die geschützte Testversion. Die öffentliche Version wird erst nach
+# ausdrücklicher Freigabe ergänzt. Bei einem Fehler stoppt der Ablauf; nichts wird automatisch
+# zurückgesetzt – gezielt korrigieren und erneut auslösen (siehe docs/anleitung.md).
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      ziel:
+        description: "Umgebung"
+        type: choice
+        options:
+          - test
+        default: test
+
+permissions:
+  contents: read
+
+# Nie zwei Deployments gleichzeitig; ein laufendes wird nie abgebrochen. GitHub hält höchstens einen
+# wartenden Lauf – ein weiterer ersetzt ihn. Für unser Projekt genügt das (im Zweifel neu auslösen).
+concurrency:
+  group: deploy-${{ inputs.ziel }}
+  cancel-in-progress: false
+
+# Öffentliche Werte der Testumgebung (stehen auch in public/js/supabase-konfig.js)
+env:
+  HAUPTADRESSE: https://escape-room-test-mauve.vercel.app
+  SUPABASE_URL: https://lfqcvevtzddxaywshxwg.supabase.co
+  SUPABASE_SCHLUESSEL: sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A
+
+jobs:
+  vorpruefung:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Nur von main deployen
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Deployments sind nur von main erlaubt (gestartet von ${GITHUB_REF})."
+          exit 1
+      - name: Commit und Ziel festhalten
+        run: |
+          {
+            echo "### Deployment"
+            echo "- Ziel: \`${{ inputs.ziel }}\` (geschützte Testversion)"
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Gestartet von: ${GITHUB_ACTOR}"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  pruefen:
+    needs: vorpruefung
+    uses: ./.github/workflows/ci.yml
+
+  supabase:
+    needs: pruefen
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.TEST_SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.TEST_SUPABASE_DB_PASSWORD }}
+      PROJEKT_ID: ${{ secrets.TEST_SUPABASE_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Mit dem Test-Projekt verbinden
+        run: npx supabase link --project-ref "$PROJEKT_ID"
+      - name: Migrationen anwenden
+        run: |
+          npx supabase db push
+          echo "- ✅ Supabase: Migrationen angewendet" >> "$GITHUB_STEP_SUMMARY"
+      - name: Edge Functions veröffentlichen
+        run: |
+          npx supabase functions deploy --use-api --project-ref "$PROJEKT_ID"
+          echo "- ✅ Supabase: Edge Functions veröffentlicht" >> "$GITHUB_STEP_SUMMARY"
+
+  vercel:
+    needs: supabase
+    runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      VERCEL_TOKEN: ${{ secrets.TEST_VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.TEST_VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.TEST_VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Website veröffentlichen (nur public/, siehe .vercelignore)
+        id: deploy
+        run: |
+          url=$(npx vercel deploy --prod --yes --token "$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "- ✅ Vercel: Deployment \`$url\`, Hauptadresse \`$HAUPTADRESSE\`" >> "$GITHUB_STEP_SUMMARY"
+
+  rauchtest:
+    needs: vercel
+    runs-on: ubuntu-latest
+    env:
+      DEPLOYMENT_URL: ${{ needs.vercel.outputs.url }}
+      VERCEL_BYPASS: ${{ secrets.TEST_VERCEL_BYPASS }}
+      VERCEL_TOKEN: ${{ secrets.TEST_VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.TEST_VERCEL_ORG_ID }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+      - name: Rauchtest der Testversion
+        run: node test-online/rauchtest.mjs

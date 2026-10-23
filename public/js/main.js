@@ -82,8 +82,10 @@ function starteSpiel(verbindung) {
   beimNeustart(async () => {
     try {
       location.href = `spiel.html?sitzung=${await erstelleSitzung(raum.id)}`;
-    } catch {
-      zeigeText("Das hat nicht geklappt", "Die neue Sitzung konnte nicht erstellt werden. Bitte versuche es noch einmal.");
+    } catch (fehler) {
+      zeigeText("Das hat nicht geklappt", fehler.grund === "zu_viele_sitzungen"
+        ? "Du hast in der letzten Stunde schon zehn Sitzungen erstellt. Bitte warte etwas oder tritt einer bestehenden Sitzung per Code bei."
+        : "Die neue Sitzung konnte nicht erstellt werden. Bitte versuche es noch einmal.");
     }
   });
 

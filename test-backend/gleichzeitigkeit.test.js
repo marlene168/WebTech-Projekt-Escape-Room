@@ -4,7 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import {
-  admin, neuerGast, erstelleSitzung, beitreten, aktion, sitzungInDb, mitgliederInDb, warte, mikrosekunden,
+  admin, neuerGast, rufe, erstelleSitzung, beitreten, aktion, sitzungInDb, mitgliederInDb, warte, mikrosekunden,
 } from "./hilfe.js";
 
 // Sitzung mit erstellender Person A und Mitglied B, bereits gestartet
@@ -92,4 +92,25 @@ test("Gleichzeitiger Beitritt und Spielstart: niemand kommt nach dem Start neu h
     }
   }
   console.log(`Gleichzeitiger Beitritt und Start: ${JSON.stringify(ergebnisse)}`);
+});
+
+test("Sitzungslimit: Ein Gast erstellt höchstens 10 Sitzungen pro Stunde (nacheinander)", async () => {
+  const gast = await neuerGast();
+  for (let i = 0; i < 10; i++) await erstelleSitzung(gast);
+  const elfte = await rufe(gast, "sitzung-erstellen", { raumId: "arbeitszimmer" });
+  assert.equal(elfte.status, 429);
+  assert.equal(elfte.daten.fehler, "zu_viele_sitzungen");
+  // Andere Gäste sind davon nicht betroffen
+  assert.ok((await erstelleSitzung(await neuerGast())).id);
+});
+
+test("Sitzungslimit hält auch bei 15 gleichzeitigen Anfragen: genau 10 Sitzungen", async () => {
+  const gast = await neuerGast();
+  const antworten = await Promise.all(
+    Array.from({ length: 15 }, () => rufe(gast, "sitzung-erstellen", { raumId: "arbeitszimmer" })));
+
+  assert.equal(antworten.filter((x) => x.status === 201).length, 10);
+  assert.equal(antworten.filter((x) => x.status === 429 && x.daten?.fehler === "zu_viele_sitzungen").length, 5);
+  const { count } = await admin.from("sitzungen").select("id", { count: "exact", head: true }).eq("erstellt_von", gast.id);
+  assert.equal(count, 10);
 });

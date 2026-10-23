@@ -5,7 +5,7 @@
 // Aktionsversuche und zeigt an, was das Backend bestätigt (per Antwort oder per Realtime).
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/+esm";
 import { restzeit } from "/shared/spiel-logik.js";
-import { SUPABASE_URL, SUPABASE_SCHLUESSEL, BACKEND_EINGERICHTET } from "./supabase-konfig.js";
+import { SUPABASE_URL, SUPABASE_SCHLUESSEL, TURNSTILE_SITE_KEY, BACKEND_EINGERICHTET } from "./supabase-konfig.js";
 
 export { BACKEND_EINGERICHTET };
 
@@ -21,24 +21,90 @@ export class BackendFehler extends Error {
   }
 }
 
-// Einmal pro Browser als Gast anmelden (ohne Registrierung). Eine gespeicherte Anmeldung wird einmal
-// pro Seitenaufruf beim Server geprüft – gibt es den Gast dort nicht mehr (z. B. gelöscht), neu anmelden.
-let anmeldung = null;
-async function anmelden() {
-  anmeldung ??= (async () => {
+// Gespeicherte Gastanmeldung: wird einmal pro Seitenaufruf beim Server geprüft. Gibt es den Gast dort
+// nicht mehr (z. B. gelöscht), wird sie verworfen. Ergebnis: die Anmeldung oder null.
+let gespeicherte = null;
+function gespeicherteAnmeldung() {
+  gespeicherte ??= (async () => {
     const { data } = await supabase.auth.getSession();
     if (data.session && !(await supabase.auth.getUser()).error) return data.session;
     if (data.session) await supabase.auth.signOut({ scope: "local" });
-    const { data: neu, error } = await supabase.auth.signInAnonymously();
-    if (error) throw new BackendFehler("anmeldung_fehlgeschlagen");
-    return neu.session;
+    return null;
   })();
+  return gespeicherte;
+}
+
+// Anmelden als Gast (ohne Registrierung). Eine gültige Anmeldung wird weiterverwendet – neue
+// Sitzungen und Spielaktionen brauchen kein CAPTCHA. Nur für eine neue Gastanmeldung wird
+// (online) Turnstile geladen; das Token prüft Supabase.
+let neueAnmeldung = null;
+async function anmelden() {
+  const vorhanden = await gespeicherteAnmeldung();
+  if (vorhanden) return vorhanden;
+  neueAnmeldung ??= gastAnmelden();
   try {
-    return await anmeldung;
-  } catch (fehler) {
-    anmeldung = null; // beim nächsten Versuch neu probieren
-    throw fehler;
+    const anmeldung = await neueAnmeldung;
+    gespeicherte = Promise.resolve(anmeldung);
+    return anmeldung;
+  } finally {
+    neueAnmeldung = null; // nach einem Fehler beim nächsten Versuch neu probieren
   }
+}
+
+async function gastAnmelden() {
+  const captchaToken = TURNSTILE_SITE_KEY ? await holeCaptchaToken() : undefined;
+  const { data, error } = await supabase.auth.signInAnonymously(captchaToken ? { options: { captchaToken } } : undefined);
+  if (error) throw new BackendFehler(error.code === "captcha_failed" ? "captcha" : "anmeldung_fehlgeschlagen");
+  return data.session;
+}
+
+// ---------- CAPTCHA (Cloudflare Turnstile) ----------
+// Das Skript wird erst geladen, wenn eine Gastanmeldung wirklich nötig ist. Ein Token gilt nur für
+// einen Anmeldeversuch: Für jeden Versuch wird das Widget zurückgesetzt und ein frisches Token geholt.
+let turnstileSkript = null;
+let widgetId = null;
+let wartend = null; // { ok, fehler } des laufenden Versuchs
+
+function ladeTurnstile() {
+  turnstileSkript ??= new Promise((ok, fehler) => {
+    const skript = document.createElement("script");
+    skript.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    skript.async = true;
+    skript.onload = ok;
+    skript.onerror = () => {
+      turnstileSkript = null;
+      fehler(new BackendFehler("captcha"));
+    };
+    document.head.append(skript);
+  });
+  return turnstileSkript;
+}
+
+async function holeCaptchaToken() {
+  await ladeTurnstile();
+  const bereich = document.querySelector(".captcha");
+  bereich.hidden = false;
+  return new Promise((ok, fehler) => {
+    wartend = { ok, fehler };
+    if (widgetId === null) {
+      widgetId = window.turnstile.render(bereich.querySelector(".captcha-widget"), {
+        sitekey: TURNSTILE_SITE_KEY,
+        callback: (token) => {
+          bereich.hidden = true;
+          wartend?.ok(token);
+          wartend = null;
+        },
+        "error-callback": () => {
+          wartend?.fehler(new BackendFehler("captcha"));
+          wartend = null;
+        },
+        // Abgelaufenes Token verwerfen – der nächste Versuch holt ohnehin ein frisches
+        "expired-callback": () => window.turnstile.reset(widgetId),
+      });
+    } else {
+      window.turnstile.reset(widgetId); // frisches Token für diesen Versuch
+    }
+  });
 }
 
 async function rufe(funktion, eingabe) {
@@ -62,7 +128,9 @@ export async function trittBei(code) {
 
 // Verbindet die Spielseite mit einer Sitzung (nur für Mitglieder, sonst BackendFehler "kein_zugriff").
 export async function verbindeMitSitzung(sitzungId) {
-  const anmeldung = await anmelden();
+  // Hier wird nie neu angemeldet: Ein neuer Gast kann ohnehin kein Mitglied dieser Sitzung sein.
+  const anmeldung = await gespeicherteAnmeldung();
+  if (!anmeldung) throw new BackendFehler("kein_zugriff");
   const erste = await rufe("sitzung-laden", { sitzungId });
   let sitzung = erste.sitzung;
   // Abweichung der eigenen Uhr von der Serveruhr – damit alle dieselbe Restzeit sehen

@@ -15,6 +15,9 @@ const MELDUNGEN = {
   keine_verbindung: "Keine Verbindung zum Server. Bitte versuche es noch einmal.",
   netzwerk: "Keine Verbindung zum Server. Bitte versuche es noch einmal.",
   nicht_eingerichtet: "Das Online-Spiel ist hier noch nicht eingerichtet.",
+  zu_viele_sitzungen: "Du hast in der letzten Stunde schon zehn Sitzungen erstellt. Bitte warte etwas oder tritt einer bestehenden Sitzung per Code bei.",
+  captcha: "Die Sicherheitsprüfung hat nicht geklappt. Bitte versuche es noch einmal.",
+  anmeldung_fehlgeschlagen: "Die Anmeldung als Gast hat nicht geklappt. Bitte versuche es noch einmal.",
 };
 
 function zeigeMeldung(grund) {
