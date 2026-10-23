@@ -74,7 +74,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 - **Online-Testumgebung (eingerichtet am 2026-10-23; Deployment-Workflow vorbereitet, noch kein Deployment):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
-  - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region laut Pooler-Host **eu-west-2 (London)**, geplant war Frankfurt; die Bestätigung durch die Nutzerin steht aus. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
+  - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region **West Europe (London), `eu-west-2`** (von der Nutzerin am 2026-10-23 im Dashboard bestätigt). Geplant war Frankfurt (`eu-central-1`); bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Das Projekt bleibt bestehen. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
   - Vercel-Projekt `escape-room-test` im Bereich „WebTech Escape Room“ (Hobby), stabile Testadresse `https://escape-room-test-mauve.vercel.app`. Vercel Authentication für **All Deployments**, ohne Git-Verbindung.
   - Öffentliche Schlüssel, die im Browser-Code stehen dürfen: Supabase Publishable Key `sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A`, Turnstile Site Key `0x4AAAAAAFhw9z0L0UM45dNf`. Geheime Werte liegen nur als GitHub-Secrets `TEST_…` bzw. in den Dashboards.
 - **Bekannte Grenzen (Stand AP 4):**
@@ -159,6 +159,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 | 2026-10-23 | Zugangsdaten bei GitHub Free als Repository-Secrets mit Präfix `TEST_`; der Workflow prüft selbst, dass er auf `main` läuft. Sobald GitHub Pro (Student Developer Pack) bestätigt aktiv ist, wird ein Umzug in getrennte Environments für Test und Veröffentlichung geprüft | Environment-Secrets und Branch-Regeln gibt es bei privaten Repos erst ab GitHub Pro; die Umsetzung soll nicht auf Pro warten (Entscheidung der Nutzerin) | Auf GitHub Pro warten; Secrets ohne Präfix |
 | 2026-10-23 | Supabase-Token `github-deploy-test` mit minimalen Rechten: nur Projekt `escape-room-test`; Project Settings, API Keys und API Key Secrets je Read, Edge Functions Read-write, alles andere None; der Tokenwert nur als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN`, nie in Dateien, Git oder Protokollen; Ablaufdatum 22.10.2027 (bestätigt am 2026-10-23) | Von der Nutzerin festgelegt (Prinzip der geringsten Rechte): Die Leserechte braucht `supabase link`, das Schreibrecht die Veröffentlichung der Edge Functions; Migrationen nutzen separat das Datenbank-Passwort | Token mit Zugriff auf alle Projekte bzw. vollen Rechten |
 | 2026-10-23 | Migrationen im Deploy-Workflow über den **Session Pooler** (IPv4): `supabase db push --db-url` mit `aws-0-eu-west-2.pooler.supabase.com:5432` und Nutzer `postgres.<Projekt-ID>`; Passwort nur aus dem Secret `TEST_SUPABASE_DB_PASSWORD`, URL-kodiert und vor jeder Ausgabe ausdrücklich maskiert; die Token-Rechte bleiben unverändert | Deploy #1 scheiterte an IPv6: Die direkte Datenbankadresse ist im kostenlosen Tarif nur über IPv6 erreichbar, GitHub-Runner können kein IPv6, und `supabase link` hat mit dem eng begrenzten Token keinen Pooler eingerichtet. Entscheidung der Nutzerin auf Empfehlung von Claude: eindeutiger Weg ohne zusätzliche Rechte | Token-Rechte erweitern, damit `supabase link` den Pooler selbst einrichtet (nötige Berechtigung nicht dokumentiert, mehr Rechte); kostenpflichtiges IPv4-Add-on |
+| 2026-10-23 | Das Supabase-Test-Projekt bleibt in der Region **West Europe (London), `eu-west-2`**, statt wie geplant in Frankfurt (`eu-central-1`) | Bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Für Funktion und Tests ist der Unterschied unerheblich (beides EU). Ein Neuanlegen hätte die gesamte Einrichtung (Token, Secrets, Turnstile, Pooler) erneut erfordert. Entscheidung der Nutzerin | Projekt in Frankfurt neu anlegen |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1190,3 +1191,19 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
 - **Abweichungen vom Plan:** Migrationen über die Session-Pooler-Adresse statt der von `supabase link` eingerichteten Verbindung (Grund siehe oben).
 - **Git-Commit:** `9febe03`
+
+### 2026-10-23, 12:11 – AP 5: Region des Supabase-Test-Projekts bestätigt (London statt Frankfurt)
+- **Auslöser:** Nachricht der Nutzerin: „Ich gebe PR #6 für den Merge mit Merge-Commit frei. Das nächste Deployment starte ich danach selbst über ‚Run workflow‘ auf `main` mit Ziel `test`. Die Region ist bestätigt: Im Supabase-Dashboard steht ‚West Europe (London)‘, `eu-west-2`. Bei der Einrichtung konnte ich zunächst nur ‚Europe‘ auswählen; Supabase hat das Projekt London zugeordnet. Bitte die Dokumentation entsprechend korrigieren und die Abweichung vom ursprünglich geplanten Standort Frankfurt festhalten. Das bestehende Projekt bleibt erhalten.“
+- **Durchgeführte Schritte:**
+  - PR #6 (Session Pooler) mit Merge-Commit `d246231` nach `main` übernommen. Branch `ap5-nachweis` auf diesen Stand gebracht.
+  - Abschnitt 2: Region als **West Europe (London), `eu-west-2`** eingetragen, bestätigt von der Nutzerin. Abweichung von Frankfurt mit Grund vermerkt.
+  - Abschnitt 3: Entscheidung „Projekt bleibt in London“ mit Begründung und verworfener Alternative (neu anlegen in Frankfurt).
+  - Detailplan AP 5, Abschnitt 5, Schritt 1: datierter Hinweis zur tatsächlichen Region. Der ursprüngliche Text bleibt lesbar.
+  - Bestehende Protokolleinträge, die Frankfurt nennen, bleiben unverändert. Dazu gehören der Planungseintrag von 01:31 und die Beobachtung im Eintrag von 12:01, deren offene Frage hiermit geklärt ist.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/plaene/2026-10-23_ap5-testumgebung.md`
+- **Genutzte Tools:** Claude Code, GitHub CLI (`gh pr merge`), Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Die Region ist korrekt dokumentiert, und die Abweichung vom geplanten Standort ist mit Grund festgehalten. Das Projekt bleibt bestehen. **Nächster Schritt:** Die Nutzerin startet Deploy #1 erneut.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Einrichtungsschritt 1
+- **Abweichungen vom Plan:** Region West Europe (London) statt Frankfurt, wie oben begründet.
+- **Git-Commit:** keiner (keine Code-Änderung)
