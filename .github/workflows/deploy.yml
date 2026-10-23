@@ -37,6 +37,11 @@ env:
   HAUPTADRESSE: https://escape-room-test-mauve.vercel.app
   SUPABASE_URL: https://lfqcvevtzddxaywshxwg.supabase.co
   SUPABASE_SCHLUESSEL: sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A
+  # Session Pooler (IPv4) für Migrationen: GitHub-Runner können kein IPv6, die direkte
+  # Datenbankadresse ist nur über IPv6 erreichbar. Host, Port und Nutzer sind nicht geheim.
+  POOLER_HOST: aws-0-eu-west-2.pooler.supabase.com
+  POOLER_PORT: "5432"
+  POOLER_NUTZER: postgres.lfqcvevtzddxaywshxwg
 
 jobs:
   vorpruefung:
@@ -78,10 +83,16 @@ jobs:
       - run: npm ci
       - name: Mit dem Test-Projekt verbinden
         run: npx supabase link --project-ref "$PROJEKT_ID"
-      - name: Migrationen anwenden
+      - name: Migrationen anwenden (über den Session Pooler, IPv4)
         run: |
-          npx supabase db push
-          echo "- ✅ Supabase: Migrationen angewendet" >> "$GITHUB_STEP_SUMMARY"
+          # Verbindungsadresse mit URL-kodiertem Passwort aus dem Secret bauen und vor jeder Ausgabe
+          # maskieren (GitHub maskiert nur den unveränderten Secret-Wert, nicht die kodierte Form).
+          passwort=$(node -e 'process.stdout.write(encodeURIComponent(process.env.SUPABASE_DB_PASSWORD))')
+          echo "::add-mask::$passwort"
+          db_url="postgresql://${POOLER_NUTZER}:${passwort}@${POOLER_HOST}:${POOLER_PORT}/postgres"
+          echo "::add-mask::$db_url"
+          npx supabase db push --db-url "$db_url"
+          echo "- ✅ Supabase: Migrationen angewendet (Session Pooler)" >> "$GITHUB_STEP_SUMMARY"
       - name: Edge Functions veröffentlichen
         run: |
           npx supabase functions deploy --use-api --project-ref "$PROJEKT_ID"
