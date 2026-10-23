@@ -22,30 +22,30 @@ const ergebnisse = [];
 const pruefe = (name, ok, info = "") => ergebnisse.push({ name, ok: Boolean(ok), info });
 const SPIEL_MERKMALE = ["Escape Room – Raumauswahl", 'class="raum-liste"'];
 
-// 1. Ohne Anmeldung: erwartet wird die Vercel-Zugriffssperre (Vercel Authentication),
-//    keine Spielinhalte. Weiterleitungen werden nicht verfolgt.
+// 1. Ohne Anmeldung: erwartet wird die Vercel-Zugriffssperre (Vercel Authentication), keine Spielinhalte.
+//    Merkmale, festgehalten beim ersten Deployment (2026-10-23): HTTP 302 mit Weiterleitung auf
+//    https://vercel.com/sso-api, Kopfzeile "server: Vercel" und Cookie "_vercel_sso_nonce".
+//    Weiterleitungen werden nicht verfolgt.
 async function pruefeSperre(adresse) {
   const antwort = await fetch(`${adresse}/`, { redirect: "manual" });
   const text = await antwort.text();
-  const ziel = antwort.headers.get("location") ?? "";
-  const vonVercel = /vercel/i.test(antwort.headers.get("server") ?? "");
-  const weiterleitungZuVercel = [301, 302, 303, 307, 308].includes(antwort.status) && /(^|\.)vercel\.com$/.test(safeHost(ziel));
-  const anmeldeseite = antwort.status === 401 && /vercel\.com\/sso|Authentication Required|vercel-sso/i.test(text);
-  const spielSichtbar = SPIEL_MERKMALE.some((merkmal) => text.includes(merkmal));
-  pruefe(`Ohne Anmeldung gesperrt: ${adresse}`, vonVercel && (weiterleitungZuVercel || anmeldeseite) && !spielSichtbar,
-    `HTTP ${antwort.status}, ${weiterleitungZuVercel ? `Weiterleitung zu ${safeHost(ziel)}` : anmeldeseite ? "Vercel-Anmeldeseite" : "unerwartet"}`);
+  const merkmale = {
+    status302: antwort.status === 302,
+    weiterleitungSso: (antwort.headers.get("location") ?? "").startsWith("https://vercel.com/sso-api"),
+    serverVercel: /^vercel$/i.test(antwort.headers.get("server") ?? ""),
+    ssoCookie: (antwort.headers.get("set-cookie") ?? "").includes("_vercel_sso_nonce="),
+    keinSpiel: !SPIEL_MERKMALE.some((merkmal) => text.includes(merkmal)),
+  };
+  const fehlend = Object.entries(merkmale).filter(([, ok]) => !ok).map(([name]) => name);
+  pruefe(`Ohne Anmeldung gesperrt: ${adresse}`, fehlend.length === 0,
+    `HTTP ${antwort.status}${fehlend.length ? `, fehlende Merkmale: ${fehlend.join(", ")}` : ", Weiterleitung zu vercel.com/sso-api"}`);
 }
 
-function safeHost(adresse) {
-  try {
-    return new URL(adresse).hostname;
-  } catch {
-    return "";
-  }
-}
-
-// 2. Mit Automatisierungs-Bypass: die erwartete Website (HTML und öffentliche Dateien)
-const mitBypass = (pfad) => fetch(`${HAUPTADRESSE}${pfad}`, { headers: { "x-vercel-protection-bypass": BYPASS } });
+// 2. Mit Automatisierungs-Bypass: die erwartete Website (HTML und öffentliche Dateien).
+//    Weiterleitungen werden nicht verfolgt: Ein ungültiger Bypass zeigt sich so als Sperre (302)
+//    und nicht als Statuscode der Vercel-Anmeldeseite.
+const mitBypass = (pfad) =>
+  fetch(`${HAUPTADRESSE}${pfad}`, { headers: { "x-vercel-protection-bypass": BYPASS }, redirect: "manual" });
 
 async function pruefeWebsite() {
   const start = await mitBypass("/");
@@ -91,7 +91,9 @@ async function pruefeUpload() {
     }
   };
   sammle(Array.isArray(baum) ? baum : [], "");
-  const fremd = pfade.filter((pfad) => !(pfad === "vercel.json" || pfad.startsWith("public/")));
+  // Die API legt die hochgeladenen Quelldateien unter einen Wurzelordner "src/" (beim ersten Deployment festgestellt)
+  const quellen = pfade.map((pfad) => pfad.replace(/^src\//, ""));
+  const fremd = quellen.filter((pfad) => !(pfad === "vercel.json" || pfad.startsWith("public/")));
   pruefe("Hochgeladen wurden nur public/** und vercel.json", pfade.length > 0 && fremd.length === 0,
     `${pfade.length} Dateien${fremd.length ? `, unerwartet: ${fremd.slice(0, 5).join(", ")}` : ""}`);
 }
