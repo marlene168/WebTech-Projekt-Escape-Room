@@ -978,3 +978,14 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 03:08 – Korrektur: Uhrzeit des vorigen Eintrags
+- **Auslöser:** Vorschlag von Claude. Beim Eintrag „Ergänzung: Ablaufdatum des Supabase-Tokens“ wurde die Uhrzeit **03:17** eingetragen, bevor `date` sie ermittelt hatte. Laut `date` war es **2026-10-23, 03:08**. Das verstößt gegen die Projektregel, Uhrzeiten nie zu schätzen.
+- **Durchgeführte Schritte:** Der Eintrag selbst bleibt unverändert (Einträge werden nicht umgeschrieben). Mit diesem Vermerk ist die richtige Uhrzeit festgehalten: Der Eintrag „2026-10-23, 03:17 – Ergänzung: Ablaufdatum des Supabase-Tokens“ gehört zu **2026-10-23, 03:08**. Künftig wird die Uhrzeit immer zuerst ermittelt und erst dann eingesetzt.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** Uhrzeit vor dem Aufruf von `date` eingesetzt → Korrekturvermerk statt Änderung des bestehenden Eintrags
+- **Ergebnis:** Die Zeitangabe ist nachvollziehbar richtiggestellt.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
