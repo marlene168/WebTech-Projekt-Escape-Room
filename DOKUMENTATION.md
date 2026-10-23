@@ -74,7 +74,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 - **Online-Testumgebung (eingerichtet am 2026-10-23; Deployment-Workflow vorbereitet, noch kein Deployment):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
-  - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`, Region Frankfurt. Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
+  - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region laut Pooler-Host **eu-west-2 (London)**, geplant war Frankfurt; die Bestätigung durch die Nutzerin steht aus. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
   - Vercel-Projekt `escape-room-test` im Bereich „WebTech Escape Room“ (Hobby), stabile Testadresse `https://escape-room-test-mauve.vercel.app`. Vercel Authentication für **All Deployments**, ohne Git-Verbindung.
   - Öffentliche Schlüssel, die im Browser-Code stehen dürfen: Supabase Publishable Key `sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A`, Turnstile Site Key `0x4AAAAAAFhw9z0L0UM45dNf`. Geheime Werte liegen nur als GitHub-Secrets `TEST_…` bzw. in den Dashboards.
 - **Bekannte Grenzen (Stand AP 4):**
@@ -158,6 +158,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
 | 2026-10-23 | Deployment-Regeln: alle Jobs nutzen denselben festgehaltenen Commit; nie zwei Deployments gleichzeitig, ein laufendes wird nie automatisch abgebrochen (GitHub hält höchstens einen wartenden Lauf, das genügt hier); bei Fehlern stoppt der Ablauf, erledigte Schritte werden protokolliert, kein automatisches Zurücksetzen der Datenbank; Backend-Änderungen bleiben mit der vorherigen Website verträglich; vor Tests und Präsentationen Supabase-Status prüfen und einen vollständigen Spielstart testen | Nachvollziehbarkeit und sichere Wiederholbarkeit; das Backend wird vor dem Frontend aktualisiert, die vorherige Website läuft also kurz gegen das neue Backend; kostenlose Supabase-Projekte pausieren nach Inaktivität (Präzisierungen der Nutzerin) | Laufende Deployments durch neue abbrechen; automatisches Zurücksetzen bei Fehlern; nur das Dashboard öffnen |
 | 2026-10-23 | Zugangsdaten bei GitHub Free als Repository-Secrets mit Präfix `TEST_`; der Workflow prüft selbst, dass er auf `main` läuft. Sobald GitHub Pro (Student Developer Pack) bestätigt aktiv ist, wird ein Umzug in getrennte Environments für Test und Veröffentlichung geprüft | Environment-Secrets und Branch-Regeln gibt es bei privaten Repos erst ab GitHub Pro; die Umsetzung soll nicht auf Pro warten (Entscheidung der Nutzerin) | Auf GitHub Pro warten; Secrets ohne Präfix |
 | 2026-10-23 | Supabase-Token `github-deploy-test` mit minimalen Rechten: nur Projekt `escape-room-test`; Project Settings, API Keys und API Key Secrets je Read, Edge Functions Read-write, alles andere None; der Tokenwert nur als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN`, nie in Dateien, Git oder Protokollen; Ablaufdatum 22.10.2027 (bestätigt am 2026-10-23) | Von der Nutzerin festgelegt (Prinzip der geringsten Rechte): Die Leserechte braucht `supabase link`, das Schreibrecht die Veröffentlichung der Edge Functions; Migrationen nutzen separat das Datenbank-Passwort | Token mit Zugriff auf alle Projekte bzw. vollen Rechten |
+| 2026-10-23 | Migrationen im Deploy-Workflow über den **Session Pooler** (IPv4): `supabase db push --db-url` mit `aws-0-eu-west-2.pooler.supabase.com:5432` und Nutzer `postgres.<Projekt-ID>`; Passwort nur aus dem Secret `TEST_SUPABASE_DB_PASSWORD`, URL-kodiert und vor jeder Ausgabe ausdrücklich maskiert; die Token-Rechte bleiben unverändert | Deploy #1 scheiterte an IPv6: Die direkte Datenbankadresse ist im kostenlosen Tarif nur über IPv6 erreichbar, GitHub-Runner können kein IPv6, und `supabase link` hat mit dem eng begrenzten Token keinen Pooler eingerichtet. Entscheidung der Nutzerin auf Empfehlung von Claude: eindeutiger Weg ohne zusätzliche Rechte | Token-Rechte erweitern, damit `supabase link` den Pooler selbst einrichtet (nötige Berechtigung nicht dokumentiert, mehr Rechte); kostenpflichtiges IPv4-Add-on |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1163,3 +1164,29 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 4
 - **Abweichungen vom Plan:** Migrationen nutzen künftig die Session-Pooler-Adresse statt der Verbindung über `supabase link`.
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 12:01 – AP 5: Migrationen über den Session Pooler (Korrektur nach Deploy #1)
+- **Auslöser:** Nachricht der Nutzerin mit den Verbindungsdaten: „Hier die Verbindungsdaten des Session-Poolers: host=aws-0-eu-west-2.pooler.supabase.com, port=5432, database=postgres, user=postgres.lfqcvevtzddxaywshxwg. Das Datenbank-Passwort bleibt im bestehenden GitHub-Secret. Bitte die Änderung und ihre Begründung dokumentieren.“ Vorausgegangen war ihre Entscheidung für die Session-Pooler-Adresse (siehe Eintrag 12:00).
+- **Durchgeführte Schritte:**
+  - `deploy.yml`, Job `supabase`: Migrationen mit `supabase db push --db-url` über den Session Pooler.
+    - Host, Port und Nutzer stehen als öffentliche Werte im Workflow.
+    - Das Passwort kommt nur aus `TEST_SUPABASE_DB_PASSWORD` und wird URL-kodiert (die CLI verlangt das).
+    - Die kodierte Form und die ganze Verbindungsadresse werden mit `::add-mask::` maskiert, weil GitHub nur den unveränderten Secret-Wert automatisch verbirgt.
+  - `supabase link` bleibt (für die Funktionen). Die Edge Functions werden weiter über die Management-API mit dem Token veröffentlicht.
+  - In der CLI-Hilfe geprüft: `db push --db-url` gibt es in Version 2.120.0, die Adresse muss URL-kodiert sein.
+  - YAML geprüft. Abschnitt 2 (Pooler, Region) und Abschnitt 3 (Entscheidung) aktualisiert.
+- **Begründung:**
+  - Die direkte Datenbankadresse ist im kostenlosen Supabase-Tarif nur über IPv6 erreichbar, GitHub-Runner können kein IPv6.
+  - Der Session Pooler (Supavisor) ist über IPv4 erreichbar und von Supabase für solche Umgebungen vorgesehen.
+  - So bleiben die Token-Rechte unverändert, und der Verbindungsweg steht ausdrücklich im Workflow.
+- **Geänderte/neue Dateien:** `.github/workflows/deploy.yml`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Supabase CLI (Hilfe), Git
+- **Probleme & Lösungen:**
+  - Beobachtung: Der Pooler-Host liegt in `eu-west-2` (London), geplant und dokumentiert war Frankfurt (`eu-central-1`). Das Projekt ist vermutlich in London angelegt. Für die Funktion ist das unerheblich, die Region ist in Abschnitt 2 als „laut Pooler-Host“ vermerkt. **Die Bestätigung durch die Nutzerin steht aus.**
+  - Die Korrektur lässt sich erst im echten Lauf prüfen, weil die Pooler-Verbindung nur mit dem Secret möglich ist.
+- **Ergebnis:**
+  - **Umgesetzt:** Korrektur auf `ap5-nachweis`.
+  - **Offen:** Pull Request, Merge nach Freigabe, Deploy #1 erneut durch die Nutzerin, dann die weiteren Prüfschritte.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
+- **Abweichungen vom Plan:** Migrationen über die Session-Pooler-Adresse statt der von `supabase link` eingerichteten Verbindung (Grund siehe oben).
+- **Git-Commit:** `9febe03`
