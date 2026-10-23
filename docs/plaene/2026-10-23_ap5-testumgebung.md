@@ -8,7 +8,7 @@
 >   - Missbrauchsschutz: CAPTCHA von Supabase erzwungen, Sitzungslimit
 >   - Deployment-Regeln
 >   - CAPTCHA-Ablauftest Teil A (frisches Token nach gescheitertem Versuch)
-> - **Nicht abschließend geprüft:** CAPTCHA-Ablauftest Teil B (verbrauchtes Token). Ob er erforderlich ist, ist offen, weil Aufgabenstellung und Bewertungskriterien nicht vorliegen.
+> - **Nicht abschließend geprüft:** CAPTCHA-Ablauftest Teil B (verbrauchtes Token). Depriorisiert (Entscheidung der Nutzerin vom 2026-10-23): vorerst kein erneuter Test, Wiederaufnahme nur bei konkreten Problemen mit erkennbarem Zusammenhang. Eine Aufgabenstellung oder Bewertungskriterien des Dozenten, an denen das zu messen wäre, gibt es nicht.
 > - Einzelheiten stehen im Entwicklungsprotokoll.
 
 > **Konkretisierung und Aktualisierung** des Arbeitspakets 5 aus dem

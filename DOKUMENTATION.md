@@ -89,15 +89,14 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 **Geplant (noch nicht umgesetzt):**
 
 - **Öffentliche Version:** eigenes Supabase-Projekt, ohne Vercel-Anmeldung, erst nach ausdrücklicher Freigabe der Nutzerin.
-- **AP 6 und 7 – Raum 2 und Raum 3:** jeweils mit eigener Planung.
+- **AP 6 und 7 – Raum 2 und Raum 3:** jeweils mit eigener Planung. **Projektumfang: drei Räume** (vereinbart). Eine konkrete Aufgabenstellung oder zusätzliche Bewertungskriterien des Dozenten gibt es nicht. Ihre Beschaffung ist keine Restaufgabe und keine Voraussetzung für die Weiterarbeit.
 - **Später:** eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
 - **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md).
 - **Offen:**
-  - Aufgabenstellung und Bewertungskriterien des Seminars im Projekt hinterlegen (bestimmen, was „fertig“ bedeutet)
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
-  - CAPTCHA-Ablauftest Teil B (verbrauchtes Token): nicht abschließend geprüft; ob er erforderlich ist, ist offen (Aufgabenstellung und Bewertungskriterien liegen im Projekt nicht vor)
+  - CAPTCHA-Ablauftest Teil B (verbrauchtes Token): nicht abschließend geprüft und **depriorisiert**. Er wird nur bei konkreten Problemen mit erkennbarem Zusammenhang wieder aufgegriffen (Ergebnisse und CORS-Hinderungsgrund im Protokoll vom 2026-10-23, 18:47)
   - Aktionslimits vor der öffentlichen Freigabe
   - Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist
   - Inhalte von Raum 2 und 3
@@ -160,6 +159,8 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 | 2026-10-23 | Migrationen im Deploy-Workflow über den **Session Pooler** (IPv4): `supabase db push --db-url` mit `aws-0-eu-west-2.pooler.supabase.com:5432` und Nutzer `postgres.<Projekt-ID>`; Passwort nur aus dem Secret `TEST_SUPABASE_DB_PASSWORD`, URL-kodiert und vor jeder Ausgabe ausdrücklich maskiert; die Token-Rechte bleiben unverändert | Deploy #1 scheiterte an IPv6: Die direkte Datenbankadresse ist im kostenlosen Tarif nur über IPv6 erreichbar, GitHub-Runner können kein IPv6, und `supabase link` hat mit dem eng begrenzten Token keinen Pooler eingerichtet. Entscheidung der Nutzerin auf Empfehlung von Claude: eindeutiger Weg ohne zusätzliche Rechte | Token-Rechte erweitern, damit `supabase link` den Pooler selbst einrichtet (nötige Berechtigung nicht dokumentiert, mehr Rechte); kostenpflichtiges IPv4-Add-on |
 | 2026-10-23 | Das Supabase-Test-Projekt bleibt in der Region **West Europe (London), `eu-west-2`**, statt wie geplant in Frankfurt (`eu-central-1`) | Bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Für Funktion und Tests ist der Unterschied unerheblich (beides EU). Ein Neuanlegen hätte die gesamte Einrichtung (Token, Secrets, Turnstile, Pooler) erneut erfordert. Entscheidung der Nutzerin | Projekt in Frankfurt neu anlegen |
 | 2026-10-23 | Prüfkriterium der externen Freischaltung: **zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen auf unterschiedlichen Geräten** genügen; Zugriffsanfrage, Genehmigung und anschließende Anzeige der Website sind der Nachweis | Klarstellung der Nutzerin: Für die technische Prüfung ist das ausreichend, eine weitere Person ist dafür nicht erforderlich | – |
+| 2026-10-23 | Es gibt keine konkrete Aufgabenstellung und keine zusätzlichen Bewertungskriterien des Dozenten. Ihre Beschaffung ist keine Restaufgabe und keine Voraussetzung für die Weiterarbeit. Der vereinbarte Projektumfang bleibt bei **drei Räumen** | Klarstellung der Nutzerin; ersetzt den offenen Punkt „Aufgabenstellung und Bewertungskriterien hinterlegen“ aus dem AP-5-Abschluss | Weiterarbeit erst nach Beschaffung von Vorgaben |
+| 2026-10-23 | CAPTCHA-Ablauftest Teil B (verbrauchtes Token) wird **depriorisiert** und vorerst nicht erneut getestet; Wiederaufnahme nur bei konkreten Problemen mit erkennbarem Zusammenhang. Teil A bleibt bestanden, Teil B nicht abschließend geprüft | Entscheidung der Nutzerin aus Zeit- und Umfanggründen. Der Rauchtest belegt bei jedem Deployment weiterhin, dass Supabase Anmeldungen ohne bzw. mit ungültigem Token ablehnt | Wiederholung mit `credentials: "omit"`; Änderung der Sicherheits- oder Serverkonfiguration wegen des CORS-Fehlers |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1436,4 +1437,20 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Ergebnis:** AP 5 ist abgeschlossen. **Nächster Schritt:** das weitere Vorgehen planen (Aufgabenstellung und Bewertungskriterien, AP 6 Raum 2, AP 7 Raum 3, Abschluss der Dokumentation).
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
 - **Abweichungen vom Plan:** CAPTCHA-Ablauftest Teil B nicht abschließend geprüft (siehe Eintrag 18:47). Sonst wie in den Einträgen dieses Tages beschrieben.
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 19:21 – Merge von PR #8, Klarstellung zu Vorgaben und Projektumfang, CAPTCHA Teil B depriorisiert
+- **Auslöser:** Anweisung der Nutzerin: „Ich gebe den Merge von PR #8 nach `main` ausdrücklich frei. Prüfe den aktuellen PR- und CI-Stand und führe den Merge durch, sofern keine neuen Probleme vorliegen.“ Außerdem: „Es gibt keine konkrete Aufgabenstellung und keine zusätzlichen Bewertungskriterien des Dozenten. Die Beschaffung solcher Vorgaben ist keine Restaufgabe und keine Voraussetzung für die Weiterarbeit. Korrigiere entsprechende offene Einträge in der Dokumentation. Drei Räume bleiben der vereinbarte Projektumfang.“ und „Teil B ist depriorisiert und wird vorerst nicht erneut getestet. Greife ihn nur bei konkreten Problemen mit erkennbarem Zusammenhang wieder auf.“
+- **Durchgeführte Schritte:**
+  - PR #8 geprüft: offen, ohne Konflikte, Head `26e432e` wie lokal, alle vier CI-Prüfungen grün. Mit Merge-Commit nach `main` zusammengeführt (`d64a949`).
+  - Abschnitt 2: offenen Punkt „Aufgabenstellung und Bewertungskriterien hinterlegen“ entfernt, Projektumfang „drei Räume“ bei AP 6 und 7 vermerkt, Teil B als depriorisiert gekennzeichnet.
+  - Abschnitt 3: zwei Entscheidungen ergänzt (keine Vorgaben des Dozenten, drei Räume; Teil B depriorisiert).
+  - Statusblock im Detailplan AP 5 entsprechend angepasst.
+  - Die früheren Protokolleinträge (2026-10-23, 18:47 und 18:54), die Aufgabenstellung und Bewertungskriterien als offen nennen, bleiben unverändert. **Dieser Eintrag ersetzt ihre Aussage:** Das ist kein offener Punkt mehr.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/plaene/2026-10-23_ap5-testumgebung.md`
+- **Genutzte Tools:** Claude Code, Git, GitHub CLI (`gh`)
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** AP 5 liegt vollständig auf `main`. Vorgaben des Dozenten sind keine Voraussetzung mehr, Teil B bleibt dokumentiert, aber depriorisiert. AP-6-Planungsinhalte wurden nicht verändert.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
+- **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
