@@ -45,7 +45,7 @@ Die vollständigen Einrichtungsschritte stehen im [Detailplan AP 5](plaene/2026-
 | API Key Secrets | Read |
 | Edge Functions | Read-write |
 | alle übrigen Berechtigungen | None |
-| Ablaufdatum | wird ergänzt, sobald bestätigt |
+| Ablaufdatum | 22.10.2027 (danach neues Token erstellen und das GitHub-Secret ersetzen) |
 
 Die drei Leserechte braucht `supabase link`, das Schreibrecht braucht die Veröffentlichung der Edge Functions. Datenbankmigrationen nutzen separat das Datenbank-Passwort. Der Tokenwert wird **nur** als GitHub-Secret `TEST_SUPABASE_ACCESS_TOKEN` hinterlegt, nie in Dateien, Git oder Protokollen.
 

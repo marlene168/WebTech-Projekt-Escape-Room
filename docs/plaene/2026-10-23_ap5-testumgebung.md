@@ -103,7 +103,7 @@ Geheime Werte gibst du **direkt** in GitHub, Supabase oder Vercel ein, nie im Ch
    | API Key Secrets | Read |
    | Edge Functions | **Read-write** |
    | alle übrigen Berechtigungen | None |
-   | Ablaufdatum | *wird ergänzt, sobald die Nutzerin es bestätigt* |
+   | Ablaufdatum | **22.10.2027** *(bestätigt am 2026-10-23)* |
 
    **Zweck:** Die drei Leserechte braucht `supabase link`, das Schreibrecht für Edge Functions braucht `supabase functions deploy`. Datenbankmigrationen (`supabase db push`) nutzen separat das Datenbank-Passwort (`TEST_SUPABASE_DB_PASSWORD`). Der Tokenwert kommt nur als Secret `TEST_SUPABASE_ACCESS_TOKEN` in GitHub, **nie** in Dateien, Git oder Protokolle.
 
