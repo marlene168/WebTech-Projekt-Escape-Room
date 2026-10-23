@@ -98,7 +98,7 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
-  - Fortbestehende Freischaltung des externen Kontos nach einem weiteren Deployment (wird in AP 5 geprüft)
+  - CAPTCHA-Ablauftest Teil B (verbrauchtes Token): nicht abschließend geprüft; ob er erforderlich ist, ist offen (Aufgabenstellung und Bewertungskriterien liegen im Projekt nicht vor)
   - Aktionslimits vor der öffentlichen Freigabe
   - Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist
   - Inhalte von Raum 2 und 3
@@ -1372,4 +1372,38 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - **Offen in AP 5:** der CAPTCHA-Ablauftest.
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Ablauf Schritt 8, Prüfkriterien
 - **Abweichungen vom Plan:** Den Zeitablauf hat die Nutzerin durch echtes Warten (über 10 Minuten) geprüft, statt die Startzeit im Test-Projekt vorzuspulen. Das ist näher am echten Spiel und brauchte keinen Datenbankzugriff.
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 18:47 – AP 5: CAPTCHA-Ablauftest – Teil A bestanden, Teil B nicht abschließend geprüft
+- **Auslöser:** Rückmeldung der Nutzerin zum CAPTCHA-Ablauftest mit drei Screenshots: „Bitte dokumentiere den aktuellen Stand des CAPTCHA-Ablauftests und begrenze die weitere Arbeit auf den angemessenen Umfang unserer Webtechnologie-Projektarbeit. […] Plane vorerst keine weiteren manuellen Sicherheits- oder Sonderfalltests und ändere wegen dieses CORS-Fehlers keine Sicherheits- oder Serverkonfiguration. Prüfe zunächst anhand unserer Aufgabenstellung und Bewertungskriterien, ob Teil B überhaupt erforderlich ist. Falls diese Informationen fehlen, kennzeichne das offen.“
+- **Durchgeführte Schritte** (Test durch die Nutzerin in Chrome, privates Fenster, Testversion `https://escape-room-test-mauve.vercel.app`):
+  - **Teil A: gescheiterter Anmeldeversuch, dann frisches Token. Bestanden.**
+    - Die Gastanmeldung (`*auth/v1/signup*`) wurde in den Chrome-Entwicklertools gezielt blockiert. Die erwartete Meldung „Die Anmeldung als Gast hat nicht geklappt. Bitte versuche es noch einmal.“ erschien.
+    - Nach Aufheben der Blockierung gelang der nächste Versuch: neue `signup`-Anfrage mit Status 200, die Spielseite öffnete sich.
+    - **Tokenwechsel bestätigt:** Präfix Token A (blockierter Versuch) `1.zLDIjL`, Präfix Token B (erfolgreicher Versuch) `1.E7jZKW`. Beide liegen vor und sind verschieden. Vollständige Tokens wurden nicht übermittelt und nicht gespeichert.
+  - **Teil B: verbrauchtes Token. Nicht abschließend geprüft.**
+    - Die erfolgreiche `signup`-Anfrage wurde über „Copy as fetch“ in der Console erneut gesendet. Der Versuch scheiterte im Browser an einem **CORS-Fehler**: Die kopierte Anfrage enthielt `credentials: "include"`, und dafür ist die Antwort mit `Access-Control-Allow-Origin: *` nicht zulässig.
+    - Die Anfrage erreichte also keine auswertbare Antwort von Supabase. **Weder bestanden noch als CAPTCHA-Fehler bewertet.**
+    - Eine Wiederholung mit `credentials: "omit"` wird vorerst nicht durchgeführt (Entscheidung der Nutzerin). Sicherheits- und Serverkonfiguration bleiben unverändert.
+  - **Nachweise:**
+    - `docs/nachweise/2026-10-23_ap5_captcha-teil-a_blockierte-anmeldung.png`
+    - `docs/nachweise/2026-10-23_ap5_captcha-teil-a_neuer-versuch-erfolgreich.png`
+    - `docs/nachweise/2026-10-23_ap5_captcha-teil-b_cors-fehler.png`
+
+    Die Screenshots enthalten keine Tokens oder geheimen Werte.
+  - **Erforderlichkeit von Teil B geprüft:**
+    - Eine Aufgabenstellung oder Bewertungskriterien des Seminars **liegen im Projekt nicht vor**. Festgehalten ist nur „keine technischen Vorgaben“ (Planung vom 2026-10-04).
+    - Teil B stammt aus dem eigenen Detailplan AP 5 (Prüfkriterium „CAPTCHA-Ablauftest“), nicht aus einer Vorgabe des Seminars.
+    - **Ob Teil B erforderlich ist, bleibt deshalb offen.**
+    - **Einordnung, ohne Teil B zu ersetzen:** Unabhängig davon belegt der Rauchtest bei jedem Deployment, dass Supabase Gastanmeldungen ohne Token und mit ungültigem Token ablehnt (`captcha_failed`). Teil A belegt, dass der Browser für jeden neuen Versuch ein frisches Token holt.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/nachweise/` (3 Screenshots)
+- **Genutzte Tools:** Chrome-Entwicklertools (Network, Request blocking, Console; durch die Nutzerin), Claude Code, Git
+- **Probleme & Lösungen:** Die Wiederholung über „Copy as fetch“ scheiterte an CORS (`credentials: "include"`). Das ist eine Grenze des Testwegs, keine Aussage über das CAPTCHA. Der Test wurde nicht weiter verfolgt, keine Konfiguration geändert.
+- **Ergebnis:**
+  - **Bestätigt:** Teil A, also ein neuer Versuch mit frischem Token nach einem gescheiterten Versuch, inklusive Tokenwechsel.
+  - **Nicht abschließend geprüft:** Teil B (Ablehnung eines verbrauchten Tokens).
+  - **Offen:** ob Teil B für die Projektarbeit erforderlich ist, weil Aufgabenstellung und Bewertungskriterien nicht vorliegen.
+  - Weitere manuelle Sicherheits- oder Sonderfalltests sind vorerst nicht geplant.
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), CAPTCHA-Ablauftest und Prüfkriterien
+- **Abweichungen vom Plan:** Das Prüfkriterium „CAPTCHA-Ablauftest einmal bestanden“ ist nur für den Teil „gescheiterter Versuch, dann frisches Token“ erfüllt. Der Teil „verbrauchtes Token“ ist nicht abschließend geprüft (siehe oben).
 - **Git-Commit:** keiner (keine Code-Änderung)
