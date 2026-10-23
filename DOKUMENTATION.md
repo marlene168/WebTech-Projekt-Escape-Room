@@ -71,6 +71,10 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
     - `ideen.md`: Ideensammlung inklusive verworfener Ideen
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
+- **Online-Testumgebung (eingerichtet am 2026-10-23, noch kein Deployment):**
+  - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`, Region Frankfurt. Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
+  - Vercel-Projekt `escape-room-test` im Bereich „WebTech Escape Room“ (Hobby), stabile Testadresse `https://escape-room-test-mauve.vercel.app`. Vercel Authentication für **All Deployments**, ohne Git-Verbindung.
+  - Öffentliche Schlüssel, die im Browser-Code stehen dürfen: Supabase Publishable Key `sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A`, Turnstile Site Key `0x4AAAAAAFhw9z0L0UM45dNf`. Geheime Werte liegen nur als GitHub-Secrets `TEST_…` bzw. in den Dashboards.
 - **Bekannte Grenzen (Stand AP 4):**
   - Nur lokal spielbar. Die geschützte Online-Testversion folgt in AP 5, die öffentliche Version erst nach ausdrücklicher Freigabe.
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
@@ -1049,5 +1053,28 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Probleme & Lösungen:** keine
 - **Ergebnis:** Auftrag und Ausführung der Vercel-Einrichtung sind vollständig dokumentiert, bestätigte und offene Schritte sind getrennt aufgeführt.
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung); ergänzt den Eintrag 2026-10-23, 03:18
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 10:15 – AP 5: Einrichtung abgeschlossen, öffentliche Werte übernommen
+- **Auslöser:** Mitteilung der Nutzerin: „Ich habe alle deine Schritte umgesetzt und hier sind die Infos, die du noch brauchst: Supabase Projekt URL: https://lfqcvevtzddxaywshxwg.supabase.co, Publishable Key: sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A, Projekt ID: lfqcvevtzddxaywshxwg, stabile Vercel Testadresse: https://escape-room-test-mauve.vercel.app, Turnstile Site Key: 0x4AAAAAAFhw9z0L0UM45dNf. Übernehme diesen Input auch entsprechend in die Dokumentation“
+- **Durchgeführte Schritte:**
+  - Die übergebenen Werte in Abschnitt 2 eingetragen. Alle sind öffentlich gedacht: Publishable Key und Turnstile Site Key stehen ohnehin im Browser-Code, Projekt-ID und Adressen sind keine Geheimnisse.
+  - Die Einrichtung **nur lesend** geprüft, ohne geheime Werte auszugeben:
+    - **Vercel (API):** Schutz `deploymentType: all` (All Deployments), ein Bypass-Geheimnis vorhanden, keine Git-Verbindung, 0 Deployments.
+    - **GitHub:** alle sieben Secrets `TEST_…` angelegt (nur die Namen geprüft).
+    - **Supabase:** Die öffentlichen Auth-Einstellungen zeigen, dass Gastanmeldungen erlaubt sind.
+  - **CAPTCHA-Probe** gegen das Test-Projekt: Gastanmeldung ohne Token → HTTP 400 `captcha_failed` („no captcha_token found“), mit ungültigem Token → HTTP 400 `captcha_failed` („invalid-input-response“). Supabase erzwingt das CAPTCHA also serverseitig. Dabei wurde kein Gastkonto angelegt.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Vercel-API (lesend), GitHub CLI (`gh secret list`, nur Namen), curl (Supabase Auth), Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:**
+  - **Bestätigt:** Die Einrichtungsschritte 1 bis 10 sind abgeschlossen, Zugriffsschutz „All Deployments“ ist aktiv, das CAPTCHA wird von Supabase erzwungen.
+  - **Offen:**
+    - Umsetzung von AP 5 (Workflow, Konfiguration, Turnstile im Browser, Sitzungslimit, Rauchtest)
+    - Deploy #1 mit Prüfung des Zugriffsschutzes
+    - Freischaltung der zweiten Person (Schritt 11), Deploy #2
+    - gemeinsame Online-Prüfung
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), Einrichtungsschritte 1 bis 10
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
