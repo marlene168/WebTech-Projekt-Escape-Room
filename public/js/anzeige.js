@@ -125,11 +125,19 @@ introFenster.querySelector(".intro-video").addEventListener("click", () => {
 introFenster.addEventListener("cancel", (ereignis) => ereignis.preventDefault());
 
 export function beimRaumBetreten(callback) {
-  introFenster.querySelector(".intro-start").addEventListener("click", () => {
-    gibTonFrei(aktuellerRaum.geschichte.verloren.schreck); // jetzt, solange es ein Klick ist
-    callback();
-  });
+  introFenster.querySelector(".intro-start").addEventListener("click", callback);
 }
+
+// Browser erlauben Ton erst nach einer Nutzeraktion. Deshalb wird der Schreck-Ton beim ersten Klick oder
+// Tastendruck auf der Seite freigeschaltet – nicht nur bei "Raum betreten", den Knopf sieht nur die erstellende Person.
+function schalteTonFrei() {
+  if (!aktuellerRaum) return; // Raum noch nicht geladen: beim nächsten Klick
+  document.removeEventListener("click", schalteTonFrei, true);
+  document.removeEventListener("keydown", schalteTonFrei, true);
+  gibTonFrei(aktuellerRaum.geschichte.verloren.schreck);
+}
+document.addEventListener("click", schalteTonFrei, true);
+document.addEventListener("keydown", schalteTonFrei, true);
 
 // Videos anhalten, sobald ihr Fenster geschlossen wird
 for (const fenster of [introFenster, endeFenster]) {
@@ -303,10 +311,7 @@ export function beimVerlassen(callback) {
 }
 
 export function beimNeustart(callback) {
-  endeFenster.querySelector(".ende-neustart").addEventListener("click", () => {
-    gibTonFrei(aktuellerRaum.geschichte.verloren.schreck);
-    callback();
-  });
+  endeFenster.querySelector(".ende-neustart").addEventListener("click", callback);
 }
 
 // Objekte, deren Spur schon gefunden wurde, bekommen ein Häkchen.

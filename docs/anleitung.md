@@ -1,7 +1,7 @@
 # Anleitung: Grafiken, Videos, Ton und neue Räume
 
 Diese Anleitung beschreibt, wie man Platzhalter durch echte Dateien ersetzt und wie man einen neuen Raum anlegt.
-Alles funktioniert auch ohne diese Dateien. Fehlt eine Datei, erscheint automatisch der Platzhalter bzw. der Text.
+Alles funktioniert auch ohne diese Dateien. Solange ein Feld `null` ist, erscheint der Platzhalter bzw. der Text (was bei einem falschen Pfad passiert, steht in Abschnitt 2 und 3).
 
 ---
 
@@ -91,7 +91,9 @@ Das Ergebnis steht in der Zusammenfassung des Laufs. Es läuft nie mehr als ein 
    bild: "bilder/arbeitszimmer/schreibtisch.png",
    ```
    Bei einem Hintergrund steht der Pfad bei der Szene im Feld `hintergrund`, beim Vorschaubild für die Startseite im Feld `vorschaubild`.
-3. Seite neu laden. Stimmt der Pfad nicht, erscheint weiter der Platzhalter.
+3. Seite neu laden. Stimmt der Pfad nicht, erscheint bei **Gegenständen** weiter der Platzhalter. Bei **Hintergründen** und beim **Vorschaubild** bleibt die Fläche dagegen leer (dunkel). Dann Pfad und Dateinamen prüfen.
+
+**Groß- und Kleinschreibung beachten:** Lokal auf dem Mac ist `Schreibtisch.PNG` dasselbe wie `schreibtisch.png`, online bei Vercel nicht. Dateinamen deshalb klein schreiben und genau so in die Raumdatei eintragen. Keine Leerzeichen und Umlaute in Dateinamen.
 
 **Größe und Position:** Jedes Objekt hat einen Kasten (`x`, `y`, `breite`, `hoehe` in Prozent der Bühne). Das Bild wird in diesen Kasten eingepasst, ohne verzerrt zu werden. Hat das Bild ein anderes Seitenverhältnis als der Kasten, bleibt an zwei Seiten etwas Rand frei. Dann entweder das Bild passend zuschneiden oder `breite`/`hoehe` in der Raumdatei anpassen. Die empfohlenen Seitenverhältnisse stehen in der Tabelle in Abschnitt 5.
 
@@ -116,7 +118,8 @@ Das Ergebnis steht in der Zusammenfassung des Laufs. Es läuft nie mehr als ein 
   ```js
   schreck: { sound: "toene/arbeitszimmer/schreck.mp3" },
   ```
-  Solange `sound: null` gilt, erzeugt das Spiel einen eingebauten Ersatzton.
+  Solange `sound: null` gilt, erzeugt das Spiel einen eingebauten Ersatzton. MP3 ist das empfohlene Format, WAV und M4A (AAC) funktionieren in aktuellen Browsern ebenfalls.
+- **Autoplay-Sperre der Browser:** Ton darf erst nach einer Nutzeraktion auf der Seite spielen. Der Schreck-Ton wird deshalb beim **ersten Klick oder Tastendruck auf der Spielseite** freigeschaltet (bei der erstellenden Person spätestens mit „Raum betreten“). Wer bis zum Zeitablauf gar nicht auf die Spielseite klickt, hört keinen Ton. Licht und Text erscheinen trotzdem. Lädt die Datei nicht, spielt der eingebaute Ersatzton.
 
 ---
 
