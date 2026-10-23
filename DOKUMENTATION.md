@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert lokal** (Meilenstein 1 lokal erreicht). Ein Raum, alle Grafiken, Videos und Töne noch als Platzhalter. Noch nicht in der Cloud veröffentlicht._
+_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum, alle Grafiken, Videos und Töne noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
 
 **Umgesetzt:**
 
@@ -64,37 +64,36 @@ _Stand: AP 4 abgeschlossen. **Online-Mehrspieler mit Sitzungen funktioniert loka
     - `functions/`: die vier Edge Functions
     - `functions/_shared/`: Kern `kern.js`, Hilfsfunktionen, geheime Raumdaten in `raeume/`
   - `test/` – Unit-Tests (`npm test`); `test-backend/` – Backend-Tests gegen das lokale Supabase (`npm run test:backend`)
-  - `.github/workflows/ci.yml` – CI (Unit- und Backend-Tests)
+  - `.github/workflows/ci.yml` – CI (Unit- und Backend-Tests); `.github/workflows/deploy.yml` – Deployment per Knopf in die geschützte Testversion
+  - `test-online/rauchtest.mjs` – Rauchtest nach jedem Deployment
+  - `vercel.json`, `.vercelignore` – Vercel-Konfiguration (Ausgabe nur `public/`, keine Git-Deployments)
   - `docs/`:
     - `plaene/`: freigegebene Pläne
     - `anleitung.md`: Starten, Backend lokal, Grafiken, Videos und Ton, neuer Raum, Liste der benötigten Dateien
     - `ideen.md`: Ideensammlung inklusive verworfener Ideen
+    - `nachweise/`: Screenshots als Nachweise von Tests (z. B. CAPTCHA-Ablauftest in AP 5)
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
-- **Online-Testumgebung (eingerichtet am 2026-10-23; Deployment-Workflow vorbereitet, noch kein Deployment):**
+- **Online-Testumgebung (seit 2026-10-23 online; zwei Deployments, Rauchtest zuletzt 14 von 14):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
   - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region **West Europe (London), `eu-west-2`** (von der Nutzerin am 2026-10-23 im Dashboard bestätigt). Geplant war Frankfurt (`eu-central-1`); bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Das Projekt bleibt bestehen. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
   - Vercel-Projekt `escape-room-test` im Bereich „WebTech Escape Room“ (Hobby), stabile Testadresse `https://escape-room-test-mauve.vercel.app`. Vercel Authentication für **All Deployments**, ohne Git-Verbindung.
   - Öffentliche Schlüssel, die im Browser-Code stehen dürfen: Supabase Publishable Key `sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A`, Turnstile Site Key `0x4AAAAAAFhw9z0L0UM45dNf`. Geheime Werte liegen nur als GitHub-Secrets `TEST_…` bzw. in den Dashboards.
-- **Bekannte Grenzen (Stand AP 4):**
-  - Nur lokal spielbar. Die geschützte Online-Testversion folgt in AP 5, die öffentliche Version erst nach ausdrücklicher Freigabe.
+- **Bekannte Grenzen (Stand AP 5):**
+  - Online nur als geschützte Testversion (zwei Vercel-Konten). Die öffentliche Version gibt es erst nach ausdrücklicher Freigabe.
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
   - Beendete Sitzungen werden noch nicht aufgeräumt.
   - Nach Änderungen an Dateien in `public/shared/` muss das lokale Backend neu gestartet werden (siehe Anleitung).
 
 **Geplant (noch nicht umgesetzt):**
 
-- **AP 5 – Geschützte Online-Testversion** (Detailplan [`docs/plaene/2026-10-23_ap5-testumgebung.md`](docs/plaene/2026-10-23_ap5-testumgebung.md), freigegeben am 2026-10-23):
-  - Supabase-Test-Projekt und Vercel-Testprojekt mit Vercel Authentication für alle Deployments.
-  - Deployment per Knopf in GitHub Actions.
-  - Turnstile bei der Gastanmeldung, Sitzungslimit.
-  - Meilenstein 1 auf echten Geräten mit zwei berechtigten Personen.
 - **Öffentliche Version:** eigenes Supabase-Projekt, ohne Vercel-Anmeldung, erst nach ausdrücklicher Freigabe der Nutzerin.
 - **AP 6 und 7 – Raum 2 und Raum 3:** jeweils mit eigener Planung.
 - **Später:** eine Rangliste mit Anzeigenamen und Bestzeiten und die abgestimmte endgültige Gestaltung.
 - **Plan für diese Phase** (freigegeben am 2026-10-22): [`docs/plaene/2026-10-22_mehrspieler-grundlage.md`](docs/plaene/2026-10-22_mehrspieler-grundlage.md).
 - **Offen:**
+  - Aufgabenstellung und Bewertungskriterien des Seminars im Projekt hinterlegen (bestimmen, was „fertig“ bedeutet)
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
@@ -1406,4 +1405,35 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Weitere manuelle Sicherheits- oder Sonderfalltests sind vorerst nicht geplant.
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung), CAPTCHA-Ablauftest und Prüfkriterien
 - **Abweichungen vom Plan:** Das Prüfkriterium „CAPTCHA-Ablauftest einmal bestanden“ ist nur für den Teil „gescheiterter Versuch, dann frisches Token“ erfüllt. Der Teil „verbrauchtes Token“ ist nicht abschließend geprüft (siehe oben).
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 18:54 – AP 5 abgeschlossen: geschützte Online-Testversion
+- **Auslöser:** Anweisung des Nutzers: „Ja bitte finalisiere nun AP 5 durch das Abschließen von Punkt 1 und im Anschluss planen wir das weitere Vorgehen.“ Punkt 1 der Restaufgaben: Pull Request mit Nachweisen und Doku-Einträgen von `ap5-nachweis` nach `main`, Abschnitt 2 auf „AP 5 abgeschlossen“.
+- **Durchgeführte Schritte:**
+  - **Abschnitt 2 auf den Endstand gebracht:**
+    - Stand „AP 5 abgeschlossen“, Online-Testumgebung als online markiert (zwei Deployments, Rauchtest zuletzt 14 von 14).
+    - Ordnerstruktur ergänzt: `deploy.yml`, `test-online/`, `vercel.json`/`.vercelignore`, `docs/nachweise/`.
+    - Grenzen auf den Stand von AP 5 gebracht. Den erledigten Punkt „AP 5“ aus „Geplant“ entfernt.
+    - Offener Punkt „Aufgabenstellung und Bewertungskriterien hinterlegen“ ergänzt.
+  - **Detailplan AP 5:** Statusblock „abgeschlossen“ mit erfüllten und nicht abschließend geprüften Kriterien.
+  - **Ursprünglicher Plan:** Hinweis „AP 5 ist am 2026-10-23 abgeschlossen“.
+  - Pull Request von `ap5-nachweis` nach `main` gestellt. Er enthält die Doku-Einträge seit dem Merge von PR #7, die Nachweise und diesen Abschluss.
+- **Zusammenfassung von AP 5** (Einzelheiten in den Einträgen dieses Tages):
+  - **Erfüllt:**
+    - Deployment per Knopf in die geschützte Testversion (zwei Läufe, zuletzt alle Jobs grün, Rauchtest 14 von 14)
+    - Zugriffsschutz „All Deployments“, geprüft automatisch und im privaten Fenster
+    - externe Freischaltung mit zwei getrennten Vercel-Konten auf unterschiedlichen Geräten
+    - Meilenstein 1 online (alle Prüfungen)
+    - CAPTCHA serverseitig von Supabase erzwungen, Sitzungslimit mit Gegenprobe
+    - keine Geheimnisse in den Protokollen
+    - CAPTCHA-Ablauftest Teil A
+  - **Nicht abschließend geprüft:** CAPTCHA-Ablauftest Teil B. Ob er erforderlich ist, ist offen.
+  - **Korrekturen unterwegs:** Migrationen über den Session Pooler (IPv6, PR #6), Rauchtest mit dem Wurzelordner `src/` und den festgehaltenen Sperr-Merkmalen (PR #7).
+  - **Bewusste Abweichungen:** Supabase-Region London statt Frankfurt; Prüfkriterium „zwei getrennte Vercel-Konten“.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/plaene/2026-10-23_ap5-testumgebung.md`, `docs/plaene/2026-10-22_mehrspieler-grundlage.md`
+- **Genutzte Tools:** Claude Code, Git, GitHub CLI (`gh`)
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** AP 5 ist abgeschlossen. **Nächster Schritt:** das weitere Vorgehen planen (Aufgabenstellung und Bewertungskriterien, AP 6 Raum 2, AP 7 Raum 3, Abschluss der Dokumentation).
+- **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
+- **Abweichungen vom Plan:** CAPTCHA-Ablauftest Teil B nicht abschließend geprüft (siehe Eintrag 18:47). Sonst wie in den Einträgen dieses Tages beschrieben.
 - **Git-Commit:** keiner (keine Code-Änderung)

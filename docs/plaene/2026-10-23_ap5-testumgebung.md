@@ -1,5 +1,16 @@
 # Detailplanung AP 5: Geschützte Online-Testversion mit Deployment per Knopf
 
+> **Status (2026-10-23): AP 5 abgeschlossen.** Die geschützte Testversion ist online. Deploy #2 lief vollständig grün, der Rauchtest bestand 14 von 14 Prüfungen.
+> - **Erfüllt:**
+>   - Zugriffsschutz (automatisch und im privaten Fenster)
+>   - externe Freischaltung mit zwei getrennten Vercel-Konten, auch nach einem weiteren Deployment
+>   - Meilenstein 1 online auf zwei Geräten
+>   - Missbrauchsschutz: CAPTCHA von Supabase erzwungen, Sitzungslimit
+>   - Deployment-Regeln
+>   - CAPTCHA-Ablauftest Teil A (frisches Token nach gescheitertem Versuch)
+> - **Nicht abschließend geprüft:** CAPTCHA-Ablauftest Teil B (verbrauchtes Token). Ob er erforderlich ist, ist offen, weil Aufgabenstellung und Bewertungskriterien nicht vorliegen.
+> - Einzelheiten stehen im Entwicklungsprotokoll.
+
 > **Konkretisierung und Aktualisierung** des Arbeitspakets 5 aus dem
 > [Plan Mehrspieler-Grundlage](2026-10-22_mehrspieler-grundlage.md) (dort: „AP 5 – Cloud und Vercel“).
 > Wo dieser Detailplan von dort abweicht, gilt der Detailplan. Im ursprünglichen Plan wird darauf verwiesen (siehe Abschnitt 9).

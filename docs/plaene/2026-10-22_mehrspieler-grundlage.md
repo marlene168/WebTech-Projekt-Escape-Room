@@ -1,6 +1,6 @@
 # Plan: Mehrspieler-Grundlage mit Supabase und drei Räume
 
-> **Aktualisiert am 2026-10-23:** AP 5 ist durch den Detailplan [`2026-10-23_ap5-testumgebung.md`](2026-10-23_ap5-testumgebung.md) konkretisiert (geschützte Testversion, Deployment per Knopf). Wo er abweicht, gilt der Detailplan. Überholte Angaben unten sind mit „(aktualisiert 2026-10-23: …)“ markiert.
+> **Aktualisiert am 2026-10-23:** AP 5 ist durch den Detailplan [`2026-10-23_ap5-testumgebung.md`](2026-10-23_ap5-testumgebung.md) konkretisiert (geschützte Testversion, Deployment per Knopf). Wo er abweicht, gilt der Detailplan. **AP 5 ist am 2026-10-23 abgeschlossen** (Status siehe Detailplan). Überholte Angaben unten sind mit „(aktualisiert 2026-10-23: …)“ markiert.
 
 ## Kontext
 Der aktuelle Stand ist ein Einzelspieler-Prototyp:
