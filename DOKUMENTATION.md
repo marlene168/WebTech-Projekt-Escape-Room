@@ -85,6 +85,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
   - Beendete Sitzungen werden noch nicht aufgeräumt.
   - Nach Änderungen an Dateien in `public/shared/` muss das lokale Backend neu gestartet werden (siehe Anleitung).
+  - Der Schreck-Ton spielt erst nach dem ersten Klick oder Tastendruck auf der Spielseite (Autoplay-Sperre der Browser). Fehlt eine Hintergrund- oder Vorschaubild-Datei, bleibt die Fläche leer statt den Platzhalter zu zeigen.
 
 **Geplant (noch nicht umgesetzt):**
 
@@ -161,6 +162,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 | 2026-10-23 | Prüfkriterium der externen Freischaltung: **zwei getrennte Vercel-Konten mit unterschiedlichen E-Mail-Adressen auf unterschiedlichen Geräten** genügen; Zugriffsanfrage, Genehmigung und anschließende Anzeige der Website sind der Nachweis | Klarstellung der Nutzerin: Für die technische Prüfung ist das ausreichend, eine weitere Person ist dafür nicht erforderlich | – |
 | 2026-10-23 | Es gibt keine konkrete Aufgabenstellung und keine zusätzlichen Bewertungskriterien des Dozenten. Ihre Beschaffung ist keine Restaufgabe und keine Voraussetzung für die Weiterarbeit. Der vereinbarte Projektumfang bleibt bei **drei Räumen** | Klarstellung der Nutzerin; ersetzt den offenen Punkt „Aufgabenstellung und Bewertungskriterien hinterlegen“ aus dem AP-5-Abschluss | Weiterarbeit erst nach Beschaffung von Vorgaben |
 | 2026-10-23 | CAPTCHA-Ablauftest Teil B (verbrauchtes Token) wird **depriorisiert** und vorerst nicht erneut getestet; Wiederaufnahme nur bei konkreten Problemen mit erkennbarem Zusammenhang. Teil A bleibt bestanden, Teil B nicht abschließend geprüft | Entscheidung der Nutzerin aus Zeit- und Umfanggründen. Der Rauchtest belegt bei jedem Deployment weiterhin, dass Supabase Anmeldungen ohne bzw. mit ungültigem Token ablehnt | Wiederholung mit `credentials: "omit"`; Änderung der Sicherheits- oder Serverkonfiguration wegen des CORS-Fehlers |
+| 2026-10-23 | Der Schreck-Ton wird beim **ersten Klick oder Tastendruck auf der Spielseite** freigeschaltet statt nur bei „Raum betreten“ | Befund im Medientest: Den Knopf sieht nur die erstellende Person, Mitglieder blieben bei Zeitablauf stumm. Ein Klick irgendwo erfüllt die Autoplay-Regel der Browser | Eigener Knopf „Ton an“ für alle (zusätzliche Bedienung); Freischaltung beim Laden der Seite (von Browsern ohne Nutzeraktion blockiert) |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1454,3 +1456,29 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** 2026-10-23, 01:31 – Planung: AP 5 – Geschützte Testversion und Deployment per Knopf (Detailplanung)
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-23, 19:31 – Medieneinbindung geprüft: Grafiken und Ton (lokal), zwei Korrekturen
+- **Auslöser:** Anweisung der Nutzerin: „Ich möchte eigene Grafiken und Audiodateien einbinden und prüfen, ob die Einbindung funktioniert. Die endgültige Gestaltung folgt später.“ Mit den Schritten: Medienstruktur prüfen, Ablageort und Formate nennen, bereitgestellte Dateien einbinden, Darstellung und Audiowiedergabe über die vorgesehene Bedienung prüfen (Autoplay-Beschränkungen), Online-Testumgebung nur ohne neuen öffentlichen Release, knapp dokumentieren.
+- **Durchgeführte Schritte:**
+  - **Bestand:** Die Einbindung ist seit Schritt 9 vorbereitet (Felder `hintergrund`, `bild`, `vorschaubild`, `video`, `schreck.sound` in der Raumdatei, Ordner `public/bilder|videos|toene/arbeitszimmer/`). Eigene Dateien der Nutzerin liegen noch nicht vor, die Ordner enthalten nur `.gitkeep`.
+  - **Test mit eigenen Testdateien von Claude** (nicht eingecheckt): Hintergrund-JPG 1920×1080, Objekt-PNG 800×380 mit transparentem Bereich, Vorschau-JPG 1200×675, Ton als WAV (1,5 s). MP3 ließ sich lokal nicht erzeugen (kein Encoder installiert). Die Raumdatei zeigte nur während des Tests auf diese Dateien.
+  - **Testaufbau:** lokales Supabase, Chrome headless mit der Autoplay-Regel des Desktop-Chrome (`--autoplay-policy=document-user-activation-required`), echte Mausklicks über das DevTools-Protokoll, Tonausgabe stumm. Drei Gäste in einer Sitzung: A erstellt und klickt „Raum betreten“, B tritt per Code bei und klickt im Spiel ein Objekt an, C tritt bei und klickt auf der Spielseite nichts. Zeitablauf in der lokalen Datenbank vorgespult (Startzeit 10 Minuten zurück).
+  - **Ergebnisse vor der Korrektur:**
+    - Vorschaubild, Hintergrund und Objektbild laden in voller Größe; die Transparenz des PNG stimmt, das Objekt sitzt in seinem Kasten (Sichtprüfung per Screenshot).
+    - **Befund 1:** Das Vorschaubild auf der Startseite ragte über den Text der Raumkarte (Breite aus der Kartenhöhe statt aus der Spalte). Mit dem dunklen Platzhalter fiel das nicht auf.
+    - Ton bei A: Datei wird bei „Raum betreten“ stumm freigeschaltet und spielt bei Zeitablauf vollständig (1,50 s, nicht stumm).
+    - **Befund 2:** B und C hörten nichts. Die Freischaltung hing nur an „Raum betreten“ und „Nochmal spielen“; beide Knöpfe sieht nur die erstellende Person bzw. nur das Spielende.
+    - **Befund 3 (Gegentest mit falschen Pfaden):** Objekte zeigen den Platzhalter, Hintergrund und Vorschaubild bleiben leer. Die Anleitung versprach überall den Platzhalter.
+  - **Korrekturen:** Ton-Freischaltung beim ersten Klick oder Tastendruck auf der Spielseite (`anzeige.js`); Vorschaubild mit der Breite seiner Spalte (`style.css`). Befund 3 nur in der Anleitung richtiggestellt, ohne Codeänderung. Dazu Hinweise auf Groß-/Kleinschreibung bei Vercel, Tonformate und Autoplay-Regel.
+  - **Ergebnisse nach der Korrektur:** A und B spielen den Ton vollständig ab. C (kein Klick) bleibt stumm, das ist die Browser-Regel; Licht und Text erscheinen. Vorschaubild sitzt in der Spalte. Startseite mit Platzhalter (Desktop und 400 px) unverändert, bei 400 px pixelgleich mit dem alten Stand.
+  - `npm test` 68 von 68, `npm run test:backend` 26 von 26. Ein erster Backend-Lauf scheiterte mit `BOOT_ERROR`, weil die Raumdatei während des Tests geändert worden war. Nach dem dokumentierten Neustart des Backends liefen alle Tests durch.
+- **Geänderte/neue Dateien:** `public/js/anzeige.js`, `public/css/style.css`, `docs/anleitung.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Google Chrome (headless, DevTools-Protokoll), Supabase CLI und Docker (lokales Backend), Python und `sips`/`afconvert` (Testdateien), Git
+- **Probleme & Lösungen:** `BOOT_ERROR` der lokalen Edge Functions nach Änderung an `public/shared/`, gelöst durch Neustart des Backends (siehe Anleitung).
+- **Ergebnis:** Die Einbindung von Grafiken und Ton funktioniert lokal, auch unter der Autoplay-Regel. **Offen:**
+  - eigene Dateien der Nutzerin einbinden und damit erneut prüfen (Sichtprüfung der echten Motive, MP3)
+  - Prüfung in der Online-Testumgebung: Dafür muss der Stand auf `main` und per Deploy-Workflow in die geschützte Testversion. Das ist kein öffentlicher Release, wird aber nur nach Freigabe der Nutzerin ausgelöst.
+  - Safari und Mobilgeräte nicht getestet; Videos nicht Teil dieses Tests.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `c224f22`
