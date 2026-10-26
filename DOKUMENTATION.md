@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Hauptszene, Vorschaubild und alle Gegenstände der Detailansichten mit eigenen Grafiken (vorläufig); Hintergründe der Detailansichten, Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
+_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Alle Szenen und Gegenstände mit eigenen Grafiken (vorläufig); das Gemälde bewusst mit dem Platzhalter „Tapete“ als Hintergrund. Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
 
 **Umgesetzt:**
 
@@ -98,7 +98,6 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
   - Anzeigenamen
   - E-Mail-Konten
   - Ton bei Zeitablauf in der Testversion (depriorisiert, Ursache ungeklärt)
-  - Hintergründe der drei Detailansichten (bisher Platzhalter)
   - CAPTCHA-Ablauftest Teil B (verbrauchtes Token): nicht abschließend geprüft und **depriorisiert**. Er wird nur bei konkreten Problemen mit erkennbarem Zusammenhang wieder aufgegriffen (Ergebnisse und CORS-Hinderungsgrund im Protokoll vom 2026-10-23, 18:47)
   - Aktionslimits vor der öffentlichen Freigabe
   - Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist
@@ -168,6 +167,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 | 2026-10-23 | **Vorläufig:** Hauptszene des Arbeitszimmers mit einer Gesamtansicht (alle Gegenstände gemalt) als Hintergrund; die Gegenstände liegen als eigene, freigestellte Bilder deckungsgleich darüber. Gegenstände als WebP (lange Seite 1200 px), Hintergründe als JPG. Die endgültige Gestaltung wird später abgestimmt | Die Nutzerin hat eine Gesamtansicht statt eines leeren Raums geliefert; die Überlagerung wirkt nahtlos, die Gegenstände bleiben einzeln austauschbar und reagieren auf Hover. Weicht von der Entscheidung vom 2026-10-04 ab (Hintergrund ohne Gegenstände): Ändert sich später ein Gegenstand sichtbar (z. B. offene Tür), muss die Gesamtansicht angepasst oder ein leerer Raum erzeugt werden. WebP spart rund 90 % Ladevolumen gegenüber den Original-PNGs | Gegenstände in den bisherigen Kästen auf der Platzhalter-Tapete (wirkt wie Kulisse, Nachweis `docs/nachweise/2026-10-23_medien_raum-variante-einzeln.jpg`); Gesamtansicht mit unsichtbaren Klickflächen (am 2026-10-04 verworfen); Original-PNGs mit 2–3 MB je Datei |
 | 2026-10-26 | Der fehlende Ton bei Zeitablauf in der Testversion wird **depriorisiert**; vorerst keine Ursachensuche und keine Änderung auf Verdacht | Entscheidung der Nutzerin: zuerst die Detailansichten integrieren. Lokal in Chrome headless spielt der Ton; die Ursache in der Testversion ist ungeklärt | Sofortige Ursachensuche; vorsorgliche Absicherung (Tonausgabe vor dem Abspielen fortsetzen) ohne geklärte Ursache |
 | 2026-10-26 | Rahmenecke des Gemäldes als **versteckte Klickfläche** (`unsichtbar: true`) statt eines Lupen-Objekts; die rote 4 wird per Skript ins Bild des Gemäldes gesetzt (`gemaelde-nah.webp`). Die Klickfläche hat keinen Tooltip, und das Gemälde darunter leuchtet beim Darüberfahren weiter | Wunsch der Nutzerin, die Lupe wegzulassen und die Spur über einen Klick auf die Ecke mit der 4 zu finden. Eine Klickfläche braucht kein zusätzliches Bild. Die gesetzte Ziffer ist sicher lesbar; Bildgeneratoren schreiben Ziffern oft fehlerhaft. Tooltip und erlöschendes Leuchten hätten die Stelle verraten | Lupe als eigenes Bild (Vorschlag der Nutzerin als Ausweichlösung); Klickfläche mit sichtbarem Hover-Effekt |
+| 2026-10-26 | Die Nahansicht des Gemäldes bekommt **keinen eigenen Hintergrund**; der Platzhalter „Tapete“ bleibt | Entscheidung der Nutzerin („Für das Gemälde brauchen wir keinen Hintergrund“); die Tapete passt zur Gesamtansicht des Raums | Eigenes Bild `hintergrund-bild.jpg` (laut Anleitung geplant) |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1581,3 +1581,19 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-26, 02:50 – Hintergründe der Detailansichten eingebunden, Zurück-Knopf lesbar
+- **Auslöser:** Anweisung der Nutzerin: „Ich habe die Hintergrundbilder für die Detaillansicht der Pinnwand und den Schreibtisch eingefügt. Für das Gemälde brauchen wir keinen Hintergrund. Bitte arbeite diese Bilder in den Escape Room ein und halte diese Korrekturen so fest, wie vereinbart.“
+- **Durchgeführte Schritte:**
+  - **Gefunden:** `schreibtisch-hintergrund.png` (Lederunterlage mit Holzrand von oben) und `pinnwand-hintergrund.png` (Korkwand mit Karte, Zettel und Skizze) in `public/bilder/arbeitszimmer/`, beide 1672×941 (16:9), ohne Transparenz. Originale unverändert.
+  - **Eingebunden** als `hintergrund-schreibtisch.jpg` (510 KB) und `hintergrund-pinnwand.jpg` (720 KB), JPG mit Qualität 80, statt 2,9 bzw. 3,4 MB als PNG. Die gemalten Elemente der Pinnwand liegen außerhalb der Kästen von Foto, Notiz und blauem Zettel, eine Verschiebung war nicht nötig. Das Gemälde behält auf Wunsch der Nutzerin den Platzhalter „Tapete“ (Abschnitt 3).
+  - **Befund bei der Sichtprüfung:** „← Zurück“ war auf den hellen Bildern kaum lesbar. Ursache: Der dunkle Hintergrund von `.zurueck-knopf` wurde von der später stehenden, gleich spezifischen Regel `.knopf { background: transparent; font: inherit }` überschrieben, ebenso die Schriftgröße. Das bestand schon vorher und fiel auf den dunklen Platzhaltern nicht auf. Korrigiert mit dem Selektor `.knopf.zurueck-knopf`; der Hover-Effekt von `.knopf:hover` bleibt erhalten.
+  - **Getestet** (lokal, Chrome headless, echte Klicks): Schreibtisch und Pinnwand mit den neuen Hintergründen, alle Gegenstände geladen, alle fünf Spuren gefunden (Notizbuch 5). `npm test` 68 von 68, `npm run test:backend` 26 von 26.
+  - **Nachweise:** `docs/nachweise/2026-10-26_medien_hintergrund-schreibtisch.jpg`, `…_hintergrund-pinnwand.jpg`.
+- **Geänderte/neue Dateien:** `public/shared/raeume/arbeitszimmer.js`, `public/css/style.css`, `public/bilder/arbeitszimmer/` (zwei JPG), `docs/anleitung.md`, `docs/nachweise/` (2 Screenshots), `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Google Chrome (headless, DevTools-Protokoll), `sips`, Supabase CLI und Docker, Git
+- **Probleme & Lösungen:** Zurück-Knopf (siehe oben).
+- **Ergebnis:** Alle Szenen von Raum 1 zeigen die Grafiken der Nutzerin. **Offen:** Schreck-Ton und dessen Fehler in der Testversion (depriorisiert), Sichtprüfung von Deploy #4 durch die Nutzerin (noch keine Rückmeldung), Merge und Deploy dieses Stands (nach Freigabe), endgültige Gestaltung.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** Der in der Anleitung geplante `hintergrund-bild.jpg` entfällt (Entscheidung der Nutzerin).
+- **Git-Commit:** `e6b72f1`
