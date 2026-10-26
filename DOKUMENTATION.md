@@ -74,7 +74,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
     - `nachweise/`: Screenshots als Nachweise von Tests (z. B. CAPTCHA-Ablauftest in AP 5)
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
-- **Online-Testumgebung (seit 2026-10-23 online; vier Deployments, Rauchtest zuletzt 14 von 14):**
+- **Online-Testumgebung (seit 2026-10-23 online; fünf Deployments, Rauchtest zuletzt bestanden):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
   - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region **West Europe (London), `eu-west-2`** (von der Nutzerin am 2026-10-23 im Dashboard bestätigt). Geplant war Frankfurt (`eu-central-1`); bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Das Projekt bleibt bestehen. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
@@ -1597,3 +1597,16 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** Der in der Anleitung geplante `hintergrund-bild.jpg` entfällt (Entscheidung der Nutzerin).
 - **Git-Commit:** `e6b72f1`
+
+### 2026-10-26, 13:27 – Merge von PR #11 und Deploy #5 (Hintergründe der Detailansichten in der Testversion)
+- **Auslöser:** Freigabe der Nutzerin: „ja“ (auf die Frage, ob PR #11 gemergt und in die geschützte Testversion deployt werden darf).
+- **Durchgeführte Schritte:**
+  - PR #11 geprüft (ohne Konflikte, Head `735bbb1`, alle CI-Prüfungen grün) und mit Merge-Commit nach `main` zusammengeführt (`93c990a`).
+  - Deploy-Workflow für das Ziel `test` ausgelöst (Lauf 40257167582, Commit `93c990a`). Alle Jobs grün: Vorprüfung, Tests, Backend-Tests, Supabase, Vercel, Rauchtest.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, GitHub CLI (`gh`), GitHub Actions
+- **Probleme & Lösungen:** Die GitHub-API antwortete sehr langsam, die Logzeilen des Rauchtests ließen sich nicht abrufen (leere Antwort bzw. Zeitüberschreitung). Das Rauchtest-Skript beendet sich bei jeder fehlgeschlagenen Prüfung mit Fehler (`test-online/rauchtest.mjs`), der grüne Job belegt also, dass alle Prüfungen bestanden sind. Die Anzahl der Prüfungen und der hochgeladenen Dateien wurde nicht abgelesen.
+- **Ergebnis:** Raum 1 mit allen Grafiken der Nutzerin ist in der geschützten Testversion bereitgestellt. **Offen:** Sichtprüfung durch die Nutzerin (Deploy #4 und #5), Schreck-Ton und dessen Fehler (depriorisiert). Ein öffentlicher Release fand nicht statt.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
