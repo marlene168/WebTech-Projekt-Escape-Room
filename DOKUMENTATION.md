@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Hauptszene, Vorschaubild und alle Gegenstände der Detailansichten mit eigenen Grafiken (vorläufig); Hintergründe der Detailansichten, Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
+_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Hauptszene, Vorschaubild und alle Gegenstände der Detailansichten mit eigenen Grafiken (vorläufig); Hintergründe der Detailansichten, Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe). **AP 6 (Raum 2 „Letzter Waschgang“) in Arbeit** auf dem Zweig `ap6-waschsalon`: Raum registriert und von der Startseite aus startbar, noch ohne Objekte (Schritt 1 von 8)._
 
 **Umgesetzt:**
 
@@ -40,7 +40,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 - **Starten:**
   - Node.js 24 (siehe `.nvmrc`), `npm install` (einmalig).
   - `npm run backend:start` (Docker Desktop muss laufen), dann `npm start` und http://localhost:3000 öffnen.
-  - Tests: `npm test` (68 Unit-Tests) und `npm run test:backend` (26 Backend-Tests).
+  - Tests: `npm test` (70 Unit-Tests) und `npm run test:backend` (26 Backend-Tests).
   - Siehe `docs/anleitung.md`.
 - **CI:** GitHub Actions führt bei jedem Push und Pull Request `npm ci` und `npm test` aus, dazu im Job `backend` die Backend-Tests gegen ein frisches, temporäres Supabase (`.github/workflows/ci.yml`). Der Workflow veröffentlicht nichts und hat keinen Zugang zum Cloud-Projekt.
 - **Ordnerstruktur:**
@@ -56,7 +56,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
   - `public/shared/` – nur Öffentliches, wird auch von den Edge Functions genutzt:
     - `spiel-logik.js`: Spielregeln als reine Funktionen
     - `raeume/`: öffentliche Raumdaten mit `version`; `index.js` listet alle Räume
-    - `raetsel/`: Rätseltyp-Register (bisher `zahlenschloss`)
+    - `raetsel/`: Rätseltyp-Register (`zahlenschloss`, `tastenfolge`)
   - `public/bilder/`, `public/videos/`, `public/toene/` – je Raum ein Unterordner (noch leer, siehe Anleitung)
   - `supabase/` – Backend:
     - `config.toml`: u. a. Gastanmeldung
@@ -72,7 +72,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
     - `anleitung.md`: Starten, Backend lokal, Grafiken, Videos und Ton, neuer Raum, Liste der benötigten Dateien
     - `ideen.md`: Ideensammlung inklusive verworfener Ideen
     - `nachweise/`: Screenshots als Nachweise von Tests (z. B. CAPTCHA-Ablauftest in AP 5)
-- **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
+- **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `public/shared/raeume/waschsalon.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
 - **Online-Testumgebung (seit 2026-10-23 online; vier Deployments, Rauchtest zuletzt 14 von 14):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
@@ -1625,3 +1625,22 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
   - Musik, Video und Flackern schon in Version 1; englische Conventional Commits.
   - Das Karussell der Raumauswahl ist als Idee in `docs/ideen.md` festgehalten und kommt als eigener Schritt nach Raum 2.
 - **Git-Commit:** wird mit diesem Eintrag erstellt (siehe Commit „Doku: Planung zu Raum 2 Waschsalon“)
+
+### 2026-10-26, 02:54 – Raum 2, Schritt 1: Raum registriert, Intro und Bühne
+- **Auslöser:** Freigabe des Plans „Raum 2 Waschsalon“ durch die Nutzerin; dies ist Schritt 1 des Plans.
+- **Durchgeführte Schritte:**
+  - **Vorbereitung:** Zweig `ap6-waschsalon` vom aktuellen `main` (`a650ad0`) angelegt. Der Plan liegt in `docs/plaene/`, der Planungseintrag ist geschrieben (Commit `11cd4ba`).
+  - **Raumdaten** `public/shared/raeume/waschsalon.js`: Titel „Letzter Waschgang“, Schwierigkeit 2, 15 Minuten, 60 s Strafe je Tipp, vier Tipps. Intro, Gewonnen- und Verloren-Text wie im Plan, Schreckmoment mit Ersatzton (`sound: null`). Szene `raum` ohne Objekte mit dem neuen CSS-Platzhalter `waschsalon` (gedämpfte Fliesen, Pastellstreifen, dunkler Boden, Neonschimmer). Ausgangsrätsel `programm` (Typ `tastenfolge`, vier Programmtasten, Länge 5).
+  - **Geheime Daten** `waschsalon.geheim.js`: Lösung und vier gestufte Tipps, nur im Backend.
+  - **Rätseltyp** `public/shared/raetsel/tastenfolge.js`: Prüfung als exakter Textvergleich der Tasten-IDs. Die Anzeige folgt in Schritt 7.
+  - **Register** ergänzt: Raumliste (hinten angehängt), geheime Raumdaten, Rätseltypen.
+  - **Tests:** Prüfung von `tastenfolge`, Tastenfolgen-Regeln (eindeutige Tasten, Lösung nur aus bekannten Tasten-IDs, passende Länge), Waschsalon über die ID auffindbar.
+  - Leere Medienordner `public/bilder|toene|videos/waschsalon/`.
+  - **Getestet:** `npm test` 70 von 70, `npm run test:backend` 26 von 26 (frisch gestartetes Backend). Browsertest per Chrome headless mit echten Klicks: Die Startseite zeigt zwei Karten (Waschsalon: zwei Sterne, „Mittel“, 15 Min., Schreck-Hinweis). „Spielen“ öffnet das Intro „Nur noch eine Ladung“, „Raum betreten“ startet den Timer bei 15:00. Raum 1 startet weiter mit fünf Objekten. Keine Konsolenfehler außer dem bekannten fehlenden `favicon.ico`.
+- **Geänderte/neue Dateien:** `public/shared/raeume/waschsalon.js`, `public/shared/raeume/index.js`, `public/shared/raetsel/tastenfolge.js`, `public/shared/raetsel/index.js`, `supabase/functions/_shared/raeume/waschsalon.geheim.js`, `supabase/functions/_shared/raeume/geheim.js`, `public/css/style.css`, `test/raetsel.test.js`, `test/raeume.test.js`, `public/bilder|toene|videos/waschsalon/.gitkeep`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Node.js (`node:test`), Supabase CLI und Docker, Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:** Der erste CSS-Platzhalter war zu hell und zeigte das Schachbrett nur als Streifen. Er wurde auf die Abendstimmung des Referenzbilds abgedunkelt, mit einfachem dunklem Boden. Die SVG-Kulisse aus Schritt 2 ersetzt ihn.
+- **Ergebnis:** Raum 2 ist registriert, von der Startseite aus startbar und hat Intro, Timer und eine leere Bühne. Gegenstände folgen in Schritt 3.
+- **Bezug zur Planung:** 2026-10-26, 02:48 – Planung: Raum 2 Waschsalon
+- **Abweichungen vom Plan:** Die Prüfung des Rätseltyps `tastenfolge` entstand schon in Schritt 1 (im Plan so vorgesehen), weil die Raumtests ein Ausgangsrätsel mit bekanntem Typ verlangen. Sonst keine.
+- **Git-Commit:** `83f2356`
