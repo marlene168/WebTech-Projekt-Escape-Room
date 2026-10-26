@@ -30,6 +30,7 @@ test("Jeder Raum hat eine eindeutige ID und eine Kurzbeschreibung", () => {
 
 test("Räume lassen sich über ihre ID finden", () => {
   assert.equal(findeRaum("arbeitszimmer").id, "arbeitszimmer");
+  assert.equal(findeRaum("waschsalon").id, "waschsalon");
   assert.equal(findeRaum("gibt-es-nicht"), undefined);
 });
 
@@ -104,6 +105,21 @@ test("Zahlenschlösser: Anzahl der Rädchen passt zur Lösung, die Lösung beste
       const loesung = geheimnisseVon(raum.id).loesungen[name];
       assert.match(loesung, /^\d+$/, `Raum "${raum.id}": Lösung von "${name}" ist keine Ziffernfolge`);
       assert.equal(raetsel.stellen, loesung.length, `Raum "${raum.id}": "${name}".stellen passt nicht zur Lösung`);
+    }
+  }
+});
+
+test("Tastenfolgen: eindeutige Tasten, die Lösung besteht aus bekannten Tasten-IDs und hat die angegebene Länge", () => {
+  for (const raum of raeume) {
+    for (const [name, raetsel] of Object.entries(raum.raetsel)) {
+      if (raetsel.typ !== "tastenfolge") continue;
+      const ids = raetsel.tasten.map((taste) => taste.id);
+      assert.equal(new Set(ids).size, ids.length, `Raum "${raum.id}": "${name}" hat doppelte Tasten-IDs`);
+      const schritte = geheimnisseVon(raum.id).loesungen[name].split("-");
+      assert.equal(schritte.length, raetsel.laenge, `Raum "${raum.id}": "${name}".laenge passt nicht zur Lösung`);
+      for (const schritt of schritte) {
+        assert.ok(ids.includes(schritt), `Raum "${raum.id}": "${name}" – Taste "${schritt}" gibt es nicht`);
+      }
     }
   }
 });

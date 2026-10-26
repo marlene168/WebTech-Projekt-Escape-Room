@@ -125,6 +125,17 @@ body {
     repeating-linear-gradient(to right, #2f3b2c 0 5%, #344230 5% 10%);
 }
 
+/* Waschsalon bei Nacht: gedämpfte Fliesen mit Pastellstreifen, dunkler Boden, Neonschimmer von links und rechts */
+.platzhalter-waschsalon {
+  background:
+    radial-gradient(ellipse at 50% 30%, transparent 25%, rgba(5, 8, 14, 0.85) 100%),
+    radial-gradient(ellipse at 0% 30%, rgba(255, 60, 170, 0.2), transparent 40%),
+    radial-gradient(ellipse at 100% 40%, rgba(40, 210, 230, 0.18), transparent 40%),
+    linear-gradient(to bottom, transparent 66%, #22302f 66%),
+    linear-gradient(to bottom, transparent 18%, #8a5f58 18% 21%, transparent 21%),
+    repeating-linear-gradient(to right, #7c8682 0 3.9%, #6c7672 3.9% 4%);
+}
+
 /* ---------- Zurück-Knopf (nur in Detailansichten sichtbar) ---------- */
 .zurueck-knopf {
   position: absolute;

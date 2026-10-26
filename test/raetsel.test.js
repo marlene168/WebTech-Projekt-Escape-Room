@@ -17,3 +17,12 @@ test("Zahlenschloss: nur genau die richtige Ziffernfolge als Text stimmt", () =>
   assert.equal(pruefe(417, "417"), false);
   assert.equal(pruefe(undefined, "417"), false);
 });
+
+test("Tastenfolge: nur genau dieselbe Folge der Tasten-IDs als Text stimmt", () => {
+  const { pruefe } = RAETSELTYPEN.tastenfolge;
+  assert.equal(pruefe("a-b-a", "a-b-a"), true);
+  assert.equal(pruefe("a-a-b", "a-b-a"), false);
+  assert.equal(pruefe("a-b", "a-b-a"), false);
+  assert.equal(pruefe(["a", "b", "a"], "a-b-a"), false);
+  assert.equal(pruefe(undefined, "a-b-a"), false);
+});
