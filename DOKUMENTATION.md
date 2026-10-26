@@ -1514,3 +1514,16 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-26, 01:07 – Nachtrag: Sichtprüfung der Grafiken in der Testversion bestanden
+- **Auslöser:** Rückmeldung der Nutzerin mit Screenshot aus der Testversion: „Die Prüfung war erfolgreich. Es funktioniert alles wie geplant. Mache falls nötig Nachträge und lass uns dann mit der Detailansicht weiter machen.“
+- **Durchgeführte Schritte:**
+  - Prüfung durch die Nutzerin in der geschützten Testversion nach Deploy #3, mit den Prüfpunkten Startseite mit Vorschaubild, Raum, Hover, Ton bei Zeitablauf auf zwei Geräten und Ladezeit.
+  - Screenshot als Nachweis abgelegt: `docs/nachweise/2026-10-26_medien_testversion-raum.jpg` (verkleinert, keine geheimen Werte). Er zeigt eine laufende Sitzung mit der Gesamtansicht, deckungsgleichen Gegenständen und dem Hover-Rand am Bücherregal.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`, `docs/nachweise/2026-10-26_medien_testversion-raum.jpg`
+- **Genutzte Tools:** Browser der Nutzerin, Claude Code, `sips`, Git
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Laut Nutzerin funktioniert in der Testversion alles wie geplant. Damit ist der offene Punkt „Sichtprüfung“ aus dem Eintrag vom 2026-10-23, 21:24 erledigt. Zu den einzelnen Prüfpunkten liegt nur die Gesamtaussage vor, belegt ist sie durch den Screenshot des Raums. **Weiter offen:** Detailansichten, Schreck-Ton, endgültige Gestaltung, Safari und Mobilgeräte nicht gezielt geprüft. **Nächster Schritt:** Detailansichten.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
