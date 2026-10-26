@@ -1527,3 +1527,17 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-26, 01:22 – Korrektur: Ton bei Zeitablauf in der Testversion nicht gehört
+- **Auslöser:** Rückmeldung der Nutzerin: „Ich habe leider doch eine schlechte Nachricht: Der Sound hat doch nicht funktioniert. Ich habe die 10 min ablaufen lassen und habe keinen Ton gehört.“
+- **Durchgeführte Schritte:**
+  - Die Aussage „alles wie geplant“ im Nachtrag vom 2026-10-26, 01:07 gilt **nicht für den Ton**. Der Eintrag bleibt unverändert, dieser Eintrag korrigiert ihn.
+  - Code geprüft: Beim echten Zeitablauf fragt der Browser beim Backend nach und erhält den Status „verloren“. Danach läuft derselbe Ablauf wie im lokalen Test mit vorgespulter Zeit (Spannungstext, Lichtblitz, Ton). Die Freischaltung beim ersten Klick betrifft beide Wege gleich.
+  - Mögliche Ursachen, noch nicht geprüft: Tab oder Fenster während der 10 Minuten im Hintergrund (Chrome bremst Zeitgeber in verborgenen Tabs stark), vom Browser oder System angehaltene Tonausgabe, stummgeschalteter Tab oder stummgeschaltetes Gerät, ein anderer Browser als Chrome (nur Chrome wurde getestet).
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Git
+- **Probleme & Lösungen:** Ursache noch offen. Rückfragen an die Nutzerin gestellt (Browser und Gerät, Tab sichtbar, Spannungstext und Lichtblitz gesehen, Ton anderer Seiten hörbar).
+- **Ergebnis:** **Offen:** Der Ton bei Zeitablauf ist in der Testversion nicht bestätigt, lokal in Chrome headless schon. Die Grafiken sind davon nicht betroffen.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
