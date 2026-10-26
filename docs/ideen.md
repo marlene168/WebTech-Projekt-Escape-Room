@@ -71,7 +71,7 @@ Siehe [Plan Mehrspieler-Grundlage](plaene/2026-10-22_mehrspieler-grundlage.md) u
   - E-Mail-Konten zusätzlich zum Gastzugang.
   - ~~Wie wird der manuell ausgelöste Deployment-Workflow aufgebaut?~~ Entschieden am 2026-10-23: manuell gestarteter Workflow „Deploy“ in GitHub Actions (Option C), zunächst nur für eine geschützte Testversion. Die öffentliche Version kommt erst nach ausdrücklicher Freigabe. Siehe [Detailplan AP 5](plaene/2026-10-23_ap5-testumgebung.md).
   - Neu offen (2026-10-23): Bleibt die Freischaltung des externen Kontos bei wiederholten Deployments erhalten (Prüfung in AP 5)? Aktionslimits vor der öffentlichen Freigabe. Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist.
-  - Inhalte von Raum 2 und 3 (eigene Planungen).
+  - Inhalte von Raum 2 und 3 (eigene Planungen). Raum 2 ist seit 2026-10-26 geplant (siehe „Raum 2: Letzter Waschgang“ unten), Raum 3 ist weiterhin offen.
 
 ## Rangliste mit Anzeigenamen und Bestzeiten
 - **Status:** geplant als spätere Erweiterung (2026-10-22)
@@ -83,3 +83,19 @@ Siehe [Plan Mehrspieler-Grundlage](plaene/2026-10-22_mehrspieler-grundlage.md) u
 - **Status:** offen (2026-10-22)
 - **Idee:** Design und Atmosphäre sind wichtig für das Spielerlebnis. Die endgültige Gestaltung steht noch nicht fest.
 - **Vorgehen:** Die Gestaltung wird abgestimmt, bevor die Grafiken in größerem Umfang umgesetzt werden.
+
+## Raum 2: Letzter Waschgang (Waschsalon der 80er)
+- **Status:** geplant (2026-10-26), siehe [Plan Raum 2 Waschsalon](plaene/2026-10-26_raum2-waschsalon.md)
+- **Idee der Nutzerin:** Ein Waschsalon der 80er Jahre, der fröhlich beginnt (Pastell, bunte Glühbirnen, Regen, Synth-Pop) und unheimlich wird. Ein Telefon klingelt: „Gut, du bist noch da. Bitte starte keine Maschine.“ Gleichzeitig läuft eine Maschine von selbst an.
+- **Gewählt:** kurze Kette mit fünf Schritten (Telefon, UV-Lampe, UV-Hinweis, Lichterkette, Maschine 7). Kein Inventar und kein neues Feld im Spielstand, alle Zustände leiten sich aus den gefundenen Spuren ab.
+- **Verworfen bzw. zurückgestellt:**
+  - Sieben Raumkonzepte von Claude (Hotel mit Zeitsprung, Polarstation, Kolonieschiff, Nachtzug, Restaurierungswerkstatt, Puppenhaus, Galerie). Die Nutzerin hat stattdessen ihre eigene Idee eingebracht. Hotel und Kolonieschiff bleiben mögliche Kandidaten für Raum 3.
+  - Ein erstes ausführliches Waschsalon-Konzept mit Inventar, drei Anrufen, Wählscheibe und zehn Schritten: der Nutzerin für die Umsetzung zu komplex.
+  - Krimi-Variante (Geldwäsche statt Spuk), UV-Lichtkegel per Maus, Wählrätsel, Kassenbons als zusätzliche Spur.
+  - Zurückgestellt: Musik, Sprachaufnahme, Intro-Video, Flackern und weitere Animationen, Display mit Restzeit an Maschine 8.
+
+## Raumauswahl als Karussell der Welten
+- **Status:** offen (2026-10-26)
+- **Idee der Nutzerin:** Große Raumvorschauen liegen horizontal nebeneinander. Man wechselt durch seitliches Scrollen oder Wischen, die Nachbarn sind teilweise sichtbar. Hintergrund, Farben und Atmosphäre passen sich mit weichen Übergängen an den Raum in der Mitte an.
+- **Vorschlag von Claude:** Scroll-Snap mit CSS. Die Welt-Hintergründe liegen übereinander und werden je nach Abstand zur Mitte laufend überblendet. Jeder Raum bekommt ein Feld `theme` mit Farben und Hintergrund, auch für die Spielseite. Bedienung über Pfeiltasten und Punkte, kein Wechsel bei „Bewegung reduzieren“. Eine Vorschau „Raum 3 – in Vorbereitung“ ist möglich.
+- **Vorgehen:** eigener Schritt nach Raum 2.
