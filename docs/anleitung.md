@@ -162,7 +162,7 @@ Jeder Raum ist **inhaltlich eigenständig**: eigene Geschichte, eigenes Thema, e
 ### Grafiken
 **Stand 2026-10-23 (vorläufige Einbindung):** Der Raum nutzt eine Gesamtansicht mit allen fünf Gegenständen als Hintergrund (`hintergrund-raum.jpg`). Die Gegenstände liegen als eigene WebP-Dateien (`regal.webp`, `gemaelde.webp`, `pinnwand.webp`, `schreibtisch.webp`, `tuer.webp`) deckungsgleich darüber, ihre Kästen in der Raumdatei sind darauf abgestimmt. Das Vorschaubild `vorschau.jpg` ist die verkleinerte Gesamtansicht.
 
-**Stand 2026-10-26:** Die Gegenstände der Detailansichten sind eingebunden: `papiere.webp`, `kalender.webp`, `fueller.webp`, `foto.webp`, `notiz.webp`, `blauer-zettel.webp`. Das Gemälde der Nahansicht ist `gemaelde-nah.webp`: das Gemälde in 1600 px Breite mit einer per Skript eingesetzten roten 4 in der unteren rechten Rahmenecke. Die Rahmenecke ist eine versteckte Klickfläche, eine Lupe gibt es nicht. **Noch offen:** die drei Hintergründe der Detailansichten (bis dahin die Platzhalter Holz, Kork und Tapete) und der Schreck-Ton.
+**Stand 2026-10-26:** Die Gegenstände der Detailansichten sind eingebunden: `papiere.webp`, `kalender.webp`, `fueller.webp`, `foto.webp`, `notiz.webp`, `blauer-zettel.webp`. Das Gemälde der Nahansicht ist `gemaelde-nah.webp`: das Gemälde in 1600 px Breite mit einer per Skript eingesetzten roten 4 in der unteren rechten Rahmenecke. Die Rahmenecke ist eine versteckte Klickfläche, eine Lupe gibt es nicht. **Hintergründe der Detailansichten:** `hintergrund-schreibtisch.jpg` (Lederunterlage von oben) und `hintergrund-pinnwand.jpg` (Korkwand mit Karte, Zettel und Skizze). Das Gemälde bekommt bewusst keinen eigenen Hintergrund, dort bleibt der Platzhalter „Tapete“. **Noch offen:** der Schreck-Ton.
 
 Ablage: `public/bilder/arbeitszimmer/`. Alle Grafiken sollten im **gleichen Stil**, aus der **gleichen Perspektive** und mit dem **gleichen Licht** entstehen.
 
@@ -173,7 +173,7 @@ Ablage: `public/bilder/arbeitszimmer/`. Alle Grafiken sollten im **gleichen Stil
 | `hintergrund-raum.jpg` | `szenen.raum.hintergrund` | Arbeitszimmer frontal: Wand mit dunkelgrüner Streifentapete, Holzdielenboden, nachts, warmes Licht einer Schreibtischlampe |
 | `hintergrund-schreibtisch.jpg` | `szenen.schreibtisch.hintergrund` | Schreibtischplatte aus dunklem Eichenholz von oben, Lichtkegel der Lampe |
 | `hintergrund-pinnwand.jpg` | `szenen.pinnwand.hintergrund` | Korkwand mit dunklem Holzrahmen, frontal, bildfüllend |
-| `hintergrund-bild.jpg` | `szenen.bild.hintergrund` | Tapete aus der Nähe (Hintergrund für das Gemälde) |
+| ~~`hintergrund-bild.jpg`~~ | `szenen.bild.hintergrund` | Entfällt: Platzhalter „Tapete“ genügt (Entscheidung der Nutzerin vom 2026-10-26) |
 
 **Gegenstände** (PNG mit **transparentem Hintergrund**, lange Seite etwa 800 px). Das Seitenverhältnis sollte ungefähr dem Kasten im Spiel entsprechen:
 
