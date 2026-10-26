@@ -9,6 +9,8 @@
 // Grafiken: "hintergrund" bzw. "bild" auf einen Pfad setzen, z. B. "bilder/arbeitszimmer/schreibtisch.png".
 // Steht dort null (oder fehlt die Datei), wird ein Platzhalter angezeigt
 // ("platzhalter" bestimmt, wie der Platzhalter-Hintergrund einer Szene aussieht).
+// "unsichtbar: true" macht ein Objekt zur versteckten Klickfläche ohne Bild und Platzhalter
+// (für Details, die schon im Bild darunter zu sehen sind, z. B. die Rahmenecke des Gemäldes).
 //
 // Objekte zeigen beim Klick ihren "text" – oder führen ihre "aktion" aus:
 //   { typ: "oeffneSzene", ziel: "<szene>" }  → in eine Detailansicht hineinzoomen
@@ -124,7 +126,7 @@ export default {
           id: "papiere",
           name: "Papierstapel",
           emoji: "📄",
-          bild: null,
+          bild: "bilder/arbeitszimmer/papiere.webp",
           x: 8, y: 18, breite: 32, hoehe: 46,
           aktion: { typ: "findeSpur", spur: "brief" },
           text: "Berechnungen, Skizzen von Sternbildern und ein halb geschriebener Brief: „… sollte mir etwas zustoßen, folgt den Farben.“",
@@ -133,7 +135,7 @@ export default {
           id: "kalender",
           name: "Kalender",
           emoji: "📅",
-          bild: null,
+          bild: "bilder/arbeitszimmer/kalender.webp",
           x: 56, y: 12, breite: 28, hoehe: 48,
           aktion: { typ: "findeSpur", spur: "gruen" },
           text: "Ein Tischkalender, aufgeschlagen beim Oktober. Der 1. ist mit grüner Tinte dick eingekreist.",
@@ -142,8 +144,8 @@ export default {
           id: "fueller",
           name: "Füllfederhalter",
           emoji: "🖋️",
-          bild: null,
-          x: 40, y: 68, breite: 18, hoehe: 20,
+          bild: "bilder/arbeitszimmer/fueller.webp",
+          x: 38, y: 70, breite: 24, hoehe: 18,
           text: "Ein Füllfederhalter mit grüner Tinte. Die Feder ist noch feucht.",
         },
       ],
@@ -158,7 +160,7 @@ export default {
           id: "foto",
           name: "Foto",
           emoji: "📷",
-          bild: null,
+          bild: "bilder/arbeitszimmer/foto.webp",
           x: 10, y: 14, breite: 24, hoehe: 40,
           text: "Ein Foto des Professors vor einem Hafen. Er lächelt. Auf der Rückseite steht nichts.",
         },
@@ -166,7 +168,7 @@ export default {
           id: "notiz",
           name: "Notiz",
           emoji: "📝",
-          bild: null,
+          bild: "bilder/arbeitszimmer/notiz.webp",
           x: 40, y: 20, breite: 24, hoehe: 34,
           aktion: { typ: "findeSpur", spur: "reihenfolge" },
           text: "Eine Notiz in der Handschrift des Professors: „Rot – Grün – Blau“.",
@@ -175,7 +177,7 @@ export default {
           id: "blauer-zettel",
           name: "Blauer Zettel",
           emoji: "🟦",
-          bild: null,
+          bild: "bilder/arbeitszimmer/blauer-zettel.webp",
           x: 70, y: 48, breite: 18, hoehe: 30,
           aktion: { typ: "findeSpur", spur: "blau" },
           text: "Ein kleiner blauer Zettel. Darauf steht nur eine große 7.",
@@ -192,8 +194,8 @@ export default {
           id: "gemaelde",
           name: "Hafenstadt",
           emoji: "⛵",
-          bild: null,
-          x: 25, y: 8, breite: 50, hoehe: 72,
+          bild: "bilder/arbeitszimmer/gemaelde-nah.webp",
+          x: 20, y: 6, breite: 60, hoehe: 84,
           text: "Die Hafenstadt aus der Nähe: Schiffe, Möwen, ein Leuchtturm. Der Maler hat sorgfältig gearbeitet.",
         },
         {
@@ -201,7 +203,8 @@ export default {
           name: "Rahmenecke",
           emoji: "🔍",
           bild: null,
-          x: 68, y: 68, breite: 11, hoehe: 18,
+          unsichtbar: true, // die rote 4 ist im Bild des Gemäldes zu sehen (gemaelde-nah.webp)
+          x: 71.7, y: 73.8, breite: 7.3, hoehe: 13,
           aktion: { typ: "findeSpur", spur: "rot" },
           text: "In die untere rechte Ecke des Rahmens ist eine kleine rote 4 eingeritzt.",
         },

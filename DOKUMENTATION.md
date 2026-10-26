@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Hauptszene des Arbeitszimmers und Vorschaubild mit eigenen Grafiken (vorläufig), Detailansichten, Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
+_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Hauptszene, Vorschaubild und alle Gegenstände der Detailansichten mit eigenen Grafiken (vorläufig); Hintergründe der Detailansichten, Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
 
 **Umgesetzt:**
 
@@ -85,7 +85,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
   - Beendete Sitzungen werden noch nicht aufgeräumt.
   - Nach Änderungen an Dateien in `public/shared/` muss das lokale Backend neu gestartet werden (siehe Anleitung).
-  - Der Schreck-Ton spielt erst nach dem ersten Klick oder Tastendruck auf der Spielseite (Autoplay-Sperre der Browser). Fehlt eine Hintergrund- oder Vorschaubild-Datei, bleibt die Fläche leer statt den Platzhalter zu zeigen.
+  - Der Schreck-Ton spielt erst nach dem ersten Klick oder Tastendruck auf der Spielseite (Autoplay-Sperre der Browser). In der Testversion hat die Nutzerin bei Zeitablauf keinen Ton gehört; Ursache ungeklärt, depriorisiert (siehe Protokoll 2026-10-26). Fehlt eine Hintergrund- oder Vorschaubild-Datei, bleibt die Fläche leer statt den Platzhalter zu zeigen.
 
 **Geplant (noch nicht umgesetzt):**
 
@@ -97,6 +97,8 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
   - Aufräumen beendeter Sitzungen
   - Anzeigenamen
   - E-Mail-Konten
+  - Ton bei Zeitablauf in der Testversion (depriorisiert, Ursache ungeklärt)
+  - Hintergründe der drei Detailansichten (bisher Platzhalter)
   - CAPTCHA-Ablauftest Teil B (verbrauchtes Token): nicht abschließend geprüft und **depriorisiert**. Er wird nur bei konkreten Problemen mit erkennbarem Zusammenhang wieder aufgegriffen (Ergebnisse und CORS-Hinderungsgrund im Protokoll vom 2026-10-23, 18:47)
   - Aktionslimits vor der öffentlichen Freigabe
   - Umzug der Secrets in GitHub-Environments, sobald GitHub Pro aktiv ist
@@ -164,6 +166,8 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 | 2026-10-23 | CAPTCHA-Ablauftest Teil B (verbrauchtes Token) wird **depriorisiert** und vorerst nicht erneut getestet; Wiederaufnahme nur bei konkreten Problemen mit erkennbarem Zusammenhang. Teil A bleibt bestanden, Teil B nicht abschließend geprüft | Entscheidung der Nutzerin aus Zeit- und Umfanggründen. Der Rauchtest belegt bei jedem Deployment weiterhin, dass Supabase Anmeldungen ohne bzw. mit ungültigem Token ablehnt | Wiederholung mit `credentials: "omit"`; Änderung der Sicherheits- oder Serverkonfiguration wegen des CORS-Fehlers |
 | 2026-10-23 | Der Schreck-Ton wird beim **ersten Klick oder Tastendruck auf der Spielseite** freigeschaltet statt nur bei „Raum betreten“ | Befund im Medientest: Den Knopf sieht nur die erstellende Person, Mitglieder blieben bei Zeitablauf stumm. Ein Klick irgendwo erfüllt die Autoplay-Regel der Browser | Eigener Knopf „Ton an“ für alle (zusätzliche Bedienung); Freischaltung beim Laden der Seite (von Browsern ohne Nutzeraktion blockiert) |
 | 2026-10-23 | **Vorläufig:** Hauptszene des Arbeitszimmers mit einer Gesamtansicht (alle Gegenstände gemalt) als Hintergrund; die Gegenstände liegen als eigene, freigestellte Bilder deckungsgleich darüber. Gegenstände als WebP (lange Seite 1200 px), Hintergründe als JPG. Die endgültige Gestaltung wird später abgestimmt | Die Nutzerin hat eine Gesamtansicht statt eines leeren Raums geliefert; die Überlagerung wirkt nahtlos, die Gegenstände bleiben einzeln austauschbar und reagieren auf Hover. Weicht von der Entscheidung vom 2026-10-04 ab (Hintergrund ohne Gegenstände): Ändert sich später ein Gegenstand sichtbar (z. B. offene Tür), muss die Gesamtansicht angepasst oder ein leerer Raum erzeugt werden. WebP spart rund 90 % Ladevolumen gegenüber den Original-PNGs | Gegenstände in den bisherigen Kästen auf der Platzhalter-Tapete (wirkt wie Kulisse, Nachweis `docs/nachweise/2026-10-23_medien_raum-variante-einzeln.jpg`); Gesamtansicht mit unsichtbaren Klickflächen (am 2026-10-04 verworfen); Original-PNGs mit 2–3 MB je Datei |
+| 2026-10-26 | Der fehlende Ton bei Zeitablauf in der Testversion wird **depriorisiert**; vorerst keine Ursachensuche und keine Änderung auf Verdacht | Entscheidung der Nutzerin: zuerst die Detailansichten integrieren. Lokal in Chrome headless spielt der Ton; die Ursache in der Testversion ist ungeklärt | Sofortige Ursachensuche; vorsorgliche Absicherung (Tonausgabe vor dem Abspielen fortsetzen) ohne geklärte Ursache |
+| 2026-10-26 | Rahmenecke des Gemäldes als **versteckte Klickfläche** (`unsichtbar: true`) statt eines Lupen-Objekts; die rote 4 wird per Skript ins Bild des Gemäldes gesetzt (`gemaelde-nah.webp`). Die Klickfläche hat keinen Tooltip, und das Gemälde darunter leuchtet beim Darüberfahren weiter | Wunsch der Nutzerin, die Lupe wegzulassen und die Spur über einen Klick auf die Ecke mit der 4 zu finden. Eine Klickfläche braucht kein zusätzliches Bild. Die gesetzte Ziffer ist sicher lesbar; Bildgeneratoren schreiben Ziffern oft fehlerhaft. Tooltip und erlöschendes Leuchten hätten die Stelle verraten | Lupe als eigenes Bild (Vorschlag der Nutzerin als Ausweichlösung); Klickfläche mit sichtbarem Hover-Effekt |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1541,3 +1545,26 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-10-26, 01:48 – Detailansichten: Grafiken der Nutzerin eingebunden, Rahmenecke ohne Lupe
+- **Auslöser:** Anweisung der Nutzerin: „Ich möchte diesen Fehler erstmal depriorisieren. Wir sollten jetzt damit weiter machen, die Bilder der Detailansichten zu integrieren. Ich habe sie alle für den Escape Room nun abgelegt. […] Bei dem Hafenstadt-Gemälde ist eine Lupe geplant gewesen. Falls möglich sollte man diese weglassen und nur durch klicken auf die untere Rechte Ecke des Gemäldes, wo die Zahl vier zu sehen ist, den Notizbucheintrag hervorrufen. Falls das zu kompliziert ist, kann ich aber auch gerne noch die Lupe als Bild generieren und ablegen. Dokumentiere im Anschluss wieder alles wie bisher.“
+- **Durchgeführte Schritte:**
+  - **Ton-Fehler** auf Wunsch der Nutzerin depriorisiert (Abschnitt 2 und 3). Die Rückfragen vom 2026-10-26 sind unbeantwortet, nichts wurde geändert.
+  - **Gefunden:** sechs neue PNGs in `public/bilder/arbeitszimmer/` (`papierstapel`, `kalender-oktober`, `fuellfederhalter`, `foto-professor-v2`, `notiz-farben`, `blauer-zettel`; je 1–2,9 MB, sauber freigestellt). Die Spuren sind lesbar: „… folgt den Farben“, eingekreiste grüne 1, „Rot – Grün – Blau“, blaue 7. Das Foto zeigt jetzt den Professor vor dem Hafen und passt damit zum Spieltext. Hintergründe der Detailansichten und ein Bild der Rahmenecke liegen nicht vor.
+  - **Eingebunden:** die sechs Gegenstände als WebP (lange Seite 1200 px, zusammen etwa 1,2 MB statt 13 MB). Die Seitenverhältnisse passten zu den Kästen, nur der Füllfederhalter bekam einen breiteren Kasten. Die Hintergründe bleiben die Platzhalter Holz, Kork und Tapete. Originaldateien der Nutzerin unverändert.
+  - **Rahmenecke ohne Lupe:**
+    - Neues Feld `unsichtbar: true` für Objekte (`anzeige.js`, `style.css`): Klickfläche ohne Bild, Platzhalter und Tooltip, kein Hover-Effekt, gestrichelter Rahmen nur bei Tastaturbedienung.
+    - Die rote 4 fehlte im `gemaelde.png` der Nutzerin. Sie wurde per Canvas in die untere rechte Rahmenecke gesetzt (eingeritzte Optik) und als `gemaelde-nah.webp` (1600 px) nur für die Nahansicht gespeichert. Das Gemälde im Raum bleibt unverändert.
+    - Nach der ersten Sichtprüfung war die 4 zu klein (etwa 18 px auf einem 1600-px-Bildschirm). Gemälde und Ziffer wurden vergrößert und die Klickfläche neu berechnet.
+    - Ohne Gegenmaßnahme erlosch das Leuchten des Gemäldes über der Ecke und verriet die Stelle. Gelöst mit `.objekt:has(+ .klickflaeche:hover)`.
+  - **Getestet** (lokal, Chrome headless, echte Klicks, lokales Backend): alle drei Nahansichten geöffnet, alle Bilder in voller Größe geladen, alle fünf Spuren gefunden. Die Rahmenecke liefert „Rote 4“, das Notizbuch zeigt 5 Einträge. Über der Ecke leuchtet das Gemälde weiter, die Klickfläche hat keinen Tooltip. `npm test` 68 von 68, `npm run test:backend` 26 von 26 (nach Neustart des Backends wegen geänderter Raumdatei).
+  - **Nachweise:** `docs/nachweise/2026-10-26_medien_detail-schreibtisch.jpg`, `…_detail-pinnwand.jpg`, `…_detail-gemaelde.jpg`.
+- **Geänderte/neue Dateien:** `public/js/anzeige.js`, `public/css/style.css`, `public/shared/raeume/arbeitszimmer.js`, `public/bilder/arbeitszimmer/` (sieben `.webp`), `docs/anleitung.md`, `docs/nachweise/` (3 Screenshots), `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, Google Chrome (headless, DevTools-Protokoll: WebP-Umwandlung, Ziffer, Tests), `sips`, Python, Supabase CLI und Docker, Git
+- **Probleme & Lösungen:**
+  - Der Test las das Notizbuch zu früh (4 statt 5 Einträge, die Bestätigung des Backends stand noch aus). Gelöst durch Warten auf 5 Einträge.
+  - Das Hilfsskript legte sein Chrome-Profil neben die Bilddatei in `public/`. Es wurde vor dem Commit entfernt.
+- **Ergebnis:** Alle Gegenstände der Detailansichten zeigen die Grafiken der Nutzerin, die Rahmenecke funktioniert ohne Lupe. **Offen:** Hintergründe der Detailansichten, Schreck-Ton und dessen Fehler in der Testversion (depriorisiert), Merge und Deploy (nach Freigabe), endgültige Gestaltung.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** Die in der Anleitung geplante `rahmenecke.png` (Lupen- bzw. Eckbild) entfällt auf Wunsch der Nutzerin.
+- **Git-Commit:** `9177807`

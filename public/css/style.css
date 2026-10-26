@@ -155,10 +155,23 @@ body {
 }
 
 .objekt:hover,
-.objekt:focus-visible {
+.objekt:focus-visible,
+.objekt:has(+ .klickflaeche:hover) /* versteckte Klickfläche direkt danach: das Objekt darunter leuchtet weiter */ {
   transform: scale(1.03);
   filter: brightness(1.25) drop-shadow(0 0 0.6cqw rgba(201, 163, 91, 0.7));
   outline: none;
+}
+
+/* Versteckte Klickfläche ("unsichtbar: true"): kein Hover-Effekt, nur der Rahmen bei Tastaturbedienung */
+.objekt.klickflaeche:hover {
+  transform: none;
+  filter: none;
+}
+
+.objekt.klickflaeche:focus-visible {
+  transform: none;
+  filter: none;
+  outline: 2px dashed var(--farbe-akzent);
 }
 
 /* Platzhalter, bis eine echte Grafik vorhanden ist */
