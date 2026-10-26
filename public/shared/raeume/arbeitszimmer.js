@@ -119,7 +119,7 @@ export default {
 
     // ---------- Detailansicht: Schreibtisch ----------
     schreibtisch: {
-      hintergrund: null,
+      hintergrund: "bilder/arbeitszimmer/hintergrund-schreibtisch.jpg", // Lederunterlage auf dem Schreibtisch von oben
       platzhalter: "holz",
       objekte: [
         {
@@ -153,7 +153,7 @@ export default {
 
     // ---------- Detailansicht: Pinnwand ----------
     pinnwand: {
-      hintergrund: null,
+      hintergrund: "bilder/arbeitszimmer/hintergrund-pinnwand.jpg", // Korkwand mit Karte, Zettel und Skizze (frei für die Gegenstände)
       platzhalter: "kork",
       objekte: [
         {
@@ -187,7 +187,7 @@ export default {
 
     // ---------- Detailansicht: Gemälde ----------
     bild: {
-      hintergrund: null,
+      hintergrund: null, // bewusst kein Bild: der Platzhalter "wand" (Tapete) genügt
       platzhalter: "wand",
       objekte: [
         {
