@@ -407,7 +407,12 @@ function erstelleObjekt(objekt) {
   element.style.height = `${objekt.hoehe}%`;
   if (objekt.aktion?.typ === "findeSpur") element.dataset.spur = objekt.aktion.spur;
 
-  if (objekt.bild) {
+  if (objekt.unsichtbar) {
+    // Versteckte Klickfläche, z. B. ein Detail, das schon im Bild darunter zu sehen ist
+    element.classList.add("klickflaeche");
+    element.removeAttribute("title"); // kein Tooltip, der die Stelle verrät
+    element.setAttribute("aria-label", objekt.name);
+  } else if (objekt.bild) {
     const bild = document.createElement("img");
     bild.src = objekt.bild;
     bild.alt = objekt.name;

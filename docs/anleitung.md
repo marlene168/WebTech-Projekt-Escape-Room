@@ -97,6 +97,8 @@ Das Ergebnis steht in der Zusammenfassung des Laufs. Es läuft nie mehr als ein 
 
 **Dateigröße:** Große Bilder vor dem Einbinden verkleinern. Gegenstände am besten als **WebP mit Transparenz** (lange Seite höchstens 1200 px, Qualität etwa 85), Hintergründe als JPG (1920×1080, Qualität etwa 80). Die Originale aus dem Bildgenerator (oft 2–3 MB pro PNG) gehören nicht in `public/`, sonst lädt die Seite unnötig lange.
 
+**Versteckte Klickfläche:** Ist ein Detail schon im Bild darunter zu sehen (z. B. die rote 4 in der Rahmenecke des Gemäldes), bekommt das Objekt statt eines Bildes `unsichtbar: true`. Es wird dann ohne Bild, Platzhalter und Tooltip gezeichnet und ist nur anklickbar. Steht es in der Raumdatei direkt hinter dem Objekt, auf dem es liegt, leuchtet dieses beim Darüberfahren weiter, damit die Stelle sich nicht verrät.
+
 **Größe und Position:** Jedes Objekt hat einen Kasten (`x`, `y`, `breite`, `hoehe` in Prozent der Bühne). Das Bild wird in diesen Kasten eingepasst, ohne verzerrt zu werden. Hat das Bild ein anderes Seitenverhältnis als der Kasten, bleibt an zwei Seiten etwas Rand frei. Dann entweder das Bild passend zuschneiden oder `breite`/`hoehe` in der Raumdatei anpassen. Die empfohlenen Seitenverhältnisse stehen in der Tabelle in Abschnitt 5.
 
 ---
@@ -158,7 +160,9 @@ Jeder Raum ist **inhaltlich eigenständig**: eigene Geschichte, eigenes Thema, e
 ## 5. Benötigte Dateien für „Das Arbeitszimmer des Professors“
 
 ### Grafiken
-**Stand 2026-10-23 (vorläufige Einbindung):** Der Raum nutzt eine Gesamtansicht mit allen fünf Gegenständen als Hintergrund (`hintergrund-raum.jpg`). Die Gegenstände liegen als eigene WebP-Dateien (`regal.webp`, `gemaelde.webp`, `pinnwand.webp`, `schreibtisch.webp`, `tuer.webp`) deckungsgleich darüber, ihre Kästen in der Raumdatei sind darauf abgestimmt. Das Vorschaubild `vorschau.jpg` ist die verkleinerte Gesamtansicht. Detailansichten, deren Gegenstände und der Schreck-Ton fehlen noch.
+**Stand 2026-10-23 (vorläufige Einbindung):** Der Raum nutzt eine Gesamtansicht mit allen fünf Gegenständen als Hintergrund (`hintergrund-raum.jpg`). Die Gegenstände liegen als eigene WebP-Dateien (`regal.webp`, `gemaelde.webp`, `pinnwand.webp`, `schreibtisch.webp`, `tuer.webp`) deckungsgleich darüber, ihre Kästen in der Raumdatei sind darauf abgestimmt. Das Vorschaubild `vorschau.jpg` ist die verkleinerte Gesamtansicht.
+
+**Stand 2026-10-26:** Die Gegenstände der Detailansichten sind eingebunden: `papiere.webp`, `kalender.webp`, `fueller.webp`, `foto.webp`, `notiz.webp`, `blauer-zettel.webp`. Das Gemälde der Nahansicht ist `gemaelde-nah.webp`: das Gemälde in 1600 px Breite mit einer per Skript eingesetzten roten 4 in der unteren rechten Rahmenecke. Die Rahmenecke ist eine versteckte Klickfläche, eine Lupe gibt es nicht. **Noch offen:** die drei Hintergründe der Detailansichten (bis dahin die Platzhalter Holz, Kork und Tapete) und der Schreck-Ton.
 
 Ablage: `public/bilder/arbeitszimmer/`. Alle Grafiken sollten im **gleichen Stil**, aus der **gleichen Perspektive** und mit dem **gleichen Licht** entstehen.
 
@@ -187,7 +191,7 @@ Ablage: `public/bilder/arbeitszimmer/`. Alle Grafiken sollten im **gleichen Stil
 | `notiz.png` | `notiz` | Pinnwand | 1,25 : 1 | Handschriftliche Notiz: **„Rot – Grün – Blau“** |
 | `blauer-zettel.png` | `blauer-zettel` | Pinnwand | 1 : 1 | Kleiner blauer Haftzettel mit einer großen **7** |
 | `hafenstadt.png` | `gemaelde` | Gemälde | 1,25 : 1 | Das Gemälde aus der Nähe: Hafenstadt, Schiffe, Leuchtturm, Goldrahmen |
-| `rahmenecke.png` | `rahmenecke` | Gemälde | 1 : 1 | Untere rechte Rahmenecke mit einer eingeritzten **roten 4** |
+| ~~`rahmenecke.png`~~ | `rahmenecke` | Gemälde | – | Entfällt: versteckte Klickfläche über der roten 4 in `gemaelde-nah.webp` |
 
 **Vorschaubild** für die Startseite: `vorschau.jpg`, 1200×675 px, Feld `vorschaubild`. Stimmungsvolle Ansicht des Arbeitszimmers.
 
