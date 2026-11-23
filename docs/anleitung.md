@@ -81,6 +81,13 @@ Das Ergebnis steht in der Zusammenfassung des Laufs. Es läuft nie mehr als ein 
 2. Die Testversion öffnen, „Spielen“ klicken, eine Sitzung erstellen und **den Raum betreten**. Erst ein vollständiger Spielstart zeigt, dass alles läuft, nur das Dashboard zu öffnen genügt nicht.
 3. Bei Bedarf den Deploy-Workflow erneut auslösen und den Rauchtest abwarten.
 
+**Keep-Alive (seit 2026-11-23):** Der Workflow `.github/workflows/keep-alive.yml` fragt jeden zweiten Tag um 05:17 UTC die Datenbank des Test-Projekts ab, damit es nicht wegen Inaktivität pausiert.
+- **Wie:** Er verbindet sich wie der Deploy-Workflow über den Session Pooler (Secret `TEST_SUPABASE_DB_PASSWORD`), zählt die gespeicherten Sitzungen und schreibt in eine temporäre Tabelle. Daten werden nicht verändert.
+- **Von Hand starten:** GitHub → Actions → **Keep-Alive** → **Run workflow**.
+- **Kontrolle:** Unter Actions → Keep-Alive sollten regelmäßig grüne Läufe stehen. Schlägt ein Lauf fehl, schickt GitHub eine E-Mail. Supabase warnt außerdem etwa eine Woche vor einer Pause per E-Mail.
+- **Wenn das Projekt trotzdem pausiert ist:** Im Supabase-Dashboard „Restore project“ wählen und einige Minuten warten. Direkt nach der Wiederherstellung kann „Spielen“ noch kurz mit `interner_fehler` scheitern (so am 2026-11-23 beobachtet).
+- **Achtung:** GitHub deaktiviert zeitgesteuerte Workflows in öffentlichen Repositories nach 60 Tagen ohne Aktivität im Repository; ob das auch für private gilt, ist nicht dokumentiert. Ist der Workflow deaktiviert, steht unter Actions → Keep-Alive ein Hinweis mit „Enable workflow“.
+
 ---
 
 ## 2. Grafik austauschen

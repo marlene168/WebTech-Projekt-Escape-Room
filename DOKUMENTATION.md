@@ -64,7 +64,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
     - `functions/`: die vier Edge Functions
     - `functions/_shared/`: Kern `kern.js`, Hilfsfunktionen, geheime Raumdaten in `raeume/`
   - `test/` – Unit-Tests (`npm test`); `test-backend/` – Backend-Tests gegen das lokale Supabase (`npm run test:backend`)
-  - `.github/workflows/ci.yml` – CI (Unit- und Backend-Tests); `.github/workflows/deploy.yml` – Deployment per Knopf in die geschützte Testversion
+  - `.github/workflows/ci.yml` – CI (Unit- und Backend-Tests); `.github/workflows/deploy.yml` – Deployment per Knopf in die geschützte Testversion; `.github/workflows/keep-alive.yml` – Keep-Alive des Supabase-Test-Projekts (jeden zweiten Tag)
   - `test-online/rauchtest.mjs` – Rauchtest nach jedem Deployment
   - `vercel.json`, `.vercelignore` – Vercel-Konfiguration (Ausgabe nur `public/`, keine Git-Deployments)
   - `docs/`:
@@ -77,6 +77,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 - **Online-Testumgebung (seit 2026-10-23 online; fünf Deployments, Rauchtest zuletzt bestanden):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
+  - Keep-Alive: Ein zeitgesteuerter Workflow fragt jeden zweiten Tag die Datenbank ab, damit das kostenlose Projekt nicht wieder pausiert (am 2026-11-23 nach knapp vier Wochen ohne Nutzung geschehen). Siehe `docs/anleitung.md`.
   - Supabase-Projekt `escape-room-test`: Projekt-ID `lfqcvevtzddxaywshxwg`, URL `https://lfqcvevtzddxaywshxwg.supabase.co`. Region **West Europe (London), `eu-west-2`** (von der Nutzerin am 2026-10-23 im Dashboard bestätigt). Geplant war Frankfurt (`eu-central-1`); bei der Einrichtung war nur „Europe“ auswählbar, Supabase hat London zugeordnet. Das Projekt bleibt bestehen. Migrationen aus GitHub Actions laufen über den Session Pooler `aws-0-eu-west-2.pooler.supabase.com:5432` (Nutzer `postgres.lfqcvevtzddxaywshxwg`, IPv4). Gastanmeldung an, CAPTCHA (Turnstile) wird von Supabase erzwungen.
   - Vercel-Projekt `escape-room-test` im Bereich „WebTech Escape Room“ (Hobby), stabile Testadresse `https://escape-room-test-mauve.vercel.app`. Vercel Authentication für **All Deployments**, ohne Git-Verbindung.
   - Öffentliche Schlüssel, die im Browser-Code stehen dürfen: Supabase Publishable Key `sb_publishable_ZrSu7aZZMR-4RFaVoOwpiQ_eThDJL7A`, Turnstile Site Key `0x4AAAAAAFhw9z0L0UM45dNf`. Geheime Werte liegen nur als GitHub-Secrets `TEST_…` bzw. in den Dashboards.
@@ -84,6 +85,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
   - Online nur als geschützte Testversion (zwei Vercel-Konten). Die öffentliche Version gibt es erst nach ausdrücklicher Freigabe.
   - Andere Mitglieder als die erstellende Person verlassen eine Sitzung nur durch Schließen der Seite. Sie bleiben Mitglied und können wieder einsteigen.
   - Beendete Sitzungen werden noch nicht aufgeräumt.
+  - Der Keep-Alive läuft über GitHub Actions. GitHub kann zeitgesteuerte Workflows nach 60 Tagen ohne Repository-Aktivität deaktivieren (dokumentiert für öffentliche Repositories, für private unklar).
   - Nach Änderungen an Dateien in `public/shared/` muss das lokale Backend neu gestartet werden (siehe Anleitung).
   - Der Schreck-Ton spielt erst nach dem ersten Klick oder Tastendruck auf der Spielseite (Autoplay-Sperre der Browser). In der Testversion hat die Nutzerin bei Zeitablauf keinen Ton gehört; Ursache ungeklärt, depriorisiert (siehe Protokoll 2026-10-26). Fehlt eine Hintergrund- oder Vorschaubild-Datei, bleibt die Fläche leer statt den Platzhalter zu zeigen.
 
@@ -168,6 +170,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 | 2026-10-26 | Der fehlende Ton bei Zeitablauf in der Testversion wird **depriorisiert**; vorerst keine Ursachensuche und keine Änderung auf Verdacht | Entscheidung der Nutzerin: zuerst die Detailansichten integrieren. Lokal in Chrome headless spielt der Ton; die Ursache in der Testversion ist ungeklärt | Sofortige Ursachensuche; vorsorgliche Absicherung (Tonausgabe vor dem Abspielen fortsetzen) ohne geklärte Ursache |
 | 2026-10-26 | Rahmenecke des Gemäldes als **versteckte Klickfläche** (`unsichtbar: true`) statt eines Lupen-Objekts; die rote 4 wird per Skript ins Bild des Gemäldes gesetzt (`gemaelde-nah.webp`). Die Klickfläche hat keinen Tooltip, und das Gemälde darunter leuchtet beim Darüberfahren weiter | Wunsch der Nutzerin, die Lupe wegzulassen und die Spur über einen Klick auf die Ecke mit der 4 zu finden. Eine Klickfläche braucht kein zusätzliches Bild. Die gesetzte Ziffer ist sicher lesbar; Bildgeneratoren schreiben Ziffern oft fehlerhaft. Tooltip und erlöschendes Leuchten hätten die Stelle verraten | Lupe als eigenes Bild (Vorschlag der Nutzerin als Ausweichlösung); Klickfläche mit sichtbarem Hover-Effekt |
 | 2026-10-26 | Die Nahansicht des Gemäldes bekommt **keinen eigenen Hintergrund**; der Platzhalter „Tapete“ bleibt | Entscheidung der Nutzerin („Für das Gemälde brauchen wir keinen Hintergrund“); die Tapete passt zur Gesamtansicht des Raums | Eigenes Bild `hintergrund-bild.jpg` (laut Anleitung geplant) |
+| 2026-11-23 | **Keep-Alive** für das Supabase-Test-Projekt als zeitgesteuerter GitHub-Actions-Workflow, **jeden zweiten Tag**. Er fragt die Datenbank über den Session Pooler mit dem vorhandenen Secret `TEST_SUPABASE_DB_PASSWORD` ab und schreibt in eine temporäre Tabelle (`on commit drop`). Keine Migration, keine neuen Rechte, keine Datenänderung | Auslöser: Das Projekt war wegen Inaktivität pausiert, das Spiel online nicht nutzbar. Rhythmus von der Nutzerin gewünscht. Supabase pausiert bei zu wenig *Datenbank*-Aktivität innerhalb einer Woche; eine Anfrage von außen ohne echte Abfrage zählt dafür nicht sicher, eine Abfrage mit Schreibvorgang schon. GitHub Actions ist schon im Einsatz, kostet nichts zusätzlich und meldet Fehler per E-Mail | Erreichbarkeitsabfrage der API ohne Datenbankzugriff (zählt womöglich nicht); neue öffentliche Datenbankfunktion für den Browser-Schlüssel (zusätzliche Angriffsfläche, Migration nötig); externe Keep-Alive-Dienste (weiterer Anbieter mit Zugangsdaten); kostenpflichtiger Supabase-Tarif ohne Pausen |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1610,3 +1613,48 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-11-23, 10:12 – Supabase-Test-Projekt wegen Inaktivität pausiert und wiederhergestellt
+- **Auslöser:** Meldung der Nutzerin: „Ich kann den Link nicht öffnen. Es könnte damit zusammenhängen, dass mein Supabase Projekt pausiert wurde wegen inaktivität oder? Was muss ich tun?“ Danach mit Screenshot: „Ich habe das Projekt wiederhergestellt. Im Anhang findest du einen Screenshot des Fehlers“. Abschließend: „Der Fehler wurde behoben und mein Escape Room funktioniert wieder wie normal.“ Festzuhalten als Begründung für den Keep-Alive (Anweisung der Nutzerin).
+- **Durchgeführte Schritte:**
+  - **Diagnose (nur lesende Abfragen):**
+    - Die Vercel-Hauptadresse antwortete normal mit der Weiterleitung zur Vercel-Anmeldung.
+    - Die Adresse des Supabase-Projekts ließ sich nicht mehr auflösen (DNS), `supabase.com` war erreichbar. Das passt zu einem pausierten Projekt.
+    - Letzte Nutzung war der Test am 2026-10-26, also knapp vier Wochen vorher. Kostenlose Projekte pausieren nach etwa einer Woche ohne Datenbankaktivität.
+  - **Wiederherstellung** durch die Nutzerin im Supabase-Dashboard („Restore project“).
+  - **Direkt danach:** Die Startseite lud, „Spielen“ scheiterte aber mit „Das hat nicht geklappt (interner_fehler)“. Die Meldung kommt aus der Edge Function `sitzung-erstellen` beim Datenbankaufruf `erstelle_sitzung`; die Gastanmeldung war also schon gelungen.
+  - **Prüfung kurz darauf:**
+    - Die Gastanmeldung antwortete (HTTP 200).
+    - Die Edge Function lehnte eine Anfrage ohne Anmeldung korrekt ab (401).
+    - Die Datenbank antwortete, Tabelle und Funktion waren vorhanden, und anonyme Zugriffe wurden wie vorgesehen abgelehnt.
+    - Den Fehler werte ich als vorübergehend, weil die Datenbank nach der Wiederherstellung noch hochfuhr.
+  - Beim erneuten Versuch funktionierte laut Nutzerin alles wieder normal. Ohne neuen Deploy und ohne Codeänderung.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, `curl`, `dig`, Supabase-Dashboard (durch die Nutzerin)
+- **Probleme & Lösungen:** Pause wegen Inaktivität, gelöst durch Wiederherstellung. Zur Vorbeugung folgt der Keep-Alive (nächster Eintrag). Laut Supabase-Doku kann ein pausiertes kostenloses Projekt nur begrenzt wiederhergestellt werden (Angaben uneinheitlich: 90 Tage bzw. ein Jahr).
+- **Ergebnis:** Die Testversion funktioniert wieder. Der Ausfall ist die Begründung für den Keep-Alive.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-11-23, 10:12 – Keep-Alive für das Supabase-Test-Projekt eingerichtet
+- **Auslöser:** Anweisung der Nutzerin: „Richte ein Keep-Alive ein, damit so etwas nicht nocheinmal passiert. Ich denke daran dass du in regelmäßigen Abständen automatisiert eine Abfrage auf supabase machen kannst, damit dass nicht nocheinmal pausiert wird. Ich denke da an jeden zweiten Tag. Ist das machbar?“
+- **Durchgeführte Schritte:**
+  - **Recherche:** Laut Supabase-Doku pausiert ein kostenloses Projekt, wenn es innerhalb einer Woche zu wenig Datenbankaktivität bekommt. Wenige Anfragen an die Datenbank reichen, eine Garantie gibt es nicht. Nach einer inoffiziellen Aussage aus der Supabase-Community zählt eine bloße Verbindung nicht, ein Schreibvorgang aber sicher.
+  - **Neuer Workflow `.github/workflows/keep-alive.yml`:**
+    - Zeitplan `17 5 */2 * *`: jeden zweiten Tag um 05:17 UTC; am Monatsende auch zwei Tage hintereinander, die Lücke ist also nie größer als zwei Tage. Dazu ein Start per Knopf.
+    - Verbindung über den Session Pooler (IPv4) wie im Deploy-Workflow. Das Passwort kommt aus dem vorhandenen Secret `TEST_SUPABASE_DB_PASSWORD` über `PGPASSWORD`, sodass GitHub es unverändert maskiert.
+    - In einer Transaktion: temporäre Tabelle anlegen, eine Zeile schreiben, gespeicherte Sitzungen zählen. Die Tabelle verschwindet mit dem Commit. Keine Migration, keine neuen Rechte, keine Datenänderung.
+    - Nur Leserecht auf das Repository, Zeitlimit 5 Minuten, nie zwei Läufe gleichzeitig.
+  - **Lokal geprüft:** YAML gültig, Bash-Syntax geprüft, Probelauf mit einem Ersatz für `psql`. Er zeigt die gesendeten Verbindungsangaben und das SQL.
+  - **Auf GitHub getestet:** Zeitgesteuert und per Knopf startet GitHub nur Workflows auf `main`. Für einen echten Test vor dem Merge bekam der Workflow deshalb vorübergehend den Auslöser „Push auf `keep-alive`“ (Commit `ded141f`). Testlauf 45144900273 war erfolgreich: Datenbank des Test-Projekts erreicht, „Sitzungen gespeichert: 17“, Passwort im Log als `***` maskiert. Danach wurde der Auslöser entfernt (Commit `a0ae6af`).
+  - Anleitung und Abschnitt 2 ergänzt, Entscheidung in Abschnitt 3.
+- **Geänderte/neue Dateien:** `.github/workflows/keep-alive.yml`, `docs/anleitung.md`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, GitHub Actions, GitHub CLI (`gh`), Websuche (Supabase- und GitHub-Doku), Node.js (`js-yaml`), Git
+- **Probleme & Lösungen:**
+  - Der Arbeits-Worktree im Scratchpad war nach einem Neustart weg; er wurde neu angelegt.
+  - Zum Testen vor dem Merge diente der vorübergehende Push-Auslöser (siehe oben).
+- **Ergebnis:** Der Keep-Alive funktioniert gegen das Test-Projekt. **Zeitgesteuert läuft er erst, wenn er auf `main` liegt.** Merge nur nach Freigabe der Nutzerin. **Offen:** nach dem Merge den ersten zeitgesteuerten Lauf kontrollieren. Ob GitHub zeitgesteuerte Workflows in privaten Repositories nach 60 Tagen ohne Aktivität deaktiviert, ist nicht dokumentiert; Hinweis in der Anleitung.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** `ded141f`, `a0ae6af`

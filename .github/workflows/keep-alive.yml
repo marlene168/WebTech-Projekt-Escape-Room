@@ -1,0 +1,52 @@
+# Keep-Alive für das Supabase-Test-Projekt: alle zwei Tage eine echte Datenbankabfrage.
+# Kostenlose Supabase-Projekte pausieren nach etwa einer Woche ohne Datenbankaktivität
+# (am 2026-11-23 passiert, siehe DOKUMENTATION.md). Ein reiner Erreichbarkeitstest von außen
+# zählt dafür nicht sicher, deshalb fragt dieser Workflow die Datenbank direkt ab und schreibt
+# in eine temporäre Tabelle, die am Ende der Transaktion wieder verschwindet. Daten werden
+# dabei nicht verändert, es braucht keine Migration und keine zusätzlichen Rechte.
+#
+# Startet zeitgesteuert (nur von main) oder von Hand: GitHub → Actions → „Keep-Alive“ → „Run workflow“.
+# Schlägt ein Lauf fehl, schickt GitHub eine E-Mail.
+name: Keep-Alive
+
+on:
+  schedule:
+    - cron: "17 5 */2 * *" # jeden zweiten Tag um 05:17 UTC (am Monatsende auch zwei Tage hintereinander)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-alive
+  cancel-in-progress: false
+
+# Session Pooler (IPv4) wie im Deploy-Workflow: GitHub-Runner können kein IPv6.
+# Host, Port und Nutzer sind nicht geheim, das Passwort kommt nur aus dem Secret.
+env:
+  POOLER_HOST: aws-0-eu-west-2.pooler.supabase.com
+  POOLER_PORT: "5432"
+  POOLER_NUTZER: postgres.lfqcvevtzddxaywshxwg
+
+jobs:
+  datenbank:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Datenbank abfragen (Session Pooler, IPv4)
+        env:
+          # Über PGPASSWORD statt in einer Verbindungsadresse: GitHub maskiert den unveränderten Secret-Wert
+          PGPASSWORD: ${{ secrets.TEST_SUPABASE_DB_PASSWORD }}
+        run: |
+          command -v psql >/dev/null || { sudo apt-get update -q && sudo apt-get install -y -q postgresql-client; }
+          anzahl=$(psql "host=$POOLER_HOST port=$POOLER_PORT user=$POOLER_NUTZER dbname=postgres sslmode=require connect_timeout=30" \
+            -v ON_ERROR_STOP=1 -q -t -A <<'SQL'
+          begin;
+          create temporary table lebenszeichen (zeit timestamptz) on commit drop;
+          insert into lebenszeichen values (now());
+          select count(*) from public.sitzungen;
+          commit;
+          SQL
+          )
+          echo "Datenbank erreichbar, Sitzungen gespeichert: $anzahl"
+          echo "- ✅ Keep-Alive: Datenbank abgefragt ($anzahl Sitzungen gespeichert)" >> "$GITHUB_STEP_SUMMARY"
