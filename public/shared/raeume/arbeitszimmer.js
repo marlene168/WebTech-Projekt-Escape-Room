@@ -39,7 +39,7 @@ export default {
         "Heute Abend steht die Tür zu seinem Arbeitszimmer einen Spalt offen. Drinnen brennt noch die Schreibtischlampe. Kaum bist du eingetreten, fällt die Tür hinter dir ins Schloss, und mit einem metallischen Klicken rastet das Zahlenschloss ein.",
         "Auf dem Schreibtisch glänzt frische Tinte. Wer war gerade noch hier? In zehn Minuten schließt der Hausmeister das Gebäude ab, und bis dahin musst du hier raus.",
       ],
-      video: null,
+      video: "videos/arbeitszimmer/intro.mp4", // startet erst nach Klick auf "▶ Geschichte ansehen"
     },
     gewonnen: {
       text: [

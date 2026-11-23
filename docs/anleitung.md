@@ -210,6 +210,12 @@ Ablage: `public/bilder/arbeitszimmer/`. Alle Grafiken sollten im **gleichen Stil
 Erzeugt das Werkzeug keinen transparenten Hintergrund, lässt er sich nachträglich entfernen, z. B. mit der Funktion „Hintergrund entfernen“ in neueren Versionen der macOS-App Vorschau.
 
 ### Videos (optional)
+**Stand 2026-11-23:** Das Intro-Video ist eingebunden (`intro.mp4`, 20 s, 1280×720, 13,4 MB). Es wurde aus dem iMovie-Export der Nutzerin (24,7 MB, etwa 10 Mbit/s) mit dem macOS-Werkzeug `avconvert` verkleinert:
+```bash
+avconvert --source "Escape Room_Intro1.mp4" --preset Preset1280x720 --output public/videos/arbeitszimmer/intro.mp4
+```
+Das Ergebnis bleibt H.264/AAC, kann schon vor dem vollständigen Laden starten (`moov` vor `mdat`) und hat etwa 5,6 Mbit/s. Noch kleiner ginge nur mit einem Export in mittlerer Qualität aus iMovie oder mit zusätzlicher Software. Outro- und Verloren-Video fehlen noch.
+
 Ablage: `public/videos/arbeitszimmer/`. Alle aus der **Ich-Perspektive der Studierenden**.
 
 - **Format:** MP4 (H.264-Video, AAC-Ton), 16:9, 1280×720 px, etwa 2 Mbit/s
