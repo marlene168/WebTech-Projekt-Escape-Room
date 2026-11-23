@@ -13,7 +13,7 @@
 - **Repository:** https://github.com/marlene168/WebTech-Projekt-Escape-Room
 
 ## 2. Aktueller Stand
-_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Alle Szenen und Gegenstände mit eigenen Grafiken (vorläufig); das Gemälde bewusst mit dem Platzhalter „Tapete“ als Hintergrund. Videos und Schreck-Ton noch als Platzhalter. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
+_Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und in der geschützten Online-Testversion** (Meilenstein 1 lokal und online erfüllt). Ein Raum. Alle Szenen und Gegenstände mit eigenen Grafiken (vorläufig); das Gemälde bewusst mit dem Platzhalter „Tapete“ als Hintergrund. Intro-Video eingebunden; Outro- und Verloren-Video sowie Schreck-Ton noch als Platzhalter bzw. Ersatzton. Die öffentliche Version gibt es noch nicht (nur nach ausdrücklicher Freigabe)._
 
 **Umgesetzt:**
 
@@ -171,6 +171,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
 | 2026-10-26 | Rahmenecke des Gemäldes als **versteckte Klickfläche** (`unsichtbar: true`) statt eines Lupen-Objekts; die rote 4 wird per Skript ins Bild des Gemäldes gesetzt (`gemaelde-nah.webp`). Die Klickfläche hat keinen Tooltip, und das Gemälde darunter leuchtet beim Darüberfahren weiter | Wunsch der Nutzerin, die Lupe wegzulassen und die Spur über einen Klick auf die Ecke mit der 4 zu finden. Eine Klickfläche braucht kein zusätzliches Bild. Die gesetzte Ziffer ist sicher lesbar; Bildgeneratoren schreiben Ziffern oft fehlerhaft. Tooltip und erlöschendes Leuchten hätten die Stelle verraten | Lupe als eigenes Bild (Vorschlag der Nutzerin als Ausweichlösung); Klickfläche mit sichtbarem Hover-Effekt |
 | 2026-10-26 | Die Nahansicht des Gemäldes bekommt **keinen eigenen Hintergrund**; der Platzhalter „Tapete“ bleibt | Entscheidung der Nutzerin („Für das Gemälde brauchen wir keinen Hintergrund“); die Tapete passt zur Gesamtansicht des Raums | Eigenes Bild `hintergrund-bild.jpg` (laut Anleitung geplant) |
 | 2026-11-23 | **Keep-Alive** für das Supabase-Test-Projekt als zeitgesteuerter GitHub-Actions-Workflow, **jeden zweiten Tag**. Er fragt die Datenbank über den Session Pooler mit dem vorhandenen Secret `TEST_SUPABASE_DB_PASSWORD` ab und schreibt in eine temporäre Tabelle (`on commit drop`). Keine Migration, keine neuen Rechte, keine Datenänderung | Auslöser: Das Projekt war wegen Inaktivität pausiert, das Spiel online nicht nutzbar. Rhythmus von der Nutzerin gewünscht. Supabase pausiert bei zu wenig *Datenbank*-Aktivität innerhalb einer Woche; eine Anfrage von außen ohne echte Abfrage zählt dafür nicht sicher, eine Abfrage mit Schreibvorgang schon. GitHub Actions ist schon im Einsatz, kostet nichts zusätzlich und meldet Fehler per E-Mail | Erreichbarkeitsabfrage der API ohne Datenbankzugriff (zählt womöglich nicht); neue öffentliche Datenbankfunktion für den Browser-Schlüssel (zusätzliche Angriffsfläche, Migration nötig); externe Keep-Alive-Dienste (weiterer Anbieter mit Zugangsdaten); kostenpflichtiger Supabase-Tarif ohne Pausen |
+| 2026-11-23 | Intro-Video mit dem macOS-Werkzeug `avconvert` (Voreinstellung `Preset1280x720`) von 24,7 auf **13,4 MB** verkleinert und so eingebunden, obwohl die Anleitung unter 8 MB empfiehlt | Halbe Ladegröße bei gleicher Auflösung und gleichem Format (H.264/AAC); das Video startet schon vor dem vollständigen Laden und erst nach einem Klick. Kleiner ginge nur mit zusätzlicher Software oder einem neuen Export der Nutzerin. Empfehlung von Claude, von der Nutzerin nicht widersprochen | Original mit 24,7 MB (10 Mbit/s); zusätzliche Software (z. B. ffmpeg) installieren; HEVC (in manchen Browsern nicht abspielbar) |
 
 ## 4. Entwicklungsprotokoll (chronologisch)
 
@@ -1672,3 +1673,29 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** keiner (keine Code-Änderung)
+
+### 2026-11-23, 11:13 – Intro-Video für das Arbeitszimmer eingebunden
+- **Auslöser:** Nachricht der Nutzerin: „Ich habe jetzt die finale Videointro Datei für diesen Escape Room. Wie kann ich sie integrieren?“ Auf die Rückfrage nach der Datei: „Das Video ist im Downloads Ordner in meinem FInder“.
+- **Durchgeführte Schritte:**
+  - **Gefunden:** `~/Downloads/Escape Room_Intro1.mp4` (iMovie-Export vom 2026-11-23), daneben die einzelnen `gemini_generated_video_…`-Clips. Auf Bestätigung der Nutzerin als finale Fassung genommen.
+  - **Geprüft:** H.264/AAC, 1280×720 (16:9), 20 s, aber 24,7 MB (etwa 10 Mbit/s) statt der empfohlenen unter 8 MB. `moov` liegt vor `mdat`, das Video kann also vor dem vollständigen Laden starten.
+  - **Verkleinert** mit `avconvert --preset Preset1280x720` auf 13,4 MB (etwa 5,6 Mbit/s, weiter H.264/AAC, `moov` vorn). Zur Größe hat die Nutzerin sich nicht geäußert, deshalb die empfohlene Fassung (Abschnitt 3). Original unverändert, nicht im Repository.
+  - **Eingebunden:** `public/videos/arbeitszimmer/intro.mp4`, in der Raumdatei `geschichte.intro.video` gesetzt. Keine Codeänderung, die Video-Unterstützung besteht seit Schritt 9c.
+  - **Getestet** (lokal, Chrome headless mit Desktop-Autoplay-Regel, echte Klicks, temporäre Vorschauseite ohne Backend, nicht eingecheckt):
+    - Das Intro zeigt „▶ Geschichte ansehen“ und „Raum betreten“.
+    - Nach dem Klick läuft das Video mit Ton (nach 3 s bei 2,87 s von 20,02 s, nicht pausiert, nicht stumm, 1280×720, kein Fehler).
+    - Der Intro-Text bleibt als Untertitel stehen.
+    - „Überspringen ⏭“ entfernt das Video, das Intro-Fenster bleibt offen.
+    - Der lokale Server liefert Teilabrufe (HTTP 206).
+    - `npm test` 68 von 68.
+  - **Nachweis:** `docs/nachweise/2026-11-23_medien_intro-video.jpg`.
+- **Geänderte/neue Dateien:** `public/videos/arbeitszimmer/intro.mp4`, `public/shared/raeume/arbeitszimmer.js`, `docs/anleitung.md`, `docs/nachweise/2026-11-23_medien_intro-video.jpg`, `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, `avconvert` und `mdls` (macOS), Python (Prüfung der MP4-Struktur), Google Chrome (headless, DevTools-Protokoll), Git
+- **Probleme & Lösungen:** Der Scratchpad war nach einem Neustart geleert: Testskripte und die `node_modules`-Verknüpfung des Worktrees fehlten und wurden neu angelegt.
+- **Ergebnis:** Das Intro-Video ist eingebunden und lokal geprüft. **Offen:**
+  - Merge und Deploy in die Testversion (nach Freigabe), danach Sichtprüfung der Nutzerin. Wie sich Vercel bei einer 13-MB-Datei verhält, ist online noch nicht geprüft.
+  - Safari und Mobilgeräte nicht getestet.
+  - Outro- und Verloren-Video sowie der Schreck-Ton fehlen noch.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** Die Datei ist größer als die in der Anleitung empfohlenen 8 MB (Abschnitt 3).
+- **Git-Commit:** `6123ea0`
