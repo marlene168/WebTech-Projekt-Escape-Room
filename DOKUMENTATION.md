@@ -1658,3 +1658,17 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** keine
 - **Git-Commit:** `ded141f`, `a0ae6af`
+
+### 2026-11-23, 10:19 – Merge von PR #12: Keep-Alive auf main aktiv
+- **Auslöser:** Freigabe der Nutzerin: „Ja merge gern“.
+- **Durchgeführte Schritte:**
+  - PR #12 geprüft (ohne Konflikte, Head `3a8e07b`, alle CI-Prüfungen grün) und mit Merge-Commit nach `main` zusammengeführt (`2870662`).
+  - Workflow „Keep-Alive“ ist laut GitHub aktiv.
+  - Einmal von Hand auf `main` gestartet (Lauf 45145951124, Commit `2870662`): erfolgreich, Datenbank erreicht, „Sitzungen gespeichert: 17“, Passwort maskiert.
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, GitHub CLI (`gh`), GitHub Actions
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Der Keep-Alive läuft ab jetzt jeden zweiten Tag zeitgesteuert von `main`. **Offen:** den ersten zeitgesteuerten Lauf (nächster ungerader Tag des Monats, 05:17 UTC) unter Actions → Keep-Alive kontrollieren.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
