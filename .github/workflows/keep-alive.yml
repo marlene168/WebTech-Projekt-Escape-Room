@@ -13,8 +13,6 @@ on:
   schedule:
     - cron: "17 5 */2 * *" # jeden zweiten Tag um 05:17 UTC (am Monatsende auch zwei Tage hintereinander)
   workflow_dispatch:
-  push: # NUR VORÜBERGEHEND für den ersten Testlauf, wird im nächsten Commit entfernt
-    branches: [keep-alive]
 
 permissions:
   contents: read
