@@ -74,7 +74,7 @@ _Stand: AP 5 abgeschlossen (2026-10-23). **Online-Mehrspieler läuft lokal und i
     - `nachweise/`: Screenshots als Nachweise von Tests (z. B. CAPTCHA-Ablauftest in AP 5)
 - **Wichtigste Dateien:** `public/js/verbindung-online.js`, `public/js/main.js`, `public/shared/spiel-logik.js`, `public/shared/raeume/arbeitszimmer.js`, `supabase/functions/_shared/kern.js`, `supabase/functions/aktion/index.js`, `supabase/migrations/20261022141522_sitzungen.sql`, `docs/anleitung.md`
 - **Grafiken, Videos, Ton austauschen und neue Räume anlegen:** siehe [`docs/anleitung.md`](docs/anleitung.md)
-- **Online-Testumgebung (seit 2026-10-23 online; fünf Deployments, Rauchtest zuletzt bestanden):**
+- **Online-Testumgebung (seit 2026-10-23 online; sechs Deployments, Rauchtest zuletzt 14 von 14):**
   - Deployment per Knopf: GitHub → Actions → „Deploy“ (`.github/workflows/deploy.yml`), mit Rauchtest `test-online/rauchtest.mjs`. Siehe `docs/anleitung.md`.
   - Gastanmeldung online nur mit Turnstile (von Supabase geprüft). Höchstens 10 neue Sitzungen pro Gast und Stunde.
   - Keep-Alive: Ein zeitgesteuerter Workflow fragt jeden zweiten Tag die Datenbank ab, damit das kostenlose Projekt nicht wieder pausiert (am 2026-11-23 nach knapp vier Wochen ohne Nutzung geschehen). Siehe `docs/anleitung.md`.
@@ -1699,3 +1699,16 @@ VORLAGE FÜR PLANUNGSEINTRÄGE (nicht löschen, Einträge darunter anhängen):
 - **Bezug zur Planung:** keiner
 - **Abweichungen vom Plan:** Die Datei ist größer als die in der Anleitung empfohlenen 8 MB (Abschnitt 3).
 - **Git-Commit:** `6123ea0`
+
+### 2026-11-23, 11:26 – Merge von PR #13 und Deploy #6 (Intro-Video in der Testversion)
+- **Auslöser:** Freigabe der Nutzerin: „Ja merge und deploye“.
+- **Durchgeführte Schritte:**
+  - PR #13 geprüft (ohne Konflikte, Head `ed71ef3`, alle CI-Prüfungen grün) und mit Merge-Commit nach `main` zusammengeführt (`888be9a`).
+  - Deploy-Workflow für das Ziel `test` ausgelöst (Lauf 45155424200, Commit `888be9a`). Alle Jobs grün, Rauchtest **14 von 14**. Hochgeladen wurden 35 Dateien aus `public/` und `vercel.json`, darunter das Intro-Video (13,4 MB).
+- **Geänderte/neue Dateien:** `DOKUMENTATION.md`
+- **Genutzte Tools:** Claude Code, GitHub CLI (`gh`), GitHub Actions
+- **Probleme & Lösungen:** keine
+- **Ergebnis:** Das Intro-Video ist in der geschützten Testversion bereitgestellt. **Offen:** Sichtprüfung durch die Nutzerin (Video startet nach „▶ Geschichte ansehen“, Ladezeit online). Ein öffentlicher Release fand nicht statt.
+- **Bezug zur Planung:** keiner
+- **Abweichungen vom Plan:** keine
+- **Git-Commit:** keiner (keine Code-Änderung)
